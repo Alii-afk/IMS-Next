@@ -140,9 +140,58 @@ export const columns = [
 
 
 
+
 export const StatusOption = [
     { label: "Pending", value: "Pending" },
     { label: "Declined", value: "Declined" },
     { label: "Accepted", value: "Accepted" },
 
 ]
+
+
+export const stockmanagementdata = [
+  { key: 'stockName', name: 'Stock Name' },
+  { key: 'modelNumber', name: 'Model Number' },
+  { key: 'manufacturer', name: 'Manufacturer' },
+  { key: 'serialNumber', name: 'Serial Number' },
+  { key: 'action', name: 'Actions' },
+];
+
+
+export const filteredData = [
+  {
+    id: 1,
+    stockName: 'Laptop XYZ',
+    modelNumber: 'LPT-1001',
+    manufacturer: 'TechCorp',
+    serialNumber: '123ABC456',
+  },
+  {
+    id: 2,
+    stockName: 'Smartphone ABC',
+    modelNumber: 'SP-2002',
+    manufacturer: 'PhoneCo',
+    serialNumber: '789DEF012',
+  },
+  {
+    id: 3,
+    stockName: 'Tablet Pro',
+    modelNumber: 'TAB-3003',
+    manufacturer: 'TabMaster',
+    serialNumber: '345GHI678',
+  },
+  {
+    id: 4,
+    stockName: 'Smartwatch ZX',
+    modelNumber: 'SW-4004',
+    manufacturer: 'Wearables Inc.',
+    serialNumber: '901JKL234',
+  },
+  {
+    id: 5,
+    stockName: 'Monitor 24"',
+    modelNumber: 'MON-5005',
+    manufacturer: 'ViewVision',
+    serialNumber: '567MNO890',
+  },
+];

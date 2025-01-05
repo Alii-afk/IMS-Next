@@ -3,7 +3,7 @@ import React from 'react'
 
 const Backofficetodos = () => {
   return (
-    <div className="min-h-screen max-w-7xl mx-auto bg-white flex">
+    <div className="min-h-screen bg-white flex">
     {/* Sidebar Component */}
     <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md" />
       

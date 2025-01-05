@@ -16,7 +16,7 @@ const FileUpload = ({ label, icon: Icon, name, onFileChange,error }) => {
       <label htmlFor={name} className="text-base font-medium text-gray-900">
         {label}
       </label>
-      <div className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 py-12 text-center hover:border-gray-400 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden">
+      <div className="relative block w-full rounded-lg border border-dashed border-gray-500 py-12 text-center hover:border-gray-400 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden">
         {Icon && (
           <Icon
             fill="none"

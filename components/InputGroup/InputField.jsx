@@ -20,7 +20,7 @@ const InputField = ({
           name={name}
           type={type} // Allow dynamic input type, including "datetime-local"
           placeholder={type !== "date" && type !== "datetime-local" ? placeholder : ""} // Remove placeholder for date/time inputs
-          className={`block w-full rounded-md bg-white border border-gray-500 py-3 pr-3  ${showIcon ? "pl-10" : "pl-3"} text-base text-gray-900 outline-1 outline-none -outline-offset-1 outline-gray-700  placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 sm:text-sm`}
+          className={`block w-full rounded-md bg-white border border-gray-100 py-3 pr-3  ${showIcon ? "pl-10" : "pl-3"} text-base text-gray-900 outline-1 outline-none -outline-offset-1 outline-gray-700  placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 sm:text-sm`}
           {...(register ? register(name) : {})} // Register the input if provided (for React Hook Form)
           defaultValue={defaultValue} // Added defaultValue handling
         />

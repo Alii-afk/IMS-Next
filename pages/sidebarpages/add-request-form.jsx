@@ -21,6 +21,7 @@ const AddRequestForm = () => {
   const methods = useForm({
     resolver: yupResolver(addValidationSchema),
   });
+
   const handleSelectChange = (e) => {
     setSelectedValue(e.target.value);
   };
@@ -30,18 +31,16 @@ const AddRequestForm = () => {
   };
 
   return (
-    <div className="min-h-screen max-w-7xl mx-auto bg-white flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar Component */}
-      <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md" />
+      <Sidebar className="min-h-screen fixed  bg-white shadow-md hidden md:block" />
 
       {/* Main Content Area */}
-      <div className="md:ml-72 lg:ml-0 flex-1">
+      <div className="flex-1 md:ml-72 ml-32">
         {/* Header */}
-        <div className="bg-white shadow-sm ">
-          <div className="flex max-w-7xl mx-auto px-6 md:items-start items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Add Request Form
-            </h1>
+        <div className="bg-white shadow-sm">
+          <div className="flex max-w-7xl mx-auto px-6 py-4 md:items-start items-center">
+            <h1 className="text-2xl font-bold text-gray-900">Add Request Form</h1>
           </div>
         </div>
 
@@ -49,18 +48,12 @@ const AddRequestForm = () => {
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-xl font-bold text-gray-900">
-              Add New Task Request
-            </h1>
+            <h1 className="text-xl font-bold text-gray-900">Add New Task Request</h1>
           </div>
 
           {/* Form */}
-          {/* Form */}
           <FormProvider {...methods}>
-            <form
-              onSubmit={methods.handleSubmit(onSubmit)}
-              className="space-y-6"
-            >
+            <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
               <InputField
                 label="Name"
                 name="name"
@@ -68,7 +61,7 @@ const AddRequestForm = () => {
                 placeholder="Enter Name"
                 type="text"
                 register={methods.register}
-                error={methods.formState.errors.name?.message} // Pass error message
+                error={methods.formState.errors.name?.message}
               />
 
               <InputField
@@ -78,7 +71,7 @@ const AddRequestForm = () => {
                 type="text"
                 icon={GrOrganization}
                 register={methods.register}
-                error={methods.formState.errors.organization?.message} // Pass error message
+                error={methods.formState.errors.organization?.message}
               />
 
               <InputField
@@ -88,7 +81,7 @@ const AddRequestForm = () => {
                 icon={CiCalendarDate}
                 placeholder="Enter Date & Time"
                 register={methods.register}
-                error={methods.formState.errors.date_time?.message} // Pass error message
+                error={methods.formState.errors.date_time?.message}
               />
 
               {/* Manually register SelectField */}
@@ -100,8 +93,9 @@ const AddRequestForm = () => {
                 icon={FileType}
                 showIcon={true}
                 options={TypeOptions}
-                error={methods.formState.errors.type?.message} // Pass error message
+                error={methods.formState.errors.type?.message}
               />
+
               <InputField
                 label="Notes"
                 name="notes"
@@ -109,15 +103,16 @@ const AddRequestForm = () => {
                 icon={TbFileDescription}
                 placeholder="Enter Notes"
                 register={methods.register}
-                error={methods.formState.errors.notes?.message} // Pass error message
+                error={methods.formState.errors.notes?.message}
               />
+
               {selectedValue === "Programming" && (
                 <InputSearch
                   options={people}
                   label="Product List"
                   enableSearch={true}
                   register={methods.register}
-                  error={methods.formState.errors.productList?.message} // Display error for product list
+                  error={methods.formState.errors.productList?.message}
                 />
               )}
 
@@ -129,7 +124,7 @@ const AddRequestForm = () => {
                   icon={MdNumbers}
                   placeholder="Serial Number"
                   register={methods.register}
-                  error={methods.formState.errors.serialNo?.message} // Pass error message
+                  error={methods.formState.errors.serialNo?.message}
                 />
               )}
 
@@ -141,7 +136,7 @@ const AddRequestForm = () => {
                   icon={MdNumbers}
                   placeholder="Enter ID"
                   register={methods.register}
-                  error={methods.formState.errors.id?.message} // Pass error message
+                  error={methods.formState.errors.id?.message}
                 />
               )}
 
@@ -153,7 +148,7 @@ const AddRequestForm = () => {
                   icon={TbFileDescription}
                   placeholder="Enter Description"
                   register={methods.register}
-                  error={methods.formState.errors.description?.message} // Pass error message
+                  error={methods.formState.errors.description?.message}
                 />
               )}
 
@@ -166,7 +161,7 @@ const AddRequestForm = () => {
                       label="Attach a Supporting Document"
                       icon={AiOutlineFilePdf}
                       onFileChange={(file) => field.onChange(file)}
-                      error={methods.formState.errors.pdfUpload?.message} // Pass error message
+                      error={methods.formState.errors.pdfUpload?.message}
                     />
                   )}
                 />

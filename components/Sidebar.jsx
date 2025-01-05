@@ -16,7 +16,10 @@ import {
 const Sidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
-  
+
+  const handleLogout = () => {
+    router.push('http://localhost:3000');
+  };
   const navigation = [
     { name: 'Home', href: '/sidebarpages/home', icon: HomeIcon, current: true },
     { name: 'Add Request Form', href: '/sidebarpages/add-request-form', icon: UsersIcon, current: false },
@@ -30,7 +33,6 @@ const Sidebar = () => {
     { name: 'User Management', href: '/sidebarpages/user-management', icon: ChartPieIcon, current: false },
     { name: 'Profile', href: '/sidebarpages/profile', icon: ChartPieIcon, current: false },
   ];
-  
 
   // Close sidebar on outside click for mobile
   useEffect(() => {
@@ -45,16 +47,16 @@ const Sidebar = () => {
   }, [sidebarOpen]);
 
   return (
-    <div className=" bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Backdrop */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 lg:hidden z-40" />
+        <div className="fixed inset-0 bg-black/50 lg:hidden z-30" /> // Adjusted opacity and z-index
       )}
 
       {/* Mobile Toggle */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 md:left-4 right-4  p-2 rounded-lg bg-white shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="lg:hidden fixed top-4 md:left-4 right-4 p-2 rounded-lg bg-white shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         {sidebarOpen ? (
           <XMarkIcon className="w-6 h-6" />
@@ -65,9 +67,19 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <div
-        className={`sidebar fixed top-0 md:left-0 right-0 h-full bg-white shadow-2xl transform transition-transform duration-300 ease-in-out w-72 
-          ${sidebarOpen ? 'translate-x-0' : 'md:-translate-x-full translate-x-full'} lg:translate-x-0`}
+        className={`sidebar fixed top-0 left-0 h-full z-40 bg-white shadow-lg transform transition-transform duration-300 ease-in-out 
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+          lg:translate-x-0 flex flex-col w-72 `}
       >
+        {/* Logo Section */}
+        <div className="p-6 border-b border-gray-200 flex items-center justify-center">
+          <img
+            src="https://sal-dashboard.demobykiranpal.in/main_logo2.jpg"
+            alt="Logo"
+            className="w-32 h-auto object-contain"
+          />
+        </div>
+
         {/* Profile Section */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center space-x-4">
@@ -88,7 +100,7 @@ const Sidebar = () => {
 
         {/* Navigation */}
         <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-160px)] hide-scrollbar">
-        {navigation.map((item) => {
+          {navigation.map((item) => {
             const isActive = router.pathname === item.href;
             const IconComponent = item.icon;
             
@@ -103,9 +115,7 @@ const Sidebar = () => {
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
               >
                 <IconComponent 
-                  className={`h-6 w-6 flex-shrink-0 ${
-                    isActive ? 'text-indigo-600' : 'text-gray-400'
-                  }`}
+                  className={`h-6 w-6 flex-shrink-0 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`}
                 />
                 <span className="font-medium">{item.name}</span>
                 {isActive && (
@@ -118,11 +128,16 @@ const Sidebar = () => {
 
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
-          <div className="flex items-center justify-between">
-            <button className="text-sm text-gray-500 hover:text-gray-700">Settings</button>
-            <button className="text-sm text-gray-500 hover:text-gray-700">Logout</button>
-          </div>
-        </div>
+      <div className="flex items-center justify-between">
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className="text-sm text-gray-500 hover:text-gray-700"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
       </div>
     </div>
   );

@@ -28,7 +28,19 @@ const LoginForm = ({ onLoginSuccess }) => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-200">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-semibold mb-4">Login</h2>
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="https://sal-dashboard.demobykiranpal.in/main_logo2.jpg"
+            alt="Logo"
+            className="w-32 h-auto object-contain"
+          />
+        </div>
+
+        <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">
+          Login
+        </h2>
+
         {/* Wrap the form with FormProvider */}
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>

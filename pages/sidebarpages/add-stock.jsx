@@ -13,20 +13,20 @@ import validationSchema from "@/components/validation/validationSchema ";
 
 const Addstock = () => {
   const methods = useForm({
-    resolver: yupResolver(validationSchema), 
+    resolver: yupResolver(validationSchema),
   });
 
   // Handle form submission
   const onSubmit = (data) => {
-    console.log(data); 
+    console.log(data);
   };
 
   return (
-    <div className="min-h-screen max-w-7xl mx-auto bg-white flex">
+    <div className="min-h-screen  bg-white flex">
       {/* Sidebar Component */}
-      <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md" />
+      <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 
-      <div className="md:ml-72 lg:ml-0 flex-1">
+      <div className="flex-1 md:ml-72 ">
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="flex max-w-7xl mx-auto px-6 md:items-start items-center py-4">
@@ -56,7 +56,6 @@ const Addstock = () => {
                   type="text"
                   register={methods.register}
                   error={methods.formState.errors.stockName?.message}
-
                 />
 
                 {/* Model Number */}
@@ -68,7 +67,6 @@ const Addstock = () => {
                   type="text"
                   register={methods.register}
                   error={methods.formState.errors.modelNumber?.message}
-
                 />
 
                 {/* Manufacturer */}
@@ -80,7 +78,6 @@ const Addstock = () => {
                   type="text"
                   register={methods.register}
                   error={methods.formState.errors.manufacturer?.message}
-
                 />
 
                 {/* Serial Number */}
@@ -92,7 +89,6 @@ const Addstock = () => {
                   type="text"
                   register={methods.register}
                   error={methods.formState.errors.serialNumber?.message}
-
                 />
 
                 {/* Submit Button */}
