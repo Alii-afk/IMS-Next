@@ -19,13 +19,13 @@ export default function InputSearch({ options, label }) {
         <Listbox value={selected} onChange={setSelected}>
           <Listbox.Button className="w-full cursor-default rounded-md border-gray-300 py-3 pl-3 pr-10  text-sm focus:outline-none ">
             <span className="flex items-center gap-2">
-              {selected && selected.avatar && (
+              {/* {selected && selected.avatar && (
                 <img
                   alt=""
                   src={selected.avatar}
                   className="h-5 w-5 rounded-full"
                 />
-              )}
+              )} */}
               <span>{selected ? selected.name : "Select an option"}</span>
             </span>
             <ChevronUpDownIcon
@@ -56,11 +56,11 @@ export default function InputSearch({ options, label }) {
                 className="group relative cursor-default select-none py-2 pl-3 pr-9 text-gray-900 hover:bg-indigo-100"
               >
                 <div className="flex items-center">
-                  <img
+                  {/* <img
                     alt=""
                     src={person.avatar}
                     className="h-5 w-5 rounded-full mr-2"
-                  />
+                  /> */}
                   <span className="block truncate">{person.name}</span>
                 </div>
                 {selected?.id === person.id && (
