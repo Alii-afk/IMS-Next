@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { MdEdit } from "react-icons/md";
+import React, { useState, useEffect } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import RoleAssignmentModal from "../models/RoleAssignmentModel";
 
@@ -13,14 +12,12 @@ const UserTable = ({ columns, data, searchEnabled }) => {
     setSearchQuery(e.target.value);
   };
 
-  // Filter the data based on search query
-  const filteredData = data.filter((user) => {
+  // Ensure data and data.users are available before filtering
+  const filteredData = (data?.users || []).filter((user) => {
+    // Check if the search query matches any of the column data (e.g., name, email)
     return columns.some((column) => {
-      const value = user[column.accessor];
-      return value
-        ?.toString()
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
+      const value = user[column.accessor]?.toString().toLowerCase();
+      return value?.includes(searchQuery.toLowerCase());
     });
   });
 
@@ -35,6 +32,11 @@ const UserTable = ({ columns, data, searchEnabled }) => {
     setIsModalOpen(false); // Trigger modal close animation
     setTimeout(() => setIsModalOpen(false), 300); // Close modal after animation duration
   };
+
+  // Log filtered data to check if it has any results
+  useEffect(() => {
+    console.log("Filtered Data:", filteredData);
+  }, [filteredData]);
 
   return (
     <div className="p-6 bg-gray-50 border rounded-lg shadow-lg">
@@ -51,7 +53,7 @@ const UserTable = ({ columns, data, searchEnabled }) => {
         </div>
       )}
 
-      <table className="min-w-full bg-white ">
+      <table className="min-w-full bg-white">
         <thead className="bg-gray-100">
           <tr>
             {columns.map((column) => (
@@ -68,29 +70,37 @@ const UserTable = ({ columns, data, searchEnabled }) => {
           </tr>
         </thead>
         <tbody>
-          {filteredData.map((row, index) => (
-            <tr
-              key={index}
-              className="border-b border-gray-200 hover:bg-gray-50 transition duration-300"
-            >
-              {columns.map((column) => (
-                <td
-                  key={column.accessor}
-                  className="px-6 py-4 text-sm text-gray-700"
-                >
-                  {row[column.accessor]}
+          {filteredData.length > 0 ? (
+            filteredData.map((row, index) => (
+              <tr
+                key={index}
+                className="border-b border-gray-200 hover:bg-gray-50 transition duration-300"
+              >
+                {columns.map((column) => (
+                  <td
+                    key={column.accessor}
+                    className="px-6 py-4 text-sm text-gray-700"
+                  >
+                    {row[column.accessor]} {/* Display value based on column */}
+                  </td>
+                ))}
+                <td className="px-6 py-4">
+                  <button
+                    onClick={() => handleRoleAssignment(row)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
+                  >
+                    Assign Role
+                  </button>
                 </td>
-              ))}
-              <td className="px-6 py-4">
-                <button
-                  onClick={() => handleRoleAssignment(row)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
-                >
-                  Assign Role
-                </button>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={columns.length + 1} className="text-center py-4 text-gray-500">
+                No data found
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 

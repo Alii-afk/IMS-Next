@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import Sidebar from "@/components/Sidebar";
 import InputField from "@/components/InputGroup/InputField";
@@ -18,6 +18,8 @@ import addValidationSchema from "@/components/validation/AddValidationSchema";
 
 const AddRequestForm = () => {
   const [selectedValue, setSelectedValue] = useState("");
+  const [serialInputs, setSerialInputs] = useState([]);
+
   const methods = useForm({
     resolver: yupResolver(addValidationSchema),
   });
@@ -26,14 +28,46 @@ const AddRequestForm = () => {
     setSelectedValue(e.target.value);
   };
 
+  const quantityNumber = methods.watch("quantityNumber");
+
+  useEffect(() => {
+    const quantity = parseInt(quantityNumber) || 0;
+    const newInputs = Array.from({ length: quantity }, (_, index) => ({
+      id: `serialNumber${index + 1}`,
+      value: "",
+    }));
+    setSerialInputs(newInputs);
+  }, [quantityNumber]);
+
   const onSubmit = (data) => {
-    console.log("Form data:", data);
+    // Filter out empty serial numbers
+    const serialNumbers = Object.keys(data)
+      .filter((key) => key.startsWith("serialNumber") && data[key] !== "")
+      .map((key) => data[key]);
+
+    // Create cleaned submission data
+    const submissionData = {
+      name: data.name,
+      organization: data.organization,
+      date_time: data.date_time,
+      quantityNumber: data.quantityNumber,
+      serialNumbers,
+      type: data.type,
+      notes: data.notes,
+      productList: data.productList,
+      serialNo: data.serialNo,
+      id: data.id,
+      description: data.description,
+      pdfUpload: data.pdfUpload,
+    };
+
+    console.log("Cleaned submission data:", submissionData);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar Component */}
-      <Sidebar className="min-h-screen fixed  bg-white shadow-md hidden md:block" />
+      <Sidebar className="min-h-screen fixed bg-white shadow-md hidden md:block" />
 
       {/* Main Content Area */}
       <div className="flex-1 md:ml-72 ml-32">
@@ -84,6 +118,39 @@ const AddRequestForm = () => {
                 error={methods.formState.errors.date_time?.message}
               />
 
+              <InputField
+                label="Enter the Quantity Number"
+                name="quantityNumber"
+                icon={MdNumbers}
+                defaultValue={1}
+                placeholder="Enter Quantity Number"
+                type="number"
+                register={methods.register}
+              />
+
+              {/* Dynamic Serial Number Inputs */}
+              {serialInputs.length > 0 && (
+                <div className="space-y-4">
+                  <div
+                    className={`grid gap-4 ${
+                      serialInputs.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                    }`}
+                  >
+                    {serialInputs.map((input, index) => (
+                      <InputField
+                        key={input.id}
+                        label={`Serial Number ${index + 1}`}
+                        name={input.id}
+                        icon={MdNumbers}
+                        placeholder={`Enter Serial Number ${index + 1}`}
+                        type="text"
+                        register={methods.register}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Manually register SelectField */}
               <SelectField
                 label="Select the Type"
@@ -116,7 +183,7 @@ const AddRequestForm = () => {
                 />
               )}
 
-              {selectedValue === "Programming" && (
+              {/* {selectedValue === "Programming" && (
                 <InputField
                   label="Serial No (Compulsory)"
                   name="serialNo"
@@ -126,7 +193,7 @@ const AddRequestForm = () => {
                   register={methods.register}
                   error={methods.formState.errors.serialNo?.message}
                 />
-              )}
+              )} */}
 
               {selectedValue === "Programming" && (
                 <InputField
@@ -152,20 +219,18 @@ const AddRequestForm = () => {
                 />
               )}
 
-              {selectedValue === "Programming" && (
-                <Controller
-                  name="pdfUpload"
-                  control={methods.control}
-                  render={({ field }) => (
-                    <FileUpload
-                      label="Attach a Supporting Document"
-                      icon={AiOutlineFilePdf}
-                      onFileChange={(file) => field.onChange(file)}
-                      error={methods.formState.errors.pdfUpload?.message}
-                    />
-                  )}
-                />
-              )}
+              <Controller
+                name="pdfUpload"
+                control={methods.control}
+                render={({ field }) => (
+                  <FileUpload
+                    label="Attach a Supporting Document"
+                    icon={AiOutlineFilePdf}
+                    onFileChange={(file) => field.onChange(file)}
+                    error={methods.formState.errors.pdfUpload?.message}
+                  />
+                )}
+              />
 
               {/* Submit Button */}
               <div className="mt-6">

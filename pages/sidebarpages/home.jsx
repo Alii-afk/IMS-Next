@@ -1,9 +1,9 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
-import BarChart from "@/components/charts/BarChart";
-import PieChart from "@/components/charts/PieChart";
 import LineChart from "@/components/charts/LineChart";
 import DeclinedChart from "@/components/charts/DeclinedChart";
+import StockPieChart from "@/components/charts/StatusPieChart";
+import StockBarChart from "@/components/charts/StockBarChart";
 
 const Home = () => {
   // Chart Data
@@ -28,10 +28,10 @@ const Home = () => {
 
         <div className="px-4 md:px-12 lg:px-20 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 justify-center">
           {/* BarChart */}
-          <BarChart data={barData} />
+          <StockPieChart data={barData} />
 
           {/* PieChart */}
-          <PieChart data={pieData} />
+          <StockBarChart data={pieData} />
 
           {/* LineChart */}
           <LineChart data={lineData} />

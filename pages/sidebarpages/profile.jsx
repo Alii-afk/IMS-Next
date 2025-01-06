@@ -58,7 +58,7 @@ const Profile = () => {
           </div>
 
           {/* Profile Content */}
-          <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-xl p-8">
+          <div className=" bg-white rounded-xl shadow-xl p-8">
             {/* Profile Image Section */}
             <div className="flex flex-col items-center mb-8">
               <div className="relative">

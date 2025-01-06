@@ -74,7 +74,7 @@ export const peoples = [
     type: "Programming",
     time: "2 hours ago",
     notes:"This is",
-    status: "Pending",
+    status: "pending",
   },
   {
     id: 2,
@@ -83,7 +83,7 @@ export const peoples = [
     type: "New",
     time: "28 days ago",
     notes:"This is",
-    status: "Pending",
+    status: "pending",
   },
   {
     id: 3,
@@ -92,8 +92,7 @@ export const peoples = [
     type: "Programming",
     time: "3 days ago",
     notes:"This is",
-
-    status: "Accepted",
+    status: "rejected",
   },
   {
     id: 4,
@@ -102,8 +101,7 @@ export const peoples = [
     type: "Programming",
     time: "2 hours ago",
     notes:"This is",
-
-    status: "Pending",
+    status: "in_progress",
   },
   {
     id: 5,
@@ -112,8 +110,7 @@ export const peoples = [
     type: "New",
     time: "28 days ago",
     notes:"This is",
-
-    status: "Pending",
+    status: "complete",
   },
   {
     id: 6,
@@ -142,9 +139,10 @@ export const columns = [
 
 
 export const StatusOption = [
-    { label: "Pending", value: "Pending" },
-    { label: "Declined", value: "Declined" },
-    { label: "Accepted", value: "Accepted" },
+    { label: "Pending", value: "pending" },
+    { label: "Rejected", value: "rejected" },
+    { label: "In Progress", value: "in_progress" },
+    { label: "Completed", value: "completed" },
 
 ]
 
@@ -194,4 +192,26 @@ export const filteredData = [
     manufacturer: 'ViewVision',
     serialNumber: '567MNO890',
   },
+];
+
+
+export const stockNames = [
+  { label: "Apple iPhone 13", value: "apple-iphone-13" },
+  { label: "Samsung Galaxy S21", value: "samsung-galaxy-s21" },
+  { label: "Sony PlayStation 5", value: "sony-playstation-5" },
+  { label: "Dell XPS 13", value: "dell-xps-13" },
+  { label: "Nike Air Max 90", value: "nike-air-max-90" },
+  { label: "Samsung QLED TV", value: "samsung-qled-tv" },
+  { label: "GoPro Hero 10", value: "gopro-hero-10" },
+  { label: "Canon EOS 90D", value: "canon-eos-90d" },
+  { label: "HP Spectre x360", value: "hp-spectre-x360" },
+  { label: "Apple MacBook Pro", value: "apple-macbook-pro" },
+];
+
+
+export const roles = [
+  { value: "user", label: "User" },
+  { value: "backoffice", label: "Backoffice" },
+  { value: "frontend_office", label: "Frontend Office" },
+  { value: "admin", label: "Admin" },
 ];

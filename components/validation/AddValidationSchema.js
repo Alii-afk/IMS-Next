@@ -64,10 +64,9 @@ export default addValidationSchema;
 
 
 export const loginSchema = yup.object().shape({
-  username: yup
+  email: yup
     .string()
-    .required('Username is required')
-    .min(3, 'Username must be at least 3 characters'),
+    .required('Email is required'),
   password: yup
     .string()
     .required('Password is required')

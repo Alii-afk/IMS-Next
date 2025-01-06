@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaSearch, FaTrash } from "react-icons/fa"; // Import icons for edit and delete
+import { FaDownload, FaEdit, FaSearch, FaTrash } from "react-icons/fa"; // Import icons for edit and delete
 import InputField from "../InputGroup/InputField";
 import { FormProvider, useForm } from "react-hook-form";
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
@@ -19,11 +19,17 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const Table = ({ columns, data, searchEnabled = false }) => {
+const Table = ({
+  columns,
+  data,
+  searchEnabled = false,
+  showDownload = false,
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentRowData, setCurrentRowData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [completed, setCompleted] = useState(false);
 
   const { register, handleSubmit, setValue, control, watch, methods } =
     useForm();
@@ -75,6 +81,30 @@ const Table = ({ columns, data, searchEnabled = false }) => {
     )
   );
 
+  const handleDownload = () => {
+    const columnsToExport = ["name", "organization", "type", "time", "notes", "status"];
+    
+    const csvData = filteredData.map((row) =>
+      columnsToExport.map((column) => row[column] || "") 
+    );
+
+    const headerRow = columnsToExport.map((col) => col.charAt(0).toUpperCase() + col.slice(1)).join(","); 
+
+    const csvContent = [
+      headerRow,
+      ...csvData.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", "table_data.csv");
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="mt-8 flow-root z-10">
       <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
@@ -122,23 +152,35 @@ const Table = ({ columns, data, searchEnabled = false }) => {
                       key={column.key}
                       className={classNames(
                         "border-b border-gray-200",
-                        "py-4 px-6  text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
+                        "py-4 px-6 text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
                       )}
                     >
                       {column.key === "action" ? (
                         <div className="flex items-center space-x-2 justify-center">
-                          <div
-                            onClick={() => handleEditClick(row)}
-                            className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
-                          >
-                            <FaEdit className="w-5 h-5" />
-                          </div>
-                          <div
-                            onClick={openModal}
-                            className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
-                          >
-                            <FaTrash className="w-5 h-5" />
-                          </div>
+                          {!showDownload && (
+                            <>
+                              <div
+                                onClick={() => handleEditClick(row)}
+                                className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
+                              >
+                                <FaEdit className="w-5 h-5" />
+                              </div>
+                              <div
+                                onClick={openModal}
+                                className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
+                              >
+                                <FaTrash className="w-5 h-5" />
+                              </div>
+                            </>
+                          )}
+                          {showDownload && (
+                            <div
+                              onClick={handleDownload}
+                              className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
+                            >
+                              <FaDownload className="w-5 h-5" />
+                            </div>
+                          )}
                         </div>
                       ) : (
                         row[column.key]
@@ -152,6 +194,7 @@ const Table = ({ columns, data, searchEnabled = false }) => {
         </div>
       </div>
 
+      {/* Modal for delete confirmation */}
       {isModalOpen && (
         <div
           className="fixed inset-0 bg-black/50 flex justify-center items-center z-10"
@@ -170,88 +213,92 @@ const Table = ({ columns, data, searchEnabled = false }) => {
         </div>
       )}
 
-{modalOpen && (
-  <div
-    className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10"
-    style={{
-      animation: modalOpen ? "scaleUp 0.3s ease-out" : "scaleDown 0.3s ease-in",
-    }}
-  >
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full  md:w-1/5 lg:w-2/5  max-h-[90vh] overflow-auto hide-scrollbar">
-      <h2 className="text-xl font-semibold mb-4">Edit Details</h2>
-      <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          {/* Editable fields */}
-          <InputField
-            label="Name"
-            name="name"
-            icon={EnvelopeIcon}
-            placeholder="Enter Name"
-            type="text"
-            register={register}
-          />
-          <InputField
-            label="Organization"
-            name="organization"
-            icon={GrOrganization}
-            placeholder="Enter Organization"
-            type="text"
-            register={register}
-          />
-          <InputField
-            label="Date & Time"
-            name="date&time"
-            icon={CiCalendarDate}
-            type="datetime-local"
-            register={register}
-          />
+      {/* Modal for editing */}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10"
+          style={{
+            animation: modalOpen
+              ? "scaleUp 0.3s ease-out"
+              : "scaleDown 0.3s ease-in",
+          }}
+        >
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full  md:w-1/5 lg:w-2/5  max-h-[90vh] overflow-auto hide-scrollbar">
+            <h2 className="text-xl font-semibold mb-4">Edit Details</h2>
+            <FormProvider {...methods}>
+              <form
+                onSubmit={handleSubmit(handleFormSubmit)}
+                className="space-y-4"
+              >
+                {/* Editable fields */}
+                <InputField
+                  label="Name"
+                  name="name"
+                  icon={EnvelopeIcon}
+                  placeholder="Enter Name"
+                  type="text"
+                  register={register}
+                />
+                <InputField
+                  label="Organization"
+                  name="organization"
+                  icon={GrOrganization}
+                  placeholder="Enter Organization"
+                  type="text"
+                  register={register}
+                />
+                <InputField
+                  label="Date & Time"
+                  name="date&time"
+                  icon={CiCalendarDate}
+                  type="datetime-local"
+                  register={register}
+                />
 
-          <SelectField
-            label="Select the Type"
-            name="type"
-            register={register}
-            icon={FileType}
-            value={selectedType}
-            options={TypeOptions}
-          />
-          <InputField
-            label="Notes"
-            name="notes"
-            type="text"
-            icon={TbFileDescription}
-            placeholder="Enter Notes"
-            register={register}
-          />
-          <SelectField
-            label="Status"
-            name="status"
-            icon={SiInstatus}
-            options={StatusOption}
-            register={register}
-            value={selectedStatus}
-          />
-          <div className="flex gap-4 justify-end">
-            <button
-              type="button"
-              onClick={() => setModalOpen(false)}
-              className="py-2 px-4 bg-gray-600 text-white rounded-md"
-            >
-              Close
-            </button>
-            <button
-              type="submit"
-              className="py-2 px-4 bg-blue-600 text-white rounded-md"
-            >
-              Save Changes
-            </button>
+                <SelectField
+                  label="Select the Type"
+                  name="type"
+                  register={register}
+                  icon={FileType}
+                  value={selectedType}
+                  options={TypeOptions}
+                />
+                <InputField
+                  label="Notes"
+                  name="notes"
+                  type="text"
+                  icon={TbFileDescription}
+                  placeholder="Enter Notes"
+                  register={register}
+                />
+                <SelectField
+                  label="Status"
+                  name="status"
+                  icon={SiInstatus}
+                  options={StatusOption}
+                  register={register}
+                  value={selectedStatus}
+                />
+                <div className="flex gap-4 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setModalOpen(false)}
+                    className="py-2 px-4 bg-gray-600 text-white rounded-md"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    className="py-2 px-4 bg-blue-600 text-white rounded-md"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </FormProvider>
           </div>
-        </form>
-      </FormProvider>
-    </div>
-  </div>
-)}
-
-
+        </div>
+      )}
     </div>
   );
 };
