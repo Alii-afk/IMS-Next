@@ -16,10 +16,14 @@ const Dashboard = () => {
       router.push("http://localhost:3000/sidebarpages/declined-request");
     } else if (role === "admin") {
       router.push("/sidebarpages/home");
+    } else if (role === "frontoffice") {
+      router.push("http://localhost:3000/sidebarpages/request-management");
+    } else {
+      router.push("/sidebarpages/home");
     }
     setIsLoggedIn(true);
-    router.push("/sidebarpages/home");
-  };
+};
+
 
   return (
     <div>

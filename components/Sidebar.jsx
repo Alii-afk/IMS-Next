@@ -17,9 +17,15 @@ import { FaBatteryFull } from "react-icons/fa";
 
 const Sidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [role, setRole] = useState(null); // Add a state for role
+  const [name, setName] = useState(null); // Add a state for name
   const router = useRouter();
-  const role = Cookies.get("role");
-  const name = Cookies.get("name");
+
+  // Set role and name after the initial render (to avoid SSR mismatch)
+  useEffect(() => {
+    setRole(Cookies.get("role"));
+    setName(Cookies.get("name"));
+  }, []);
 
   const handleLogout = () => {
     router.push("http://localhost:3000");
@@ -119,7 +125,6 @@ const Sidebar = () => {
       icon: UsersIcon,
       current: false,
     },
-    
     {
       name: "Pending Request",
       href: "/sidebarpages/pending-request",
@@ -153,14 +158,14 @@ const Sidebar = () => {
   ];
 
   // Select navigation based on the role
-let navigation;
-if (role === "admin") {
+  let navigation;
+  if (role === "admin") {
     navigation = fullNavigation;
-} else if (role === "backoffice") {
+  } else if (role === "backoffice") {
     navigation = backofficeNavigation;
-} else if (role === "frontoffice") {
+  } else if (role === "frontoffice") {
     navigation = frontofficeNavigation;
-}
+  }
 
   // Close sidebar on outside click for mobile
   useEffect(() => {
@@ -178,7 +183,7 @@ if (role === "admin") {
     <div className="bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Backdrop */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 lg:hidden z-30" /> // Adjusted opacity and z-index
+        <div className="fixed inset-0 bg-black/50 lg:hidden z-30" />
       )}
 
       {/* Mobile Toggle */}
@@ -195,9 +200,9 @@ if (role === "admin") {
 
       {/* Sidebar */}
       <div
-        className={`sidebar fixed top-0 left-0 h-full  bg-white shadow-lg transform transition-transform duration-300 ease-in-out 
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-          lg:translate-x-0 flex flex-col w-72 `}
+        className={`sidebar fixed top-0 left-0 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0 flex flex-col w-72 z-10`}
       >
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200 flex items-center justify-center">
@@ -230,7 +235,7 @@ if (role === "admin") {
 
         {/* Navigation */}
         <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-160px)] hide-scrollbar">
-          {navigation.map((item) => {
+          {navigation?.map((item) => {
             const isActive = router.pathname === item.href;
             const IconComponent = item.icon;
 

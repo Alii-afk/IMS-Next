@@ -9,41 +9,38 @@ import axios from "axios";
 import { roles } from "@/components/dummyData/FormData";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { CiUser } from "react-icons/ci";
-import { ToastContainer, toast } from "react-toastify"; 
-import "react-toastify/dist/ReactToastify.css"; 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UserManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [users, setUsers] = useState([]);  
+  const [users, setUsers] = useState([]);
   const methods = useForm();
 
-  
-    const columns = [
-      { Header: "Name", accessor: "name" },
-      { Header: "Email", accessor: "email" },
-      { Header: "Role", accessor: "role" },
-      
-    ];
-  console.log(users)
+  const columns = [
+    { Header: "Name", accessor: "name" },
+    { Header: "Email", accessor: "email" },
+    { Header: "Role", accessor: "role" },
+  ];
+  console.log(users);
 
-    const fetchUsers = async () => {
-      const apiUrl = "http://127.0.0.1:8000/api/users";  // Use your correct API URL here
-      try {
-        const response = await axios.get(apiUrl);
-        setUsers(response.data);  // Assuming response.data is an array
-      } catch (error) {
-        toast.error("Failed to fetch users.");
-      }
-    };
+  const fetchUsers = async () => {
+    const apiUrl = "http://127.0.0.1:8000/api/users"; // Use your correct API URL here
+    try {
+      const response = await axios.get(apiUrl);
+      setUsers(response.data); // Assuming response.data is an array
+    } catch (error) {
+      toast.error("Failed to fetch users.");
+    }
+  };
 
-    useEffect(() => {
-      fetchUsers();
-    }, []);
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleAddUser = async (data) => {
-    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-    console.log("API URL:", apiUrl);
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY; // Ensure the correct API URL is used
 
     try {
       const response = await axios.post(`${apiUrl}/api/register`, {
@@ -54,12 +51,11 @@ const UserManagement = () => {
         role: data.role,
       });
 
-      if (response) {
+      if (response.status === 201) {
         toast.success("User added successfully");
-        console.log("User added successfully:", response.data);
         methods.reset();
         setShowModal(false);
-        fetchUsers();
+        fetchUsers(); // Fetch updated user list
       } else {
         toast.error("Something went wrong. Please try again.");
       }
@@ -69,8 +65,6 @@ const UserManagement = () => {
           ? error.response.data.email.join(" ")
           : "Registration failed";
         toast.error(errorMessage);
-      } else if (error.request) {
-        toast.error("Network error. Please try again.");
       } else {
         toast.error("An error occurred. Please try again.");
       }
@@ -93,7 +87,12 @@ const UserManagement = () => {
         </div>
 
         <div className="px-6 py-8">
-          <UserTable columns={columns} data={users} searchEnabled={true} />
+          <UserTable
+            columns={columns}
+            data={users}
+            searchEnabled={true}
+            fetchUsers={fetchUsers}
+          />
         </div>
 
         <button
@@ -157,7 +156,9 @@ const UserManagement = () => {
                       icon={TbFileDescription}
                       placeholder="Confirm Password"
                       register={methods.register}
-                      error={methods.formState.errors.password_confirmation?.message}
+                      error={
+                        methods.formState.errors.password_confirmation?.message
+                      }
                     />
 
                     <SelectField

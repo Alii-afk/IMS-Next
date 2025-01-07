@@ -21,9 +21,9 @@ const RequestManagement = () => {
 
         {/* Page Content */}
         <div className=" px-6 py-8">
-          <div className="flex-1 bg-white shadow-sm">
+          <div className="flex-1 bg-white shadow-sm ">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-indigo-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer">
+              <div className="bg-indigo-50 rounded-lg  p-6 shadow-md hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-indigo-900 mb-2">
                   Total Request
                 </h3>

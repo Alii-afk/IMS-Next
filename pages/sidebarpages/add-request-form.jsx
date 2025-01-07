@@ -74,7 +74,9 @@ const AddRequestForm = () => {
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="flex max-w-7xl mx-auto px-6 py-4 md:items-start items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Add Request Form</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Add Request Form
+            </h1>
           </div>
         </div>
 
@@ -82,12 +84,17 @@ const AddRequestForm = () => {
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Page Header */}
           <div className="mb-8">
-            <h1 className="text-xl font-bold text-gray-900">Add New Task Request</h1>
+            <h1 className="text-xl font-bold text-gray-900">
+              Add New Task Request
+            </h1>
           </div>
 
           {/* Form */}
           <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+            <form
+              onSubmit={methods.handleSubmit(onSubmit)}
+              className="space-y-6"
+            >
               <InputField
                 label="Name"
                 name="name"
@@ -118,18 +125,31 @@ const AddRequestForm = () => {
                 error={methods.formState.errors.date_time?.message}
               />
 
-              <InputField
-                label="Enter the Quantity Number"
-                name="quantityNumber"
-                icon={MdNumbers}
-                defaultValue={1}
-                placeholder="Enter Quantity Number"
-                type="number"
-                register={methods.register}
+              {/* Manually register SelectField */}
+              <SelectField
+                label="Select the Type"
+                name="type"
+                value={selectedValue}
+                onChange={handleSelectChange}
+                icon={FileType}
+                showIcon={true}
+                options={TypeOptions}
+                error={methods.formState.errors.type?.message}
               />
 
-              {/* Dynamic Serial Number Inputs */}
-              {serialInputs.length > 0 && (
+              {selectedValue === "Programming" && (
+                <InputField
+                  label="Enter the Quantity Number"
+                  name="quantityNumber"
+                  icon={MdNumbers}
+                  defaultValue={1}
+                  placeholder="Enter Quantity Number"
+                  type="number"
+                  register={methods.register}
+                />
+              )}
+
+              {serialInputs.length > 0 && selectedValue === "Programming" && (
                 <div className="space-y-4">
                   <div
                     className={`grid gap-4 ${
@@ -150,18 +170,6 @@ const AddRequestForm = () => {
                   </div>
                 </div>
               )}
-
-              {/* Manually register SelectField */}
-              <SelectField
-                label="Select the Type"
-                name="type"
-                value={selectedValue}
-                onChange={handleSelectChange}
-                icon={FileType}
-                showIcon={true}
-                options={TypeOptions}
-                error={methods.formState.errors.type?.message}
-              />
 
               <InputField
                 label="Notes"
@@ -224,7 +232,7 @@ const AddRequestForm = () => {
                 control={methods.control}
                 render={({ field }) => (
                   <FileUpload
-                    label="Attach a Supporting Document"
+                    label="Attach Front Office Supporting Document"
                     icon={AiOutlineFilePdf}
                     onFileChange={(file) => field.onChange(file)}
                     error={methods.formState.errors.pdfUpload?.message}

@@ -73,8 +73,8 @@ export const peoples = [
     organization: "Example Corp",
     type: "Programming",
     time: "2 hours ago",
-    notes:"This is",
-    status: "pending",
+    notes: "This is",
+    status: "Pending",
   },
   {
     id: 2,
@@ -82,8 +82,8 @@ export const peoples = [
     organization: "Tech Innovations",
     type: "New",
     time: "28 days ago",
-    notes:"This is",
-    status: "pending",
+    notes: "This is",
+    status: "Pending",
   },
   {
     id: 3,
@@ -91,7 +91,7 @@ export const peoples = [
     organization: "Creative Solutions",
     type: "Programming",
     time: "3 days ago",
-    notes:"This is",
+    notes: "This is",
     status: "rejected",
   },
   {
@@ -100,7 +100,7 @@ export const peoples = [
     organization: "Example Corp",
     type: "Programming",
     time: "2 hours ago",
-    notes:"This is",
+    notes: "This is",
     status: "in_progress",
   },
   {
@@ -109,8 +109,8 @@ export const peoples = [
     organization: "Tech Innovations",
     type: "New",
     time: "28 days ago",
-    notes:"This is",
-    status: "complete",
+    notes: "This is",
+    status: "completed",
   },
   {
     id: 6,
@@ -118,12 +118,11 @@ export const peoples = [
     organization: "Creative Solutions",
     type: "Programming",
     time: "3 days ago",
-    notes:"This is",
-
-    status: "Accepted",
+    notes: "This is",
+    status: "rejected",
   },
-  // Add more rows if needed
 ];
+
 
 export const columns = [
   { name: "Name", key: "name" },
@@ -139,12 +138,11 @@ export const columns = [
 
 
 export const StatusOption = [
-    { label: "Pending", value: "pending" },
-    { label: "Rejected", value: "rejected" },
-    { label: "In Progress", value: "in_progress" },
-    { label: "Completed", value: "completed" },
-
-]
+  { label: "Pending", value: "pending" },
+  { label: "Rejected", value: "rejected" },
+  { label: "In Progress", value: "in_progress" },
+  { label: "Completed", value: "completed" },
+];
 
 
 export const stockmanagementdata = [

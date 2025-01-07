@@ -7,13 +7,13 @@ import StockBarChart from "@/components/charts/StockBarChart";
 
 const Home = () => {
   // Chart Data
-  const barData = [120, 45];  // Approved, Pending
-  const pieData = [300, 50, 100];  // In Stock, Out of Stock, Reserved
+  const barData = [120, 45];  
+  const pieData = [300, 50, 100];  
   const lineData = {
     months: ["Jan", "Feb", "Mar", "Apr", "May"],
     values: [30, 40, 45, 50, 49],
   };
-  const declinedData = [20, 30, 25, 40, 35];  // Declined Requests Over Time
+  const declinedData = [20, 30, 25, 40, 35];  
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

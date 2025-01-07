@@ -11,12 +11,12 @@ const SelectField = ({
   value,
   error,
   onChange,
+  disabled = false, // Add disabled prop
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const dropdownRef = useRef(null);
 
-  
   useEffect(() => {
     if (value) {
       const selected = options.find((option) => option.value === value);
@@ -36,6 +36,7 @@ const SelectField = ({
   }, []);
 
   const handleSelect = (option) => {
+    if (disabled) return; // Do not allow selection if disabled
     setSelectedOption(option);
     setIsOpen(false);
     if (onChange) {
@@ -53,8 +54,10 @@ const SelectField = ({
 
         {/* Custom Select Button */}
         <div
-          onClick={() => setIsOpen(!isOpen)}
-          className="cursor-pointer relative w-full bg-white border border-gray-500 rounded-lg py-3 px-4 flex items-center justify-between hover:border-gray-300"
+          onClick={() => !disabled && setIsOpen(!isOpen)} // Disable opening when disabled
+          className={`cursor-pointer relative w-full bg-white border border-gray-500 rounded-lg py-3 px-4 flex items-center justify-between hover:border-gray-300 ${
+            disabled ? "bg-gray-100 cursor-not-allowed" : ""
+          }`}
         >
           {/* Icon */}
           {showIcon && Icon && (
@@ -75,17 +78,15 @@ const SelectField = ({
         </div>
 
         {/* Dropdown Options */}
-        {isOpen && (
+        {isOpen && !disabled && (
           <div className="absolute z-10 w-full mt-1  bg-white border border-gray-200 rounded-lg shadow-lg py-1 max-h-60 overflow-auto">
             {options.map((option, index) => (
               <div
                 key={index}
                 onClick={() => handleSelect(option)}
-                className={`
-                px-4 py-3 cursor-pointer flex items-center space-x-2
-                hover:bg-blue-50 transition-colors duration-150
-                ${selectedOption?.value === option.value ? "bg-blue-50" : ""}
-              `}
+                className={`px-4 py-3 cursor-pointer flex items-center space-x-2 hover:bg-blue-50 transition-colors duration-150 ${
+                  selectedOption?.value === option.value ? "bg-blue-50" : ""
+                }`}
               >
                 {/* Option Icon (if any) */}
                 {option.icon && (
@@ -100,7 +101,7 @@ const SelectField = ({
             ))}
           </div>
         )}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+        {error && <p className="text-xs text-red-500">{error}</p>}
       </div>
     </>
   );

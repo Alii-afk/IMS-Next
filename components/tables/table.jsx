@@ -13,7 +13,16 @@ import DeleteConfirmation from "../card/DeleteConfirmation";
 import InputSearch from "../InputGroup/InputSearch";
 import FileUpload from "../InputGroup/FileUpload";
 import { TbFileDescription } from "react-icons/tb";
-
+import Cookies from "js-cookie";
+import {
+  GrInventory,
+  GrKey,
+  GrCertificate,
+  GrTechnology,
+  GrChannels,
+  GrCube,
+} from "react-icons/gr"; // Import icons for the new fields
+import { MdOutlineProductionQuantityLimits } from "react-icons/md";
 // Utility function to join class names conditionally
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -42,7 +51,30 @@ const Table = ({
   // Function to close the modal
   const closeModal = () => setIsModalOpen(false);
 
-  // Function to handle the delete action
+  // Getting the user role from cookies using js-cookie
+  const userRole = Cookies.get("role"); // Access the 'role' cookie
+
+  // Dynamically update column names based on the user role
+  const updatedColumns = columns.map((column) => {
+    if (column.key === "notes") {
+      if (userRole === "admin") {
+        return { ...column, name: "Admin Notes" };
+      } else if (userRole === "backoffice") {
+        return { ...column, name: "Backoffice Notes" };
+      } else if (userRole === "frontoffice") {
+        return { ...column, name: "Frontoffice Notes" };
+      }
+    }
+    return column;
+  });
+
+  const label =
+    userRole === "admin"
+      ? "Admin Notes"
+      : userRole === "frontoffice"
+      ? "Frontend Office Notes"
+      : "Backoffice Notes";
+
   const handleDelete = () => {
     console.log("Item deleted");
     closeModal();
@@ -82,18 +114,26 @@ const Table = ({
   );
 
   const handleDownload = () => {
-    const columnsToExport = ["name", "organization", "type", "time", "notes", "status"];
-    
+    const columnsToExport = [
+      "name",
+      "organization",
+      "type",
+      "time",
+      "notes",
+      "status",
+    ];
+
     const csvData = filteredData.map((row) =>
-      columnsToExport.map((column) => row[column] || "") 
+      columnsToExport.map((column) => row[column] || "")
     );
 
-    const headerRow = columnsToExport.map((col) => col.charAt(0).toUpperCase() + col.slice(1)).join(","); 
+    const headerRow = columnsToExport
+      .map((col) => col.charAt(0).toUpperCase() + col.slice(1))
+      .join(",");
 
-    const csvContent = [
-      headerRow,
-      ...csvData.map((row) => row.join(",")),
-    ].join("\n");
+    const csvContent = [headerRow, ...csvData.map((row) => row.join(","))].join(
+      "\n"
+    );
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
@@ -130,11 +170,11 @@ const Table = ({
           <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
             <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
               <tr className="text-center">
-                {columns.map((column) => (
+                {updatedColumns.map((column) => (
                   <th
                     key={column.key}
                     scope="col"
-                    className="sticky top-0 z-10 py-4 px-6 text-sm font-semibold tracking-wider text-start capitalize"
+                    className="sticky top-0 z-10 py-4 px-6 text-sm font-semibold tracking-wider text-start capitalize whitespace-nowrap"
                   >
                     {column.name}
                   </th>
@@ -238,6 +278,7 @@ const Table = ({
                   placeholder="Enter Name"
                   type="text"
                   register={register}
+                  disabled={userRole === "frontoffice"}
                 />
                 <InputField
                   label="Organization"
@@ -246,6 +287,7 @@ const Table = ({
                   placeholder="Enter Organization"
                   type="text"
                   register={register}
+                  disabled={userRole === "frontoffice"}
                 />
                 <InputField
                   label="Date & Time"
@@ -253,6 +295,7 @@ const Table = ({
                   icon={CiCalendarDate}
                   type="datetime-local"
                   register={register}
+                  disabled={userRole === "frontoffice"}
                 />
 
                 <SelectField
@@ -262,23 +305,95 @@ const Table = ({
                   icon={FileType}
                   value={selectedType}
                   options={TypeOptions}
+                  disabled={userRole === "frontoffice" || userRole === "admin"}
                 />
+
                 <InputField
-                  label="Notes"
+                  label={label}
                   name="notes"
-                  type="text"
                   icon={TbFileDescription}
                   placeholder="Enter Notes"
+                  type="text"
                   register={register}
+                  disabled={userRole === "frontoffice"}
                 />
+
+                {/* Status field with dynamic options */}
                 <SelectField
                   label="Status"
                   name="status"
                   icon={SiInstatus}
-                  options={StatusOption}
+                  options={
+                    userRole === "admin"
+                      ? StatusOption.filter(
+                          (option) =>
+                            option.value === "in_progress" ||
+                            option.value === "rejected"
+                        )
+                      : userRole === "backoffice"
+                      ? StatusOption.filter(
+                          (option) => option.value === "completed"
+                        )
+                      : []
+                  }
                   register={register}
                   value={selectedStatus}
+                  disabled={userRole === "frontoffice"}
                 />
+
+                {selectedType === "New" && (
+                  <>
+                    <InputField
+                      label="Quantity"
+                      name="quantity"
+                      icon={MdOutlineProductionQuantityLimits}
+                      placeholder="Enter Quantity"
+                      type="number"
+                      register={register}
+                    />
+                    <InputField
+                      label="Serial Number"
+                      name="serial_number"
+                      icon={GrKey}
+                      placeholder="Enter Serial Number"
+                      type="text"
+                      register={register}
+                    />
+                    <InputField
+                      label="Sign Code"
+                      name="sign_code"
+                      icon={GrCertificate}
+                      placeholder="Enter Sign Code"
+                      type="text"
+                      register={register}
+                    />
+                    <InputField
+                      label="Codeplug"
+                      name="codeplug"
+                      icon={GrTechnology}
+                      placeholder="Enter Codeplug"
+                      type="text"
+                      register={register}
+                    />
+                    <InputField
+                      label="Channels"
+                      name="channels"
+                      icon={GrChannels}
+                      placeholder="Enter Channels"
+                      type="text"
+                      register={register}
+                    />
+                    <InputField
+                      label="Unit"
+                      name="unit"
+                      icon={GrCube}
+                      placeholder="Enter Unit"
+                      type="text"
+                      register={register}
+                    />
+                  </>
+                )}
+
                 <div className="flex gap-4 justify-end">
                   <button
                     type="button"
@@ -290,6 +405,7 @@ const Table = ({
                   <button
                     type="submit"
                     className="py-2 px-4 bg-blue-600 text-white rounded-md"
+                    disabled={userRole === "frontoffice"} // Disable submit for frontoffice
                   >
                     Save Changes
                   </button>
