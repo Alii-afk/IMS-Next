@@ -84,6 +84,8 @@ const LoginForm = ({ onLoginSuccess }) => {
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-6">
                 {/* email Input */}
+                <h1>Maareynta Isgaarsiinta CBS
+                </h1>
                 <InputField
                   label="Email"
                   name="email"
