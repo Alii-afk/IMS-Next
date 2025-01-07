@@ -49,7 +49,7 @@ const RequestManagement = () => {
               </div>
               <div className="bg-blue-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">
-                  Completed
+                  Completed 
                 </h3>
                 <p className="text-4xl font-bold text-blue-600">12</p>
               </div>

@@ -47,9 +47,9 @@ const Sidebar = () => {
       current: false,
     },
     {
-      name: "Rejected",
+      name: "In Progress",
       href: "/sidebarpages/accepted-request",
-      icon: ChartPieIcon,
+      icon: DocumentDuplicateIcon,
       current: false,
     },
     {
@@ -59,9 +59,9 @@ const Sidebar = () => {
       current: false,
     },
     {
-      name: "In Progress",
+      name: "Declined",
       href: "/sidebarpages/declined-request",
-      icon: DocumentDuplicateIcon,
+      icon: ChartPieIcon,
       current: false,
     },
     {
@@ -94,7 +94,7 @@ const Sidebar = () => {
   const backofficeNavigation = [
     {
       name: "In Progress",
-      href: "/sidebarpages/declined-request",
+      href: "/sidebarpages/accepted-request",
       icon: DocumentDuplicateIcon,
       current: false,
     },
@@ -106,8 +106,61 @@ const Sidebar = () => {
     },
   ];
 
+  const frontofficeNavigation = [
+    {
+      name: "Request Management",
+      href: "/sidebarpages/request-management",
+      icon: FolderIcon,
+      current: false,
+    },
+    {
+      name: "Add Request Form",
+      href: "/sidebarpages/add-request-form",
+      icon: UsersIcon,
+      current: false,
+    },
+    
+    {
+      name: "Pending Request",
+      href: "/sidebarpages/pending-request",
+      icon: CalendarIcon,
+      current: false,
+    },
+    {
+      name: "In Progress",
+      href: "/sidebarpages/accepted-request",
+      icon: DocumentDuplicateIcon,
+      current: false,
+    },
+    {
+      name: "Completed",
+      href: "/sidebarpages/completed",
+      icon: FaBatteryFull,
+      current: false,
+    },
+    {
+      name: "Declined",
+      href: "/sidebarpages/declined-request",
+      icon: ChartPieIcon,
+      current: false,
+    },
+    {
+      name: "Profile",
+      href: "/sidebarpages/profile",
+      icon: ChartPieIcon,
+      current: false,
+    },
+  ];
+
   // Select navigation based on the role
-  const navigation = role === "admin" ? fullNavigation : backofficeNavigation;
+let navigation;
+if (role === "admin") {
+    navigation = fullNavigation;
+} else if (role === "backoffice") {
+    navigation = backofficeNavigation;
+} else if (role === "frontoffice") {
+    navigation = frontofficeNavigation;
+}
 
   // Close sidebar on outside click for mobile
   useEffect(() => {

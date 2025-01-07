@@ -14,7 +14,7 @@ const AcceptedRequest = () => {
         <div className="bg-white shadow-sm">
           <div className="flex  px-6 md:items-start items-center py-4">
             <h1 className="text-2xl font-bold text-gray-900">
-              Accepted Request
+              In Progress Requests
             </h1>
           </div>
         </div>
@@ -25,11 +25,11 @@ const AcceptedRequest = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-indigo-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-indigo-900 mb-2">
-                  Total Accepted
+                  Total In Progress
                 </h3>
                 <p className="text-3xl font-bold text-indigo-600">24</p>
               </div>
-              <div className="bg-orange-50 rounded-lg p-6">
+              {/* <div className="bg-orange-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-orange-900 mb-2">
                   High Priority
                 </h3>
@@ -40,11 +40,11 @@ const AcceptedRequest = () => {
                   Processing
                 </h3>
                 <p className="text-3xl font-bold text-green-600">12</p>
-              </div>
+              </div> */}
             </div>
             <div className="flex  md:items-start items-center py-4">
               <h1 className="text-xl font-bold text-gray-900">
-                Accepted Request
+              In Progress Requests
               </h1>
             </div>
             <div className="px-6">
