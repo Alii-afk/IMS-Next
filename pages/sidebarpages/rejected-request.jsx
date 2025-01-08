@@ -3,7 +3,7 @@ import Sidebar from "@/components/Sidebar";
 import Table from "@/components/tables/table";
 import React from "react";
 
-const DeclinedRequest = () => {
+const RejectedRequest = () => {
   return (
     <div className="min-h-screen bg-white flex">
       {/* Sidebar Component */}
@@ -13,7 +13,7 @@ const DeclinedRequest = () => {
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="flex  px-6 md:items-start items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Declined Requests</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Rejected Requests</h1>
           </div>
         </div>
 
@@ -22,7 +22,7 @@ const DeclinedRequest = () => {
           <div className="flex-1 bg-white shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-indigo-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-indigo-900 mb-2">Total Declined</h3>
+                <h3 className="text-lg font-semibold text-indigo-900 mb-2">Total Rejected</h3>
                 <p className="text-3xl font-bold text-indigo-600">24</p>
               </div>
               {/* <div className="bg-orange-50 rounded-lg p-6">
@@ -35,7 +35,7 @@ const DeclinedRequest = () => {
               </div> */}
             </div>
             <div className="flex md:items-start items-center py-4">
-              <h1 className="text-xl font-bold text-gray-900">Declined Requests</h1>
+              <h1 className="text-xl font-bold text-gray-900">Rejected Requests</h1>
             </div>
             <div className="px-6">
               <Table columns={columns} data={peoples} />
@@ -47,4 +47,4 @@ const DeclinedRequest = () => {
   );
 };
 
-export default DeclinedRequest;
+export default RejectedRequest;

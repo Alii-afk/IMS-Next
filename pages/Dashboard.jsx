@@ -13,7 +13,7 @@ const Dashboard = () => {
 
   const handleLoginSuccess = () => {
     if (role === "backoffice") {
-      router.push("http://localhost:3000/sidebarpages/declined-request");
+      router.push("http://localhost:3000/sidebarpages/rejected-request");
     } else if (role === "admin") {
       router.push("/sidebarpages/home");
     } else if (role === "frontoffice") {

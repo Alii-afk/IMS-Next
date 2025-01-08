@@ -33,7 +33,7 @@ const StockBarChart = ({ data }) => {
     },
     // Remove colors array from here as we'll use individual colors
     xaxis: {
-      categories: ["In Stock", "Out of Stock", "Total Stock"],
+      categories: ["In Warehouse", "On Field", "Total Stock"],
       labels: {
         style: {
           fontSize: '3px',
@@ -75,9 +75,10 @@ const StockBarChart = ({ data }) => {
     },
     // Define colors for individual bars
     colors: [
-      '#10B981', // Green for In Stock
-      '#EF4444', // Red for Out of Stock
-      '#F59E0B'  // Amber for Total Stock
+      '#F59E0B', // Amber for Total Stock
+      '#10B981', // Green for on field
+      '#EF4444', // Red for in warehouse
+       
     ],
     theme: {
       mode: 'light'
@@ -88,7 +89,7 @@ const StockBarChart = ({ data }) => {
     <div className="bg-white p-6 rounded-xl shadow-lg">
       <div className="mb-6">
         <h3 className="text-2xl font-bold text-gray-800">Stock Overview</h3>
-        <p className="text-gray-600 mt-1">Current inventory status</p>
+        <p className="text-gray-600 mt-1">Current Inventory Status</p>
       </div>
       
       <div className="mt-4">
@@ -102,21 +103,21 @@ const StockBarChart = ({ data }) => {
           height={350}
         />
       </div>
-      
       {/* Legend */}
       <div className="flex justify-center items-center space-x-6 mt-4">
-        <div className="flex items-center">
-          <div className="w-4 h-4 rounded bg-emerald-500 mr-2"></div>
-          <span className="text-sm text-gray-600">In Stock</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 rounded bg-red-500 mr-2"></div>
-          <span className="text-sm text-gray-600">Out of Stock</span>
-        </div>
-        <div className="flex items-center">
+      <div className="flex items-center">
           <div className="w-4 h-4 rounded bg-amber-500 mr-2"></div>
           <span className="text-sm text-gray-600">Total Stock</span>
         </div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 rounded bg-emerald-500 mr-2"></div>
+          <span className="text-sm text-gray-600">In Warehouse</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 rounded bg-red-500 mr-2"></div>
+          <span className="text-sm text-gray-600">On Field</span>
+        </div>
+        
       </div>
     </div>
   );

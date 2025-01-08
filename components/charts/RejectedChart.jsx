@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 
 const ApexCharts = dynamic(() => import("react-apexcharts"), { ssr: false });
 
-const DeclinedChart = ({ data }) => {
+const RejectedChart = ({ data }) => {
   const options = {
     chart: {
       type: "line",
@@ -54,7 +54,7 @@ const DeclinedChart = ({ data }) => {
     },
     yaxis: {
       title: {
-        text: "Number of Declined Requests",
+        text: "Number of Rejected Requests",
         style: {
           fontSize: "14px",
           fontWeight: 600,
@@ -71,7 +71,7 @@ const DeclinedChart = ({ data }) => {
         },
       },
     },
-    colors: ["#EF4444"], // Red for declined
+    colors: ["#EF4444"], // Red for Rejected
     fill: {
       type: "gradient",
       gradient: {
@@ -120,12 +120,12 @@ const DeclinedChart = ({ data }) => {
       theme: "light",
       y: {
         formatter: function (val) {
-          return val + " requests declined";
+          return val + " requests rejected";
         },
       },
     },
     title: {
-      text: "Declined Requests Overview",
+      text: "Rejected Requests Overview",
       align: "left",
       style: {
         fontSize: "22px",
@@ -134,7 +134,7 @@ const DeclinedChart = ({ data }) => {
       },
     },
     subtitle: {
-      text: "Monthly trend of declined requests",
+      text: "Monthly trend of rejected requests",
       align: "left",
       style: {
         fontSize: "16px",
@@ -145,7 +145,7 @@ const DeclinedChart = ({ data }) => {
 
   const series = [
     {
-      name: "Declined Requests",
+      name: "Rejected Requests",
       data: data,
     },
   ];
@@ -159,4 +159,4 @@ const DeclinedChart = ({ data }) => {
   );
 };
 
-export default DeclinedChart;
+export default RejectedChart;

@@ -1,7 +1,7 @@
 import React from "react";
 import Sidebar from "@/components/Sidebar";
 import LineChart from "@/components/charts/LineChart";
-import DeclinedChart from "@/components/charts/DeclinedChart";
+import RejectedChart from "@/components/charts/RejectedChart";
 import StockPieChart from "@/components/charts/StatusPieChart";
 import StockBarChart from "@/components/charts/StockBarChart";
 
@@ -13,7 +13,7 @@ const Home = () => {
     months: ["Jan", "Feb", "Mar", "Apr", "May"],
     values: [30, 40, 45, 50, 49],
   };
-  const declinedData = [20, 30, 25, 40, 35];  
+  const rejectedData = [20, 30, 25, 40, 35];  
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -36,8 +36,8 @@ const Home = () => {
           {/* LineChart */}
           <LineChart data={lineData} />
 
-          {/* DeclinedChart */}
-          <DeclinedChart data={declinedData} />
+          {/* RejectedChart */}
+          <RejectedChart data={rejectedData} />
         </div>
       </div>
     </div>

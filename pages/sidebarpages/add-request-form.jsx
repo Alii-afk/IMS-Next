@@ -138,50 +138,6 @@ const AddRequestForm = () => {
               />
 
               {selectedValue === "Programming" && (
-                <InputField
-                  label="Enter the Quantity Number"
-                  name="quantityNumber"
-                  icon={MdNumbers}
-                  defaultValue={1}
-                  placeholder="Enter Quantity Number"
-                  type="number"
-                  register={methods.register}
-                />
-              )}
-
-              {serialInputs.length > 0 && selectedValue === "Programming" && (
-                <div className="space-y-4">
-                  <div
-                    className={`grid gap-4 ${
-                      serialInputs.length === 1 ? "grid-cols-1" : "grid-cols-2"
-                    }`}
-                  >
-                    {serialInputs.map((input, index) => (
-                      <InputField
-                        key={input.id}
-                        label={`Serial Number ${index + 1}`}
-                        name={input.id}
-                        icon={MdNumbers}
-                        placeholder={`Enter Serial Number ${index + 1}`}
-                        type="text"
-                        register={methods.register}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <InputField
-                label="Notes"
-                name="notes"
-                type="text"
-                icon={TbFileDescription}
-                placeholder="Enter Notes"
-                register={methods.register}
-                error={methods.formState.errors.notes?.message}
-              />
-
-              {selectedValue === "Programming" && (
                 <InputSearch
                   options={people}
                   label="Product List"
@@ -226,7 +182,48 @@ const AddRequestForm = () => {
                   error={methods.formState.errors.description?.message}
                 />
               )}
+              {selectedValue === "Programming" && (
+                <InputField
+                  label="Enter the Quantity Number"
+                  name="quantityNumber"
+                  icon={MdNumbers}
+                  defaultValue={1}
+                  placeholder="Enter Quantity Number"
+                  type="number"
+                  register={methods.register}
+                />
+              )}
 
+              {serialInputs.length > 0 && selectedValue === "Programming" && (
+                <div className="space-y-4">
+                  <div
+                    className={`grid gap-4 ${
+                      serialInputs.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                    }`}
+                  >
+                    {serialInputs.map((input, index) => (
+                      <InputField
+                        key={input.id}
+                        label={`Serial Number ${index + 1}`}
+                        name={input.id}
+                        icon={MdNumbers}
+                        placeholder={`Enter Serial Number ${index + 1}`}
+                        type="text"
+                        register={methods.register}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              <InputField
+                label="Notes"
+                name="notes"
+                type="text"
+                icon={TbFileDescription}
+                placeholder="Enter Notes"
+                register={methods.register}
+                error={methods.formState.errors.notes?.message}
+              />
               <Controller
                 name="pdfUpload"
                 control={methods.control}

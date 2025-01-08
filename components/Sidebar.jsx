@@ -65,8 +65,8 @@ const Sidebar = () => {
       current: false,
     },
     {
-      name: "Declined",
-      href: "/sidebarpages/declined-request",
+      name: "Rejected",
+      href: "/sidebarpages/rejected-request",
       icon: ChartPieIcon,
       current: false,
     },
@@ -144,8 +144,8 @@ const Sidebar = () => {
       current: false,
     },
     {
-      name: "Declined",
-      href: "/sidebarpages/declined-request",
+      name: "Rejected",
+      href: "/sidebarpages/rejected-request",
       icon: ChartPieIcon,
       current: false,
     },

@@ -7,8 +7,8 @@ const StatusPieChart = () => {
       type: "pie", 
       height: 350,
     },
-    labels: ["Approved", "Pending", "Declined", "Completed"], // Added "Completed" label
-    colors: ["#2ecc71", "#f39c12", "#e74c3c", "#3498db"], // Adjusted colors for Pending (orange), Declined (red), and Completed (blue)
+    labels: ["Pending", "In Progress", "Completed",  "Rejected"], // Added "Completed" label
+    colors: ["#f39c12", "#3498db", "#2ecc71" , "#e74c3c" ], // Adjusted colors for Pending (orange), Rejected (red), and Completed (blue)
     title: {
       text: "Approval Status",
       align: "center",
@@ -30,8 +30,8 @@ const StatusPieChart = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-800">Overview</h3>
-        <p className="text-gray-600 mt-1">Current status</p>
+        <h3 className="text-2xl font-bold text-gray-800">Requests Overview</h3>
+        <p className="text-gray-600 mt-1">Current Status</p>
       </div>
       <ApexCharts options={options} series={series} type="pie" height={350} />
     </div>
