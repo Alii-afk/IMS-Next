@@ -35,7 +35,7 @@ const PendingRequest = () => {
               </div> */}
             </div>
             <div className="flex  md:items-start items-center py-4">
-              <h1 className="text-xl font-bold text-gray-900">Pending</h1>
+              <h1 className="text-xl font-bold text-gray-900">Pending Requests</h1>
             </div>
             <div className="px-6">
               <Table columns={columns} data={peoples} />
