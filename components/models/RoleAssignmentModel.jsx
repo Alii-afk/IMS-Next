@@ -56,10 +56,9 @@ const RoleAssignmentModal = ({ user, onClose }) => {
             className="w-full mt-2 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">Select a role</option>
-            <option value="Frontoffice">Frontoffice</option>
-            <option value="Backoffice">Backoffice</option>
-            <option value="Admin">Admin</option>
-            <option value="User">User</option>
+            <option value="frontoffice">Frontoffice</option>
+            <option value="backoffice">Backoffice</option>
+            <option value="user">User</option>
           </select>
         </div>
 
