@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { CiUser } from "react-icons/ci"; 
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"; 
+import { useForm, FormProvider, Controller } from "react-hook-form";
+import { CiUser } from "react-icons/ci";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { yupResolver } from "@hookform/resolvers/yup";
 import InputField from "@/components/InputGroup/InputField";
 import { loginSchema } from "@/components/validation/AddValidationSchema";
@@ -23,7 +23,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     try {
       const refreshToken = Cookies.get("authToken");
       const response = await axios.post(`${apiUrl}/api/refresh-token`, {
-        token: refreshToken,  
+        token: refreshToken,
       });
       if (response && response.data.token) {
         Cookies.set("authToken", response.data.token, {
@@ -35,12 +35,12 @@ const LoginForm = ({ onLoginSuccess }) => {
       } else {
         toast.error("Failed to refresh token. Please log in again.");
         Cookies.remove("authToken");
-        window.location.href = "/login"; 
+        window.location.href = "/login";
       }
     } catch (error) {
       toast.error("Error refreshing token. Please log in again.");
       Cookies.remove("authToken");
-      window.location.href = "/login";  
+      window.location.href = "/login";
     }
   };
 
@@ -111,25 +111,37 @@ const LoginForm = ({ onLoginSuccess }) => {
           <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-6">
-                <h1 className="text-lg font-medium text-center text-gray-800">Maareynta Isgaarsiinta CBS</h1>
-                <InputField
-                  label="Email"
+                <h1 className="text-lg font-medium text-center text-gray-800">
+                  Maareynta Isgaarsiinta CBS
+                </h1>
+                <Controller
                   name="email"
-                  type="text"
-                  icon={CiUser}
-                  placeholder="Enter Email"
-                  register={methods.register}
-                  error={methods.formState.errors.email?.message}
+                  control={methods.control}
+                  render={({ field }) => (
+                    <InputField
+                      label="Email"
+                      name="email"
+                      type="text"
+                      icon={CiUser}
+                      placeholder="Enter Email"
+                      {...field}
+                    />
+                  )}
                 />
                 <div className="relative">
-                  <InputField
-                    label="Password"
+                  <Controller
                     name="password"
-                    type={showPassword ? "text" : "password"}
-                    icon={CiUser}
-                    placeholder="Enter Password"
-                    register={methods.register}
-                    error={methods.formState.errors.password?.message}
+                    control={methods.control}
+                    render={({ field }) => (
+                      <InputField
+                        label="Password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        icon={CiUser}
+                        placeholder="Enter Password"
+                        {...field}
+                      />
+                    )}
                   />
                   <span
                     className="absolute right-4 top-[50px] transform cursor-pointer"
@@ -143,7 +155,9 @@ const LoginForm = ({ onLoginSuccess }) => {
                   </span>
                 </div>
 
-                {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
+                {loginError && (
+                  <p className="text-red-500 text-sm">{loginError}</p>
+                )}
 
                 <button
                   type="submit"
