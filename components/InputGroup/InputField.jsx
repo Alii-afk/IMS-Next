@@ -7,9 +7,7 @@ const InputField = ({
   name,
   error,
   disabled = false,
-  value,
-  onChange,
-  onBlur,
+  register, // Added register prop
   ...props
 }) => {
   return (
@@ -24,11 +22,11 @@ const InputField = ({
           name={name}
           type={type}
           placeholder={type !== 'date' && type !== 'datetime-local' ? placeholder : ''}
-          className={`block w-full rounded-md bg-white border border-gray-100 py-3 pr-3 ${showIcon ? 'pl-10' : 'pl-3'} text-base text-gray-900 outline-1 outline-none -outline-offset-1 outline-gray-700 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 sm:text-sm`}
+          className={`block w-full rounded-md bg-white border border-gray-100 py-3 pr-3 ${
+            showIcon ? 'pl-10' : 'pl-3'
+          } text-base text-gray-900 outline-1 outline-none -outline-offset-1 outline-gray-700 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 sm:text-sm`}
           disabled={disabled}
-          value={value} 
-          onChange={onChange} 
-          onBlur={onBlur} 
+          {...(register ? register(name) : {})} // Spread register if provided
           {...props}
         />
         {showIcon && Icon && (
@@ -40,7 +38,7 @@ const InputField = ({
       </div>
 
       {/* Error message */}
-      {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
+      {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
   );
 };

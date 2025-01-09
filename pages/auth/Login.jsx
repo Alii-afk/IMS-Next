@@ -25,6 +25,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       const response = await axios.post(`${apiUrl}/api/refresh-token`, {
         token: refreshToken,
       });
+
       if (response && response.data.token) {
         Cookies.set("authToken", response.data.token, {
           expires: 7,
@@ -33,16 +34,49 @@ const LoginForm = ({ onLoginSuccess }) => {
         });
         return response.data.token;
       } else {
-        toast.error("Failed to refresh token. Please log in again.");
-        Cookies.remove("authToken");
-        window.location.href = "/login";
+        throw new Error("Failed to refresh token");
       }
     } catch (error) {
-      toast.error("Error refreshing token. Please log in again.");
       Cookies.remove("authToken");
-      window.location.href = "/login";
+      window.location.href = "http://localhost:3000";
     }
   };
+
+  // Axios request interceptor to handle token refresh automatically
+  axios.interceptors.request.use(
+    (config) => {
+      const token = Cookies.get("authToken");
+      if (token) {
+        config.headers["Authorization"] = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  // Axios response interceptor to handle token expiration
+  axios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      if (
+        error.response &&
+        error.response.status === 401 &&
+        error.response.data.error === "Token has expired"
+      ) {
+        try {
+          const newToken = await refreshAuthToken();
+          if (newToken) {
+            // Retry the original request with the new token
+            error.config.headers["Authorization"] = `Bearer ${newToken}`;
+            return axios(error.config); // Retry the request with the new token
+          }
+        } catch (err) {
+          console.error("Failed to refresh token:", err);
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
 
   const onSubmit = async (data) => {
     try {
@@ -50,6 +84,7 @@ const LoginForm = ({ onLoginSuccess }) => {
         email: data.email,
         password: data.password,
       });
+  
       if (response && response.data) {
         const { token, user } = response.data;
         if (token && user && user.role) {
@@ -81,7 +116,7 @@ const LoginForm = ({ onLoginSuccess }) => {
         // Try refreshing the token if expired
         const newToken = await refreshAuthToken();
         if (newToken) {
-          // Retry login with the refreshed token (or continue the user's session)
+          // Automatically retry the original request using the refreshed token
           onSubmit(data); // Retry the original login request
         }
       } else {
@@ -96,6 +131,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       }
     }
   };
+  
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-white">

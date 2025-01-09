@@ -21,14 +21,17 @@ const Sidebar = () => {
   const [name, setName] = useState(null); // Add a state for name
   const router = useRouter();
 
-  // Set role and name after the initial render (to avoid SSR mismatch)
   useEffect(() => {
     setRole(Cookies.get("role"));
     setName(Cookies.get("name"));
   }, []);
 
   const handleLogout = () => {
-    router.push("http://localhost:3000");
+    Cookies.remove("authToken");
+    Cookies.remove("role");
+    Cookies.remove("name");
+  
+    router.push("http://localhost:3000"); 
   };
 
   // Full navigation for admin

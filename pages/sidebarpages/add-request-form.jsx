@@ -6,7 +6,12 @@ import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import { GrOrganization } from "react-icons/gr";
 import { CiCalendarDate } from "react-icons/ci";
 import SelectField from "@/components/SelectField";
-import { people, peoples, TypeOption, TypeOptions } from "@/components/dummyData/FormData";
+import {
+  people,
+  peoples,
+  TypeOption,
+  TypeOptions,
+} from "@/components/dummyData/FormData";
 import InputSearch from "@/components/InputGroup/InputSearch";
 import { FileType } from "lucide-react";
 import { MdNumbers } from "react-icons/md";
@@ -24,7 +29,7 @@ const AddRequestForm = () => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const router = useRouter(); 
+  const router = useRouter();
 
   const methods = useForm({
     resolver: yupResolver(addValidationSchema),
@@ -57,7 +62,7 @@ const AddRequestForm = () => {
         name: data.name,
         organization: data.organization,
         date_time: data.date_time,
-        type: data.type.toLowerCase(), // Ensure lowercase for "programming"
+        type: data.type.toLowerCase(),
         front_office_notes: data.front_office_notes || "",
         front_office_pdf:
           data.front_office_pdf instanceof File ? data.front_office_pdf : "",
@@ -96,10 +101,9 @@ const AddRequestForm = () => {
 
       if (response.status === 201) {
         toast.success("Request submitted successfully");
-        methods.reset(); 
+        methods.reset();
         setShowModal(false);
         router.push("/sidebarpages/request-management"); // Redirect to the desired page
-
       }
     } catch (error) {
       console.error("Submission error:", error);
@@ -196,18 +200,6 @@ const AddRequestForm = () => {
                 />
               )}
 
-              {/* {selectedValue === "programming" && (
-                <InputField
-                  label="Serial No (Compulsory)"
-                  name="serialNo"
-                  type="number"
-                  icon={MdNumbers}
-                  placeholder="Serial Number"
-                  register={methods.register}
-                  error={methods.formState.errors.serialNo?.message}
-                />
-              )} */}
-
               {selectedValue === "programming" && (
                 <InputField
                   label="ID (Optional)"
@@ -239,7 +231,7 @@ const AddRequestForm = () => {
                   defaultValue={1}
                   placeholder="Enter Quantity Number"
                   type="number"
-                  register={methods.register}
+                  {...methods.register("quantityNumber")}
                 />
               )}
 
@@ -251,28 +243,39 @@ const AddRequestForm = () => {
                     }`}
                   >
                     {serialInputs.map((input, index) => (
-                      <InputField
+                      <Controller
                         key={input.id}
-                        label={`Serial no ${index + 1}`}
                         name={input.id}
-                        icon={MdNumbers}
-                        placeholder={`Enter Serial Number ${index + 1}`}
-                        type="text"
-                        register={methods.register}
+                        control={methods.control}
+                        render={({ field }) => (
+                          <InputField
+                            {...field}
+                            label={`Serial no ${index + 1}`}
+                            placeholder={`Enter Serial Number ${index + 1}`}
+                            icon={MdNumbers}
+                            type="text"
+                          />
+                        )}
                       />
                     ))}
                   </div>
                 </div>
               )}
-              <InputField
-                label="Front Office Notes"
+              <Controller
                 name="front_office_notes"
-                type="text"
-                icon={TbFileDescription}
-                placeholder="Enter Notes"
-                register={methods.register}
-                // error={methods.formState.errors.notes?.message}
+                control={methods.control}
+                render={({ field }) => (
+                  <InputField
+                    label="Enter the Notes"
+                    name="front_office_notes"
+                    icon={TbFileDescription}
+                    placeholder="Enter Notes "
+                    type="text"
+                    {...field}
+                  />
+                )}
               />
+
               <Controller
                 name="front_office_pdf"
                 control={methods.control}

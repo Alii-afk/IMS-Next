@@ -41,7 +41,7 @@ const Table = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [completed, setCompleted] = useState(false);
 
-  console.log("data", data);
+  // console.log("data", data);
 
   const { register, handleSubmit, setValue, control, watch, methods } =
     useForm();
