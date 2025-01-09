@@ -18,6 +18,32 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
+  // Function to refresh the token
+  const refreshAuthToken = async () => {
+    try {
+      const refreshToken = Cookies.get("authToken");
+      const response = await axios.post(`${apiUrl}/api/refresh-token`, {
+        token: refreshToken,  
+      });
+      if (response && response.data.token) {
+        Cookies.set("authToken", response.data.token, {
+          expires: 7,
+          path: "/",
+          secure: false,
+        });
+        return response.data.token;
+      } else {
+        toast.error("Failed to refresh token. Please log in again.");
+        Cookies.remove("authToken");
+        window.location.href = "/login"; 
+      }
+    } catch (error) {
+      toast.error("Error refreshing token. Please log in again.");
+      Cookies.remove("authToken");
+      window.location.href = "/login";  
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
       const response = await axios.post(`${apiUrl}/api/login`, {
@@ -51,13 +77,22 @@ const LoginForm = ({ onLoginSuccess }) => {
         toast.error("Invalid login response.");
       }
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
-      if (error.response) {
-        setLoginError(error.response.data.message || "Login failed");
-      } else if (error.request) {
-        setLoginError("Network error. Please try again.");
+      if (error.response && error.response.data.error === "Token has expired") {
+        // Try refreshing the token if expired
+        const newToken = await refreshAuthToken();
+        if (newToken) {
+          // Retry login with the refreshed token (or continue the user's session)
+          onSubmit(data); // Retry the original login request
+        }
       } else {
-        setLoginError("An error occurred. Please try again.");
+        toast.error("Something went wrong. Please try again.");
+        if (error.response) {
+          setLoginError(error.response.data.message || "Login failed");
+        } else if (error.request) {
+          setLoginError("Network error. Please try again.");
+        } else {
+          setLoginError("An error occurred. Please try again.");
+        }
       }
     }
   };

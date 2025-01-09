@@ -1,6 +1,5 @@
 import { ChevronDown } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import { CiCalendarDate } from "react-icons/ci";
 
 const SelectField = ({
   label,
@@ -11,11 +10,14 @@ const SelectField = ({
   value,
   error,
   onChange,
-  disabled = false, // Add disabled prop
+  disabled = false,
+  register,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const dropdownRef = useRef(null);
+  
+  const registerField = register ? register(name) : {};
 
   useEffect(() => {
     if (value) {
@@ -36,74 +38,80 @@ const SelectField = ({
   }, []);
 
   const handleSelect = (option) => {
-    if (disabled) return; // Do not allow selection if disabled
+    if (disabled) return;
     setSelectedOption(option);
     setIsOpen(false);
+    
     if (onChange) {
       onChange({ target: { name, value: option.value } });
+    }
+    
+    if (registerField.onChange) {
+      registerField.onChange({
+        target: { name, value: option.value },
+        type: 'change'
+      });
     }
   };
 
   return (
-    <>
-      <div className="relative" ref={dropdownRef}>
-        {/* Label */}
-        <label className="text-base font-medium text-gray-900 flex items-center mb-1">
-          {label}
-        </label>
+    <div className="relative" ref={dropdownRef}>
+      <label className="text-base font-medium text-gray-900 flex items-center mb-1">
+        {label}
+      </label>
 
-        {/* Custom Select Button */}
-        <div
-          onClick={() => !disabled && setIsOpen(!isOpen)} // Disable opening when disabled
-          className={`cursor-pointer relative w-full bg-white border border-gray-500 rounded-lg py-3 px-4 flex items-center justify-between hover:border-gray-300 ${
-            disabled ? "bg-gray-100 cursor-not-allowed" : ""
-          }`}
-        >
-          {/* Icon */}
-          {showIcon && Icon && (
-            <Icon className="w-5 h-5 text-gray-400 absolute left-3" />
-          )}
-
-          {/* Selected Value */}
-          <span className={`${showIcon ? "ml-7" : ""} text-gray-700`}>
-            {selectedOption ? selectedOption.label : "Select an option"}
-          </span>
-
-          {/* Dropdown Arrow */}
-          <ChevronDown
-            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-              isOpen ? "transform rotate-180" : ""
-            }`}
-          />
-        </div>
-
-        {/* Dropdown Options */}
-        {isOpen && !disabled && (
-          <div className="absolute z-10 w-full mt-1  bg-white border border-gray-200 rounded-lg shadow-lg py-1 max-h-60 overflow-auto">
-            {options.map((option, index) => (
-              <div
-                key={index}
-                onClick={() => handleSelect(option)}
-                className={`px-4 py-3 cursor-pointer flex items-center space-x-2 hover:bg-blue-50 transition-colors duration-150 ${
-                  selectedOption?.value === option.value ? "bg-blue-50" : ""
-                }`}
-              >
-                {/* Option Icon (if any) */}
-                {option.icon && (
-                  <span className="text-gray-400">{option.icon}</span>
-                )}
-
-                {/* Option Label */}
-                <span className="text-gray-700 hover:text-blue-600">
-                  {option.label}
-                </span>
-              </div>
-            ))}
-          </div>
+      <div
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        className={`cursor-pointer relative w-full bg-white border border-gray-500 rounded-lg py-3 px-4 flex items-center justify-between hover:border-gray-300 ${
+          disabled ? "bg-gray-100 cursor-not-allowed" : ""
+        }`}
+      >
+        {showIcon && Icon && (
+          <Icon className="w-5 h-5 text-gray-400 absolute left-3" />
         )}
-        {error && <p className="text-xs text-red-500">{error}</p>}
+
+        <span className={`${showIcon ? "ml-7" : ""} text-gray-700`}>
+          {selectedOption ? selectedOption.label : "Select an option"}
+        </span>
+
+        <ChevronDown
+          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
+        />
       </div>
-    </>
+
+      {isOpen && !disabled && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 max-h-60 overflow-auto">
+          {options.map((option, index) => (
+            <div
+              key={index}
+              onClick={() => handleSelect(option)}
+              className={`px-4 py-3 cursor-pointer flex items-center space-x-2 hover:bg-blue-50 transition-colors duration-150 ${
+                selectedOption?.value === option.value ? "bg-blue-50" : ""
+              }`}
+            >
+              {option.icon && (
+                <span className="text-gray-400">{option.icon}</span>
+              )}
+              <span className="text-gray-700 hover:text-blue-600">
+                {option.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {/* Hidden input for React Hook Form */}
+      <input
+        type="hidden"
+        name={name}
+        value={selectedOption?.value || ''}
+        {...registerField}
+      />
+      
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
   );
 };
 

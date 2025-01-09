@@ -6,7 +6,7 @@ import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import { GrOrganization } from "react-icons/gr";
 import { CiCalendarDate } from "react-icons/ci";
 import SelectField from "@/components/SelectField";
-import { people, TypeOptions } from "@/components/dummyData/FormData";
+import { people, peoples, TypeOption, TypeOptions } from "@/components/dummyData/FormData";
 import InputSearch from "@/components/InputGroup/InputSearch";
 import { FileType } from "lucide-react";
 import { MdNumbers } from "react-icons/md";
@@ -15,10 +15,16 @@ import { AiOutlineFilePdf } from "react-icons/ai";
 import FileUpload from "@/components/InputGroup/FileUpload";
 import { yupResolver } from "@hookform/resolvers/yup";
 import addValidationSchema from "@/components/validation/AddValidationSchema";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 const AddRequestForm = () => {
   const [selectedValue, setSelectedValue] = useState("");
   const [serialInputs, setSerialInputs] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const router = useRouter(); 
 
   const methods = useForm({
     resolver: yupResolver(addValidationSchema),
@@ -39,29 +45,68 @@ const AddRequestForm = () => {
     setSerialInputs(newInputs);
   }, [quantityNumber]);
 
-  const onSubmit = (data) => {
-    // Filter out empty serial numbers
-    const serialNumbers = Object.keys(data)
-      .filter((key) => key.startsWith("serialNumber") && data[key] !== "")
-      .map((key) => data[key]);
+  const onSubmit = async (data) => {
+    try {
+      // Extract serial numbers from the form data
+      const serialNumbers = Object.keys(data)
+        .filter((key) => key.startsWith("serialNumber") && data[key] !== "")
+        .map((key) => data[key]);
 
-    // Create cleaned submission data
-    const submissionData = {
-      name: data.name,
-      organization: data.organization,
-      date_time: data.date_time,
-      quantityNumber: data.quantityNumber,
-      serialNumbers,
-      type: data.type,
-      notes: data.notes,
-      productList: data.productList,
-      serialNo: data.serialNo,
-      id: data.id,
-      description: data.description,
-      pdfUpload: data.pdfUpload,
-    };
+      // Prepare the request payload as raw JSON
+      const requestPayload = {
+        name: data.name,
+        organization: data.organization,
+        date_time: data.date_time,
+        type: data.type.toLowerCase(), // Ensure lowercase for "programming"
+        front_office_notes: data.front_office_notes || "",
+        front_office_pdf:
+          data.front_office_pdf instanceof File ? data.front_office_pdf : "",
 
-    console.log("Cleaned submission data:", submissionData);
+        // If type is programming, include programming stock data
+        programmingStockData:
+          data.type.toLowerCase() === "programming"
+            ? [
+                {
+                  product_name: data.product_name,
+                  serial_no: serialNumbers,
+                  product_id: data.product_id || "",
+                  description: data.description || "",
+                },
+              ]
+            : [],
+      };
+
+      // Log the request payload for debugging
+      console.log("Request Payload:", requestPayload);
+
+      // Get the API URL and auth token
+      const token = localStorage.getItem("authToken");
+      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+      // Make the API request with raw JSON
+      const response = await axios({
+        method: "post",
+        url: `${apiUrl}/api/requests`,
+        data: requestPayload, // Send as raw JSON
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data", // Set to application/json
+        },
+      });
+
+      if (response.status === 201) {
+        toast.success("Request submitted successfully");
+        methods.reset(); 
+        setShowModal(false);
+        router.push("/sidebarpages/request-management"); // Redirect to the desired page
+
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      const errorMessage =
+        error.response?.data?.message || "An error occurred. Please try again.";
+      toast.error(errorMessage);
+    }
   };
 
   return (
@@ -70,7 +115,7 @@ const AddRequestForm = () => {
       <Sidebar className="min-h-screen fixed bg-white shadow-md hidden md:block" />
 
       {/* Main Content Area */}
-      <div className="flex-1 md:ml-72 ml-32">
+      <div className="flex-1 md:ml-72">
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="flex max-w-7xl mx-auto px-6 py-4 md:items-start items-center">
@@ -132,22 +177,26 @@ const AddRequestForm = () => {
                 value={selectedValue}
                 onChange={handleSelectChange}
                 icon={FileType}
+                register={methods.register}
                 showIcon={true}
                 options={TypeOptions}
                 error={methods.formState.errors.type?.message}
               />
 
-              {selectedValue === "Programming" && (
-                <InputSearch
-                  options={people}
-                  label="Product List"
-                  enableSearch={true}
+              {selectedValue === "programming" && (
+                <SelectField
+                  label="Product Name (Compulsory)"
+                  name="product_name"
+                  icon={FileType}
                   register={methods.register}
-                  error={methods.formState.errors.productList?.message}
+                  showIcon={true}
+                  options={TypeOption}
+                  error={methods.formState.errors.type?.message}
+                  // error={methods.formState.errors.productList?.message}
                 />
               )}
 
-              {/* {selectedValue === "Programming" && (
+              {/* {selectedValue === "programming" && (
                 <InputField
                   label="Serial No (Compulsory)"
                   name="serialNo"
@@ -159,19 +208,19 @@ const AddRequestForm = () => {
                 />
               )} */}
 
-              {selectedValue === "Programming" && (
+              {selectedValue === "programming" && (
                 <InputField
                   label="ID (Optional)"
-                  name="id"
+                  name="product_id"
                   type="text"
                   icon={MdNumbers}
                   placeholder="Enter ID"
                   register={methods.register}
-                  error={methods.formState.errors.id?.message}
+                  // error={methods.formState.errors.id?.message}
                 />
               )}
 
-              {selectedValue === "Programming" && (
+              {selectedValue === "programming" && (
                 <InputField
                   label="Description (Optional)"
                   name="description"
@@ -182,7 +231,7 @@ const AddRequestForm = () => {
                   error={methods.formState.errors.description?.message}
                 />
               )}
-              {selectedValue === "Programming" && (
+              {selectedValue === "programming" && (
                 <InputField
                   label="Enter the Quantity Number"
                   name="quantityNumber"
@@ -194,7 +243,7 @@ const AddRequestForm = () => {
                 />
               )}
 
-              {serialInputs.length > 0 && selectedValue === "Programming" && (
+              {serialInputs.length > 0 && selectedValue === "programming" && (
                 <div className="space-y-4">
                   <div
                     className={`grid gap-4 ${
@@ -204,7 +253,7 @@ const AddRequestForm = () => {
                     {serialInputs.map((input, index) => (
                       <InputField
                         key={input.id}
-                        label={`Serial Number ${index + 1}`}
+                        label={`Serial no ${index + 1}`}
                         name={input.id}
                         icon={MdNumbers}
                         placeholder={`Enter Serial Number ${index + 1}`}
@@ -216,23 +265,23 @@ const AddRequestForm = () => {
                 </div>
               )}
               <InputField
-                label="Notes"
-                name="notes"
+                label="Front Office Notes"
+                name="front_office_notes"
                 type="text"
                 icon={TbFileDescription}
                 placeholder="Enter Notes"
                 register={methods.register}
-                error={methods.formState.errors.notes?.message}
+                // error={methods.formState.errors.notes?.message}
               />
               <Controller
-                name="pdfUpload"
+                name="front_office_pdf"
                 control={methods.control}
                 render={({ field }) => (
                   <FileUpload
                     label="Attach Front Office Supporting Document"
                     icon={AiOutlineFilePdf}
                     onFileChange={(file) => field.onChange(file)}
-                    error={methods.formState.errors.pdfUpload?.message}
+                    // error={methods.formState.errors.pdfUpload?.message}
                   />
                 )}
               />
@@ -241,9 +290,15 @@ const AddRequestForm = () => {
               <div className="mt-6">
                 <button
                   type="submit"
-                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  disabled={isSubmitting}
+                  className={`w-full py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-600 
+                    ${
+                      isSubmitting
+                        ? "bg-indigo-400 cursor-not-allowed"
+                        : "bg-indigo-600 hover:bg-indigo-700"
+                    } text-white`}
                 >
-                  Submit
+                  {isSubmitting ? "Submitting..." : "Submit"}
                 </button>
               </div>
             </form>

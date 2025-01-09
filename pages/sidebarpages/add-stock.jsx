@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, FormProvider, Controller, useWatch } from "react-hook-form";
 import Sidebar from "@/components/Sidebar";
 import InputField from "@/components/InputGroup/InputField";
 import {
   HashtagIcon,
   HomeIcon,
   IdentificationIcon,
+  MdNumbers,
 } from "@heroicons/react/24/outline";
 import { MdLibraryAdd } from "react-icons/md";
 import { yupResolver } from "@hookform/resolvers/yup";
-import validationSchema from "@/components/validation/validationSchema ";
 import SelectField from "@/components/SelectField";
-import { stockNames} from "@/components/dummyData/FormData";
+import { stockNames } from "@/components/dummyData/FormData";
+import validationSchema from "@/components/validation/validationSchema ";
 
 const Addstock = () => {
   const [serialInputs, setSerialInputs] = useState([]);
@@ -19,25 +20,24 @@ const Addstock = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const quantityNumber = methods.watch("quantityNumber");
+  const quantityNumber = useWatch({ control: methods.control, name: "quantityNumber", defaultValue: 1 });
 
   useEffect(() => {
-    const quantity = parseInt(quantityNumber) || 0;
+    const quantity = parseInt(quantityNumber) || 1; 
     const newInputs = Array.from({ length: quantity }, (_, index) => ({
       id: `serialNumber${index + 1}`,
       value: "",
     }));
-    setSerialInputs(newInputs);
-  }, [quantityNumber]);
+    setSerialInputs(newInputs); 
+  }, [quantityNumber]); 
 
   // Handle form submission
   const onSubmit = (data) => {
-    // Filter out empty serial numbers
+    console.log("Form submitted with data:", data); 
     const serialNumbers = Object.keys(data)
       .filter((key) => key.startsWith("serialNumber") && data[key] !== "")
       .map((key) => data[key]);
-
-    // Create cleaned submission data
+  
     const submissionData = {
       stockName: data.stockName,
       modelNumber: data.modelNumber,
@@ -45,9 +45,10 @@ const Addstock = () => {
       quantityNumber: data.quantityNumber,
       serialNumbers,
     };
-
-    console.log("Cleaned submission data:", submissionData);
+  
+    console.log("Cleaned submission data:", submissionData); 
   };
+  
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -67,13 +68,8 @@ const Addstock = () => {
             </div>
 
             <FormProvider {...methods}>
-              <form
-                onSubmit={methods.handleSubmit(onSubmit)}
-                className="space-y-6"
-              >
-                
-
-                {/* Manually register SelectField */}
+            <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Select stock name */}
                 <Controller
                   name="stockName"
                   control={methods.control}
@@ -85,19 +81,19 @@ const Addstock = () => {
                       placeholder="Enter Stock Name"
                       showIcon={true}
                       options={stockNames}
-                      {...field} // Spread the field properties from react-hook-form
+                      {...field} 
                       error={methods.formState.errors.stockName?.message}
                     />
                   )}
                 />
 
+                {/* Model Number and Manufacturer fields */}
                 <InputField
                   label="Model Number"
                   name="modelNumber"
                   icon={IdentificationIcon}
                   placeholder="Enter Model Number"
                   type="text"
-                  register={methods.register}
                   error={methods.formState.errors.modelNumber?.message}
                 />
 
@@ -107,18 +103,18 @@ const Addstock = () => {
                   icon={HomeIcon}
                   placeholder="Enter Manufacturer"
                   type="text"
-                  register={methods.register}
                   error={methods.formState.errors.manufacturer?.message}
                 />
 
+                {/* Quantity Number Input */}
                 <InputField
                   label="Enter the Quantity Number"
                   name="quantityNumber"
-                  icon={HashtagIcon}
+                  icon={MdNumbers}
                   defaultValue={1}
                   placeholder="Enter Quantity Number"
                   type="number"
-                  register={methods.register}
+                  {...methods.register("quantityNumber")} 
                 />
 
                 {/* Dynamic Serial Number Inputs */}
@@ -126,20 +122,23 @@ const Addstock = () => {
                   <div className="space-y-4">
                     <div
                       className={`grid gap-4 ${
-                        serialInputs.length === 1
-                          ? "grid-cols-1"
-                          : "grid-cols-2"
+                        serialInputs.length === 1 ? "grid-cols-1" : "grid-cols-2"
                       }`}
                     >
                       {serialInputs.map((input, index) => (
-                        <InputField
+                        <Controller
                           key={input.id}
-                          label={`Serial Number ${index + 1}`}
                           name={input.id}
-                          icon={HashtagIcon}
-                          placeholder={`Enter Serial Number ${index + 1}`}
-                          type="text"
-                          register={methods.register}
+                          control={methods.control}
+                          render={({ field }) => (
+                            <InputField
+                              {...field}
+                              label={`Serial no ${index + 1}`}
+                              placeholder={`Enter Serial Number ${index + 1}`}
+                              icon={MdNumbers}
+                              type="text"
+                            />
+                          )}
                         />
                       ))}
                     </div>

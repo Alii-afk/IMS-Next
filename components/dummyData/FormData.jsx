@@ -1,6 +1,6 @@
 export const TypeOptions = [
-  { value: "Programming", label: "Programming" },
-  { value: "New", label: "New" },
+  { value: "programming", label: "Programming" },
+  { value: "new", label: "New" },
 ];
 
 export const people = [
@@ -66,6 +66,19 @@ export const people = [
   },
 ];
 
+export const TypeOption = [
+  { value: "techgadget", label: "Tech Gadget" },
+  { value: "smartwatch", label: "Smart Watch" },
+  { value: "wirelessheadphones", label: "Wireless Headphones" },
+  { value: "gamingconsole", label: "Gaming Console" },
+  { value: "laptoppro", label: "Laptop Pro" },
+  { value: "digitalcamera", label: "Digital Camera" },
+  { value: "fitnessband", label: "Fitness Band" },
+  { value: "robotvacuum", label: "Robot Vacuum" },
+  { value: "smarttv", label: "Smart TV" },
+  { value: "bluetoothspeaker", label: "Bluetooth Speaker" },
+];
+
 export const peoples = [
   {
     id: 1,
@@ -128,9 +141,9 @@ export const columns = [
   { name: "Name", key: "name" },
   { name: "Organization", key: "organization" },
   { name: "Type", key: "type" },
-  { name: "Time", key: "time" },
+  { name: "Time", key: "date_time" },
   { name: "Notes", key: "notes" },
-  { name: "Status", key: "status" },
+  { name: "Status", key: "request_status" },
   { name: "Action", key: "action" },
 ];
 
@@ -209,7 +222,7 @@ export const stockNames = [
 
 export const roles = [
   { value: "user", label: "User" },
-  { value: "backoffice", label: "Backoffice" },
-  { value: "frontend_office", label: "Frontend Office" },
+  { value: "backoffice", label: "Back Office" },
+  { value: "frontoffice", label: "Front Office" },
   { value: "admin", label: "Admin" },
 ];

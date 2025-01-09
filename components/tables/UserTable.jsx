@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
-import { GrEdit, GrTrash } from "react-icons/gr"; 
+import { GrEdit, GrTrash } from "react-icons/gr";
 import EditUserModal from "../models/EditUserModel";
 import RoleAssignmentModal from "../models/RoleAssignmentModel";
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 import DeleteConfirmation from "../card/DeleteConfirmation";
 
 const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isRoleAssignmentModalOpen, setIsRoleAssignmentModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); 
+  const [isRoleAssignmentModalOpen, setIsRoleAssignmentModalOpen] =
+    useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Handle search input change
   const handleSearchChange = (e) => {
@@ -27,46 +28,52 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
 
   const handleRoleAssignment = (user) => {
     setSelectedUser(user);
-    setIsRoleAssignmentModalOpen(true); 
+    setIsRoleAssignmentModalOpen(true);
   };
 
   const handleEdit = (user) => {
     setSelectedUser(user);
-    setIsEditModalOpen(true); 
+    setIsEditModalOpen(true);
   };
 
   const handleDelete = async (userId) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/users/${userId}`, {
-        method: "DELETE", 
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         // If deletion is successful
         toast.success("User deleted successfully!");
-        setIsDeleteModalOpen(false); 
+        setIsDeleteModalOpen(false);
         fetchUsers();
       } else {
         toast.error("Failed to delete user.");
       }
     } catch (err) {
-      toast.error(`Error: ${err.message}`); 
+      toast.error(`Error: ${err.message}`);
     }
   };
-  
 
   const openDeleteModal = (user) => {
     setSelectedUser(user);
-    setIsDeleteModalOpen(true); 
+    setIsDeleteModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsRoleAssignmentModalOpen(false);
     setIsEditModalOpen(false);
-    setIsDeleteModalOpen(false); 
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleUserEditSubmit = () => {
+    setIsEditModalOpen(false);
   };
 
   return (
@@ -112,28 +119,30 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
                     key={column.accessor}
                     className="px-6 py-4 text-sm text-gray-700"
                   >
-                    {row[column.accessor]} 
+                    {row[column.accessor]}
                   </td>
                 ))}
                 <td className="px-6 py-4">
-                  <button
-                    onClick={() => handleRoleAssignment(row)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200"
-                  >
-                    Assign Role
-                  </button>
-                  <button
-                    onClick={() => handleEdit(row)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md ml-2 hover:bg-yellow-600 transition duration-200"
-                  >
-                    <GrEdit className="inline-block mr-2" /> Edit
-                  </button>
-                  <button
-                    onClick={() => openDeleteModal(row)}
-                    className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md ml-2 hover:bg-red-600 transition duration-200"
-                  >
-                    <GrTrash className="inline-block mr-2" /> Delete
-                  </button>
+                  <div className="flex flex-wrap gap-2 justify-start">
+                    <button
+                      onClick={() => handleRoleAssignment(row)}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200 w-full sm:w-auto"
+                    >
+                      Assign Role
+                    </button>
+                    <button
+                      onClick={() => handleEdit(row)}
+                      className="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 transition duration-200 w-full sm:w-auto"
+                    >
+                      <GrEdit className="inline-block mr-2" /> Edit
+                    </button>
+                    <button
+                      onClick={() => openDeleteModal(row)}
+                      className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600 transition duration-200 w-full sm:w-auto"
+                    >
+                      <GrTrash className="inline-block mr-2" /> Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))
@@ -153,27 +162,25 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && selectedUser && (
         <DeleteConfirmation
-          handleDelete={() => handleDelete(selectedUser.id)} 
-          closeModal={handleCloseModal} 
+          handleDelete={() => handleDelete(selectedUser.id)}
+          closeModal={handleCloseModal}
         />
       )}
 
       {/* Modal with Tailwind CSS transition for Role Assignment */}
       {isRoleAssignmentModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50 transition-opacity duration-300">
-          <div className="bg-white rounded-lg shadow-lg w-96 p-6 transform transition-all duration-300 scale-95 hover:scale-100">
-            <RoleAssignmentModal
-              user={selectedUser}
-              onClose={handleCloseModal}
-            />
-          </div>
-        </div>
+        <RoleAssignmentModal
+          user={selectedUser}
+          fetchUsers={fetchUsers}
+          onClose={handleCloseModal}
+        />
       )}
 
       {/* Edit User Modal */}
       {isEditModalOpen && selectedUser && (
         <EditUserModal
           userData={selectedUser}
+          fetchUsers={fetchUsers}
           onSave={handleUserEditSubmit}
           onClose={handleCloseModal}
         />
