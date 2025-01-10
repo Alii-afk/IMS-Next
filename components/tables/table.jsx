@@ -1,30 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { FaDownload, FaEdit, FaSearch, FaTrash } from "react-icons/fa"; // Import icons for edit and delete
-import InputField from "../InputGroup/InputField";
-import { FormProvider, useForm } from "react-hook-form";
-import { EnvelopeIcon } from "@heroicons/react/24/outline";
-import { GrOrganization } from "react-icons/gr";
-import { CiCalendarDate } from "react-icons/ci";
-import { StatusOption, TypeOptions } from "../dummyData/FormData";
-import SelectField from "@/components/SelectField";
-import { FileType } from "lucide-react";
-import { SiInstatus } from "react-icons/si";
+import { useForm } from "react-hook-form";
+
 import DeleteConfirmation from "../card/DeleteConfirmation";
-import InputSearch from "../InputGroup/InputSearch";
-import FileUpload from "../InputGroup/FileUpload";
-import { TbFileDescription } from "react-icons/tb";
+
 import Cookies from "js-cookie";
-import {
-  GrInventory,
-  GrKey,
-  GrCertificate,
-  GrTechnology,
-  GrChannels,
-  GrCube,
-} from "react-icons/gr"; // Import icons for the new fields
-import { MdOutlineProductionQuantityLimits } from "react-icons/md";
+
 import EditDetailsModal from "../card/EditDetailsModal";
-// Utility function to join class names conditionally
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
@@ -34,6 +21,7 @@ const Table = ({
   data,
   searchEnabled = false,
   showDownload = false,
+  fetchData,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentRowData, setCurrentRowData] = useState(null);
@@ -41,14 +29,10 @@ const Table = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [completed, setCompleted] = useState(false);
 
-  // console.log("data", data);
-
-  const { register, handleSubmit, setValue, control, watch, methods } =
-    useForm();
-  const selectedStatus = watch("request_status");
-  const selectedType = watch("type");
-
-  const openModal = () => setIsModalOpen(true);
+  const openModal = (row) => {
+    setCurrentRowData(row);
+    setIsModalOpen(true);
+  };
 
   const closeModal = () => setIsModalOpen(false);
 
@@ -74,9 +58,41 @@ const Table = ({
       ? "Frontend Office Notes"
       : "Backoffice Notes";
 
-  const handleDelete = () => {
-    console.log("Item deleted");
+  const handleDelete = async () => {
+    try {
+      if (!currentRowData) {
+        toast.error("No item selected for deletion");
+        return;
+      }
+
+      const token = Cookies.get("authToken");
+      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+      const response = await fetch(
+        `${apiUrl}/api/requests/${currentRowData.id}`, // Use currentRowData.id
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success("Item deleted successfully!");
+      } else {
+        const errorData = await response.json();
+        const errorMessage = errorData?.message || "Failed to delete the item.";
+        toast.error(`Error: ${errorMessage}`);
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
+
     closeModal();
+    fetchData();
   };
 
   const parseTime = (time) => {
@@ -97,202 +113,214 @@ const Table = ({
     setModalOpen(true);
   };
 
-  const handleFormSubmit = (data) => {
-    console.log("Updated data:", data);
-    setModalOpen(false);
-  };
-
   // Filter data based on search term
-  const filteredData = data.filter((row) =>
-    columns.some((column) =>
-      row[column.key]
-        ?.toString()
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
-  );
+  const filteredData = Array.isArray(data)
+    ? data.filter((row) =>
+        columns.some((column) =>
+          row[column.key]
+            ?.toString()
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        )
+      )
+    : [];
 
+  // downlaod pdf
   const handleDownload = () => {
     const columnsToExport = [
       "name",
       "organization",
       "type",
-      "time",
+      "date_time",
       "notes",
-      "status",
+      "request_status",
     ];
 
-    const csvData = filteredData.map((row) =>
-      columnsToExport.map((column) => row[column] || "")
-    );
+    const doc = new jsPDF();
 
-    const headerRow = columnsToExport
-      .map((col) => col.charAt(0).toUpperCase() + col.slice(1))
-      .join(",");
+    // Add header
+    const header = columnsToExport.map((col) => {
+      const column = columns.find((colObj) => colObj.key === col);
+      return column ? column.name : col; // Get the name of the column (from columns array)
+    });
 
-    const csvContent = [headerRow, ...csvData.map((row) => row.join(","))].join(
-      "\n"
-    );
+    // Map filtered data to ensure every column exists, even if the value is missing
+    const body = filteredData.map((row) => {
+      const rowData = columnsToExport.map((column) => {
+        // Check if the column exists and if the value is valid, fallback to empty string
+        const value =
+          row[column] !== undefined && row[column] !== null ? row[column] : "";
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
+        // If 'date_time' is a date, format it (if needed)
+        if (column === "date_time" && value instanceof Date) {
+          return value.toLocaleString(); // Format date if needed
+        }
 
-    link.setAttribute("href", url);
-    link.setAttribute("download", "table_data.csv");
-    link.click();
-    URL.revokeObjectURL(url);
+        return value;
+      });
+      return rowData;
+    });
+
+    // Add table to PDF using autoTable
+    doc.autoTable({
+      head: [header],
+      body: body,
+    });
+
+    // Save PDF with the name 'table_data.pdf'
+    doc.save("table_data.pdf");
   };
 
   return (
-    <div className="mt-8 flow-root z-10">
-      <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
-        <div className="inline-block min-w-full py-2 align-middle px-4">
-          {/* Search Input */}
-          {searchEnabled && (
-            <div className="relative flex rounded-md shadow-lg bg-white outline-1 outline-gray-300 max-w-sm mb-6">
-              <input
-                type="text"
-                className="block w-full border-2 rounded-md pl-10 pr-4 py-2 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none sm:text-sm"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {/* Search Icon */}
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                <FaSearch className="w-5 h-5" />
+    <>
+      <ToastContainer />
+      <div className="mt-8 flow-root z-10">
+        <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
+          <div className="inline-block min-w-full py-2 align-middle px-4">
+            {/* Search Input */}
+            {searchEnabled && (
+              <div className="relative flex rounded-md shadow-lg bg-white outline-1 outline-gray-300 max-w-sm mb-6">
+                <input
+                  type="text"
+                  className="block w-full border-2 rounded-md pl-10 pr-4 py-2 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none sm:text-sm"
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {/* Search Icon */}
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <FaSearch className="w-5 h-5" />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Table */}
-          <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
-            <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
-              <tr className="text-center">
-                {updatedColumns.map((column) => (
-                  <th
-                    key={column.key}
-                    scope="col"
-                    className="sticky top-0 z-10 py-4 px-6 text-sm font-semibold tracking-wider text-start capitalize whitespace-nowrap"
-                  >
-                    {column.name}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.map((row) => (
-                <tr
-                  key={row.id}
-                  className="hover:bg-indigo-50 transition-all duration-200 ease-in-out"
-                >
-                  {updatedColumns.map((column) => (
-                    <td
-                      key={column.key}
-                      className={classNames(
-                        "border-b border-gray-200",
-                        "py-4 px-6 text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
-                      )}
+            {/* Scrollable Table Container */}
+            <div className="overflow-x-auto overflow-y-auto max-h-[600px] rounded-lg shadow-md">
+              <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
+                <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
+                  <tr className="text-center">
+                    {updatedColumns.map((column) => (
+                      <th
+                        key={column.key}
+                        scope="col"
+                        className="sticky top-0 z-10 py-4 px-6 text-sm font-semibold tracking-wider text-start capitalize whitespace-nowrap"
+                      >
+                        {column.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredData.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="hover:bg-indigo-50 transition-all duration-200 ease-in-out"
                     >
-                      {column.key === "action" ? (
-                        <div className="flex items-center space-x-2 justify-center">
-                          {!showDownload && (
-                            <>
-                              <div
-                                onClick={() => handleEditClick(row)}
-                                className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
-                              >
-                                <FaEdit className="w-5 h-5" />
-                              </div>
-                              <div
-                                onClick={openModal}
-                                className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
-                              >
-                                <FaTrash className="w-5 h-5" />
-                              </div>
-                            </>
+                      {updatedColumns.map((column) => (
+                        <td
+                          key={column.key}
+                          className={classNames(
+                            "border-b border-gray-200",
+                            "py-4 px-6 text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
                           )}
-                          {showDownload && (
-                            <div
-                              onClick={handleDownload}
-                              className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
-                            >
-                              <FaDownload className="w-5 h-5" />
-                            </div>
-                          )}
-                        </div>
-                      ) : column.key === "notes" ? (
-                        <span>
-                          {userRole === "admin"
-                            ? row?.admin_notes !== null &&
-                              row?.admin_notes !== undefined
-                              ? row.admin_notes
-                              : "Not Found Notes"
-                            : userRole === "frontoffice"
-                            ? row?.front_office_notes !== null &&
-                              row?.front_office_notes !== "undefined"
-                              ? row.front_office_notes
-                              : "Not Found Notes"
-                            : row?.back_office_notes !== null &&
-                              row?.back_office_notes !== "undefined"
-                            ? row.back_office_notes
-                            : "Not Found Notes"}
-                        </span>
-                      ) : // For other columns
-                      row[column.key] !== undefined &&
-                        row[column.key] !== null ? (
-                        row[column.key]
-                      ) : (
-                        "Not Found Notes"
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                        >
+                          {column.key === "action" ? (
+                            <div className="flex items-center space-x-2 justify-center">
+                               {userRole === "admin" && (
+                                <div
+                                  onClick={handleDownload}
+                                  className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
+                                >
+                                  <FaDownload className="w-5 h-5" />
+                                </div>
+                              )}
+                              {!showDownload && (
+                                <>
+                                  <div
+                                    onClick={() => handleEditClick(row)}
+                                    className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
+                                  >
+                                    <FaEdit className="w-5 h-5" />
+                                  </div>
 
-      {/* Modal for delete confirmation */}
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex justify-center items-center z-10"
-          style={{
-            animation: isModalOpen
-              ? "scaleUp 0.3s ease-out"
-              : "scaleDown 0.3s ease-in",
-          }}
-        >
-          <div className="">
-            <DeleteConfirmation
-              handleDelete={handleDelete}
-              closeModal={closeModal}
-            />
+                                  {userRole === "admin" && (
+                                    <div
+                                      onClick={() => openModal(row)}
+                                      className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
+                                    >
+                                      <FaTrash className="w-5 h-5" />
+                                    </div>
+                                  )}
+                                </>
+                              )}
+
+                             
+                            </div>
+                          ) : column.key === "notes" ? (
+                            <span>
+                              {userRole === "admin"
+                                ? row?.admin_notes ?? "Not Found Notes"
+                                : userRole === "frontoffice"
+                                ? row?.front_office_notes ?? "Not Found Notes"
+                                : row?.back_office_notes ?? "Not Found Notes"}
+                            </span>
+                          ) : row[column.key] !== undefined &&
+                            row[column.key] !== null ? (
+                            row[column.key]
+                          ) : (
+                            "Not Found Notes"
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-      )}
 
-      {/* // Modal for editing */}
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10"
-          style={{
-            animation: modalOpen
-              ? "scaleUp 0.3s ease-out"
-              : "scaleDown 0.3s ease-in",
-          }}
-        >
-          <EditDetailsModal
-            modalOpen={modalOpen}
-            setModalOpen={setModalOpen}
-            currentRowData={currentRowData}
-            userRole={userRole}
-            // onSubmit={onSubmit}
-          />
-        </div>
-      )}
-    </div>
+        {/* Modal for delete confirmation */}
+        {isModalOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 flex justify-center items-center z-10"
+            style={{
+              animation: isModalOpen
+                ? "scaleUp 0.3s ease-out"
+                : "scaleDown 0.3s ease-in",
+            }}
+          >
+            <div className="">
+              <DeleteConfirmation
+                handleDelete={handleDelete}
+                closeModal={closeModal}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* // Modal for editing */}
+        {modalOpen && (
+          <div
+            className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10"
+            style={{
+              animation: modalOpen
+                ? "scaleUp 0.3s ease-out"
+                : "scaleDown 0.3s ease-in",
+            }}
+          >
+            <EditDetailsModal
+              modalOpen={modalOpen}
+              setModalOpen={setModalOpen}
+              currentRowData={currentRowData}
+              userRole={userRole}
+              fetchData={fetchData}
+              // onSubmit={onSubmit}
+            />
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

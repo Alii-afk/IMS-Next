@@ -10,6 +10,8 @@ const RequestManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log(requests);
+
   const refreshAuthToken = async () => {
     try {
       const refreshToken = Cookies.get("authToken"); // Get refresh token from cookies (or localStorage)
@@ -56,11 +58,9 @@ const RequestManagement = () => {
       setRequests(response.data); // Store fetched data
     } catch (error) {
       if (error.response && error.response.data.error === "Token has expired") {
-        // Token expired, attempt to refresh it
         const newToken = await refreshAuthToken();
         if (newToken) {
-          // Retry fetching data with the new token
-          await fetchData(); // Recursive call after refreshing the token
+          await fetchData(); 
         }
       } else {
         console.error("Error fetching data:", error);
@@ -80,7 +80,7 @@ const RequestManagement = () => {
       {/* Sidebar Component */}
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 
-      <div className="flex-1 md:ml-72 ml-12">
+      <div className="flex-1 md:ml-72">
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="flex px-6 md:items-start items-center py-4">
@@ -104,25 +104,36 @@ const RequestManagement = () => {
                 <h3 className="text-lg font-semibold text-orange-900 mb-2">
                   Pending
                 </h3>
-                <p className="text-4xl font-bold text-orange-600">8</p>
+                <p className="text-4xl font-bold text-orange-600">
+                  {requests?.status_counts?.pending}
+                </p>
               </div>
               <div className="bg-red-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-red-900 mb-2">
                   Reject
                 </h3>
-                <p className="text-4xl font-bold text-red-600">8</p>
+                <p className="text-4xl font-bold text-red-600">
+                  {" "}
+                  {requests?.status_counts?.rejected}
+                </p>
               </div>
               <div className="bg-green-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-green-900 mb-2">
                   In Progress
                 </h3>
-                <p className="text-4xl font-bold text-green-600">12</p>
+                <p className="text-4xl font-bold text-green-600">
+                  {" "}
+                  {requests?.status_counts?.in_progress}
+                </p>
               </div>
               <div className="bg-blue-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-blue-900 mb-2">
                   Completed
                 </h3>
-                <p className="text-4xl font-bold text-blue-600">12</p>
+                <p className="text-4xl font-bold text-blue-600">
+                  {" "}
+                  {requests?.status_counts?.complete}
+                </p>
               </div>
             </div>
 
@@ -133,7 +144,12 @@ const RequestManagement = () => {
             </div>
 
             <div className="px-6">
-              <Table columns={columns} data={requests} />
+              <Table
+                columns={columns}
+                data={requests.data}
+                searchEnabled={true}
+                fetchData={fetchData}
+              />
             </div>
           </div>
         </div>

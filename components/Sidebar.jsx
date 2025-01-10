@@ -30,8 +30,8 @@ const Sidebar = () => {
     Cookies.remove("authToken");
     Cookies.remove("role");
     Cookies.remove("name");
-  
-    router.push("http://localhost:3000"); 
+
+    router.push("http://localhost:3000");
   };
 
   // Full navigation for admin
@@ -57,7 +57,7 @@ const Sidebar = () => {
     },
     {
       name: "In Progress",
-      href: "/sidebarpages/accepted-request",
+      href: "/sidebarpages/inprogress",
       icon: DocumentDuplicateIcon,
       current: false,
     },
@@ -103,7 +103,7 @@ const Sidebar = () => {
   const backofficeNavigation = [
     {
       name: "In Progress",
-      href: "/sidebarpages/accepted-request",
+      href: "/sidebarpages/inprogress",
       icon: DocumentDuplicateIcon,
       current: false,
     },
@@ -136,7 +136,7 @@ const Sidebar = () => {
     },
     {
       name: "In Progress",
-      href: "/sidebarpages/accepted-request",
+      href: "/sidebarpages/inprogress",
       icon: DocumentDuplicateIcon,
       current: false,
     },
@@ -192,7 +192,7 @@ const Sidebar = () => {
       {/* Mobile Toggle */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 md:left-4 right-4 p-2 rounded-lg bg-white shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="lg:hidden fixed top-4 md:left-4 right-4 z-10 p-2 rounded-lg bg-white shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       >
         {sidebarOpen ? (
           <XMarkIcon className="w-6 h-6" />
@@ -203,9 +203,9 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <div
-        className={`sidebar fixed top-0 left-0 h-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0 flex flex-col w-72 z-10`}
+        className={`sidebar  fixed top-0 left-0 h-full bg-white shadow-lg  transform transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0 z-40" : "-translate-x-full "}
+          lg:translate-x-0 flex flex-col w-72  `}
       >
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200 flex items-center justify-center">

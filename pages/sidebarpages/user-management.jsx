@@ -79,7 +79,7 @@ const UserManagement = () => {
 
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 
-      <div className="flex-1 md:ml-72 ml-32">
+      <div className="flex-1 md:ml-72">
         <div className="bg-white shadow-sm">
           <div className="flex px-6 md:items-start items-center py-4">
             <h1 className="text-2xl font-bold text-gray-900">

@@ -11,64 +11,100 @@ const EditDetailsModal = ({
   currentRowData,
   userRole,
   onSubmit,
+  fetchData 
+
 }) => {
   if (!modalOpen) return null; // Do not render if modal is not open
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedStatus, setEditedStatus] = useState("");
-
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
   const [editedNotes, setEditedNotes] = useState(
     userRole === "admin"
       ? currentRowData?.admin_notes || ""
       : currentRowData?.front_office_notes || ""
   );
 
+  const getStatusClasses = (status) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border border-yellow-300";
+      case "rejected":
+        return "bg-red-100 text-red-800 border border-red-300";
+      case "in_progress":
+        return "bg-indigo-100 text-indigo-800 border border-indigo-300";
+      case "complete":
+        return "bg-green-100 text-green-800 border border-green-300";
+      default:
+        return "bg-gray-100 text-gray-800 border border-gray-300"; // fallback
+    }
+  };
+
   const handleSave = async () => {
     try {
       setIsEditing(false);
 
       const keyToUpdate =
-        userRole === "admin" ? "admin_notes" : "front_office_notes";
+        userRole === "admin"
+          ? "admin_notes"
+          : userRole === "frontoffice"
+          ? "front_office_notes"
+          : userRole === "backoffice"
+          ? "back_office_notes"
+          : "notes";
+
+      // Prepare payload dynamically based on the user role
       const payload = {
-        [keyToUpdate]: editedNotes,
-        status: editedStatus,
+        id: currentRowData.id,
+        [keyToUpdate]:
+          editedNotes !== currentRowData[keyToUpdate]
+            ? editedNotes
+            : currentRowData[keyToUpdate],
       };
+
+      // Only add status to the payload if the user is not frontoffice
+      if (userRole !== "frontoffice") {
+        payload.status =
+          editedStatus !== currentRowData.request_status
+            ? editedStatus
+            : currentRowData.request_status;
+      }
 
       const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
-      const response = await fetch(
-        `${apiUrl}/api/requests/${currentRowData.id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await fetch(`${apiUrl}/api/requests`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (response.ok) {
         const updatedData = await response.json();
         toast.success("Notes and Status updated successfully!");
-        console.log("Updated Data:", updatedData);
+        setModalOpen(false);
+        fetchData()
+
       } else {
         const errorData = await response.json();
-        toast.error(
-          `Error: ${errorData.message || "Failed to update notes and status"}`
-        );
-        console.error("Error updating notes and status:", errorData);
+        const errorMessage =
+          errorData?.message || "Failed to update notes and status";
+        toast.error(`Error: ${errorMessage}`);
       }
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");
-      console.error("Unexpected error:", error);
     }
   };
+
+  
 
   return (
     <>
       <ToastContainer />
-
       <div
         className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10"
         style={{
@@ -133,183 +169,139 @@ const EditDetailsModal = ({
                   <td className="py-2 px-4">{currentRowData.type}</td>
                 </tr>
 
-                {/* Notes field */}
                 <tr>
                   <td className="py-2 px-4 text-sm font-medium text-gray-800">
                     {userRole === "admin"
                       ? "Admin Notes"
-                      : "Front Office Notes"}
+                      : userRole === "frontoffice"
+                      ? "Front Office Notes"
+                      : userRole === "backoffice"
+                      ? "Back Office Notes"
+                      : "Notes"}
                   </td>
+
                   <td className="py-2 px-4 flex items-center gap-2">
-                    {isEditing ? (
+                    {isEditingNotes ? (
                       <input
                         type="text"
                         value={editedNotes}
                         onChange={(e) => setEditedNotes(e.target.value)}
-                        className="border rounded-md px-2 py-1 text-sm w-full"
+                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all duration-300 w-full"
                       />
                     ) : (
                       editedNotes || "No Notes Available"
                     )}
-                    {isEditing ? (
+
+                    {isEditingNotes ? (
                       <AiOutlineCheck
-                        onClick={handleSave}
-                        className="cursor-pointer text-green-500"
+                        onClick={() => setIsEditingNotes(false)}
+                        className="cursor-pointer text-green-500 hover:text-green-700 transition-transform transform hover:scale-110"
                         title="Save"
                       />
                     ) : (
                       <FileEdit
-                        onClick={() => setIsEditing(true)}
-                        className="cursor-pointer text-blue-500"
-                        title="Edit"
+                        onClick={() => {
+                          setIsEditingNotes(true);
+                          setIsEditingStatus(false); // Close status edit if open
+                        }}
+                        className="cursor-pointer text-blue-500 hover:text-blue-700 transition-transform transform hover:scale-110"
+                        title="Edit Notes"
                       />
                     )}
                   </td>
                 </tr>
-
                 <tr>
-                  <td className="py-2 px-4 text-sm font-medium text-gray-800">
+                  <td className="py-2 px-4 text-sm font-semibold text-gray-700">
                     Status
                   </td>
-                  <td className="py-2 px-4 flex items-center gap-2">
-                    {userRole === "frontoffice" ? (
-                      isEditing ? (
-                        <select
-                          value={editedStatus || currentRowData.request_status}
-                          onChange={(e) => setEditedStatus(e.target.value)}
-                          className="border rounded-md px-2 py-1 text-sm w-full"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="rejected">Rejected</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="complete">Complete</option>
-                        </select>
-                      ) : (
-                        currentRowData.request_status
-                      )
+
+                  <td className="py-2 px-4 flex items-center gap-3">
+                    {isEditingStatus ? (
+                      <select
+                        value={editedStatus || currentRowData.request_status}
+                        onChange={(e) => setEditedStatus(e.target.value)}
+                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all duration-300"
+                      >
+                        {/* Admin: Show only In Progress and Declined */}
+                        {userRole === "admin" && (
+                          <>
+                            <option value="in_progress">In Progress</option>
+                            <option value="declined">Declined</option>
+                          </>
+                        )}
+
+                        {/* Frontoffice: Show status but don't allow editing */}
+                        {userRole === "frontoffice" && (
+                          <option
+                            value={currentRowData?.request_status}
+                            disabled
+                          >
+                            {currentRowData?.request_status
+                              ? currentRowData.request_status.replace(
+                                  /\_/g,
+                                  " "
+                                )
+                              : "No status available"}
+                          </option>
+                        )}
+
+                        {/* Backoffice: Show only Complete */}
+                        {userRole === "backoffice" && (
+                          <>
+                            <option value="complete">Complete</option>
+                          </>
+                        )}
+                      </select>
                     ) : (
-                      currentRowData.request_status
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusClasses(
+                          currentRowData?.request_status
+                        )}`}
+                      >
+                        {currentRowData?.request_status
+                          ? currentRowData.request_status.replace(/\_/g, " ")
+                          : "No status available"}
+                      </span>
                     )}
 
-                    {userRole === "frontoffice" && !isEditing && (
-                      <FileEdit
-                        onClick={() => setIsEditing(true)}
-                        className="cursor-pointer text-blue-500"
-                        title="Edit"
-                      />
-                    )}
-
-                    {isEditing && (
+                    {isEditingStatus ? (
                       <AiOutlineCheck
-                        onClick={handleSave}
-                        className="cursor-pointer text-green-500"
-                        title="Save"
+                        onClick={() => setIsEditingStatus(false)}
+                        className="cursor-pointer text-green-500 hover:text-green-700 transition-transform transform hover:scale-110"
+                        title="Save Status"
                       />
+                    ) : (
+                      // Conditionally render the FileEdit icon for front office users
+                      userRole !== "frontoffice" && (
+                        <FileEdit
+                          onClick={() => {
+                            setIsEditingStatus(true);
+                            setIsEditingNotes(false); // Close notes edit if open
+                          }}
+                          className="cursor-pointer text-indigo-500 hover:text-indigo-700 transition-transform transform hover:scale-110"
+                          title="Edit Status"
+                        />
+                      )
                     )}
                   </td>
                 </tr>
-
-                {/* Programming Stocks */}
-                {currentRowData.programming_stocks.length > 0 && (
-                  <tr>
-                    <td colSpan="2" className="py-4 px-4">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2">
-                        Programming Stocks
-                      </h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {currentRowData.programming_stocks.map((stock) => (
-                          <div
-                            key={stock.id}
-                            className="border border-gray-300 p-4 rounded-lg shadow-sm hover:shadow-md"
-                          >
-                            <h5 className="font-semibold text-gray-900">
-                              {stock.product_name}
-                            </h5>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Serial No: {stock.serial_no}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Product ID: {stock.product_id}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Description: {stock.description}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Sign Code: {stock.sign_code || "N/A"}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Codeplug: {stock.codeplug || "N/A"}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Channels: {stock.channels || "N/A"}
-                            </p>
-                            <p className="text-sm text-gray-600 mt-1">
-                              Unit: {stock.unit || "N/A"}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                  </tr>
-                )}
-
-                {/* Additional fields for 'new' type */}
-                {currentRowData.type === "new" && (
-                  <>
-                    <tr>
-                      <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                        Serial Number
-                      </td>
-                      <td className="py-2 px-4">
-                        {currentRowData.serial_number}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                        Sign Code
-                      </td>
-                      <td className="py-2 px-4">{currentRowData.sign_code}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                        Codeplug
-                      </td>
-                      <td className="py-2 px-4">{currentRowData.codeplug}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                        Channels
-                      </td>
-                      <td className="py-2 px-4">{currentRowData.channels}</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                        Unit
-                      </td>
-                      <td className="py-2 px-4">{currentRowData.unit}</td>
-                    </tr>
-                  </>
-                )}
               </tbody>
             </table>
+          </div>
 
-            <div className="flex gap-4 justify-end mt-6">
-              <button
-                type="button"
-                onClick={() => setModalOpen(false)}
-                className="py-2 px-4 bg-gray-600 text-white rounded-md hover:bg-gray-700"
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                onClick={() => onSubmit(currentRowData)} // Trigger onSubmit with currentRowData
-                className="py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                disabled={userRole === "frontoffice"} // Disable submit for frontoffice
-              >
-                Save Changes
-              </button>
-            </div>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={() => setModalOpen(false)}
+              className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition-all duration-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-all duration-300"
+            >
+              Save Changes
+            </button>
           </div>
         </div>
       </div>

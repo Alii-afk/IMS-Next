@@ -9,7 +9,7 @@ const PendingRequest = () => {
       {/* Sidebar Component */}
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 
-      <div className="flex-1 md:ml-72 ml-6">
+      <div className="flex-1 md:ml-72">
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="flex max-w-7xl mx-auto px-6 md:items-start items-center py-4">
