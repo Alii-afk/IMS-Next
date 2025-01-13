@@ -65,7 +65,7 @@ const EditDetailsModal = ({
 
       // Only add status to the payload if the user is not frontoffice
       if (userRole !== "frontoffice") {
-        payload.status =
+        payload.request_status =
           editedStatus !== currentRowData.request_status
             ? editedStatus
             : currentRowData.request_status;
@@ -226,7 +226,7 @@ const EditDetailsModal = ({
                         {userRole === "admin" && (
                           <>
                             <option value="in_progress">In Progress</option>
-                            <option value="declined">Declined</option>
+                            <option value="rejected">Rejected</option>
                           </>
                         )}
 
