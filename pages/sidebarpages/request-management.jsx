@@ -10,13 +10,12 @@ const RequestManagement = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  console.log(requests);
 
   const refreshAuthToken = async () => {
     try {
       const refreshToken = Cookies.get("authToken"); // Get refresh token from cookies (or localStorage)
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/refresh-token",
+     `   ${process.env.NEXT_PUBLIC_MAP_KEY}/api/refresh-token`,
         {
           token: refreshToken, // Send expired token to refresh it
         }
@@ -38,18 +37,18 @@ const RequestManagement = () => {
     }
   };
 
-  // Function to fetch data from the API
   const fetchData = async () => {
     try {
-      let token = Cookies.get("authToken"); // Fetch token from cookies (or localStorage)
+      let token = Cookies.get("authToken"); 
 
       if (!token) {
         setError("No token found. Please log in.");
         return;
       }
+      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
       // Try to fetch data with the existing token
-      let response = await axios.get("http://127.0.0.1:8000/api/requests", {
+      const response = await axios.get(`${apiUrl}/api/requests`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

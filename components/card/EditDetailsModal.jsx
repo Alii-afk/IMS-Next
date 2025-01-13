@@ -11,15 +11,20 @@ const EditDetailsModal = ({
   currentRowData,
   userRole,
   onSubmit,
-  fetchData 
-
+  fetchData,
 }) => {
-  if (!modalOpen) return null; // Do not render if modal is not open
+  if (!modalOpen) return null;
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedStatus, setEditedStatus] = useState("");
+  const [editableFields, setEditableFields] = useState({
+    user_name: currentRowData.user_name,
+    name: currentRowData.name,
+    organization: currentRowData.organization,
+    date_time: currentRowData.date_time,
+    type: currentRowData.type,
+  });
+
+  const [editedStatus, setEditedStatus] = useState(currentRowData?.request_status || "");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
-  const [isEditingStatus, setIsEditingStatus] = useState(false);
   const [editedNotes, setEditedNotes] = useState(
     userRole === "admin"
       ? currentRowData?.admin_notes || ""
@@ -37,268 +42,314 @@ const EditDetailsModal = ({
       case "complete":
         return "bg-green-100 text-green-800 border border-green-300";
       default:
-        return "bg-gray-100 text-gray-800 border border-gray-300"; // fallback
+        return "bg-gray-100 text-gray-800 border border-gray-300";
     }
+  };
+
+  const handleFieldEdit = (field, value) => {
+    setEditableFields(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleSave = async () => {
     try {
-      setIsEditing(false);
-
-      const keyToUpdate =
-        userRole === "admin"
-          ? "admin_notes"
-          : userRole === "frontoffice"
-          ? "front_office_notes"
-          : userRole === "backoffice"
-          ? "back_office_notes"
-          : "notes";
-
-      // Prepare payload dynamically based on the user role
-      const payload = {
-        id: currentRowData.id,
-        [keyToUpdate]:
-          editedNotes !== currentRowData[keyToUpdate]
-            ? editedNotes
-            : currentRowData[keyToUpdate],
-      };
-
-      // Only add status to the payload if the user is not frontoffice
-      if (userRole !== "frontoffice") {
-        payload.request_status =
-          editedStatus !== currentRowData.request_status
-            ? editedStatus
-            : currentRowData.request_status;
+      // If the request status is pending, do not allow updates
+      if (editedStatus === "pending") {
+        toast.info("Cannot update while the request is pending.");
+        return;
       }
-
-      const token = Cookies.get("authToken");
-      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-      const response = await fetch(`${apiUrl}/api/requests`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (response.ok) {
-        const updatedData = await response.json();
-        toast.success("Notes and Status updated successfully!");
-        setModalOpen(false);
-        fetchData()
-
+  
+      const payload = { id: currentRowData.id };
+  
+      if (userRole === "frontoffice") {
+        // Front office can edit basic fields and front office notes
+        if (editableFields.name !== currentRowData.name) {
+          payload.name = editableFields.name;
+        }
+        if (editableFields.organization !== currentRowData.organization) {
+          payload.organization = editableFields.organization;
+        }
+        if (editableFields.date_time !== currentRowData.date_time) {
+          payload.date_time = editableFields.date_time;
+        }
+        if (editableFields.type !== currentRowData.type) {
+          payload.type = editableFields.type;
+        }
+        if (editedNotes !== currentRowData.front_office_notes) {
+          payload.front_office_notes = editedNotes;
+        }
+      } else if (userRole === "admin") {
+        // Admin can only edit status and admin notes
+        if (editedStatus !== currentRowData.request_status) {
+          payload.request_status = editedStatus;
+        }
+        if (editedNotes !== currentRowData.admin_notes) {
+          payload.admin_notes = editedNotes;
+        }
+      }
+  
+      if (Object.keys(payload).length > 1) {
+        const token = Cookies.get("authToken");
+        const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+  
+        const response = await fetch(`${apiUrl}/api/requests`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+  
+        if (response.ok) {
+          await response.json();
+          toast.success("Changes saved successfully!");
+          setModalOpen(false);
+          fetchData();
+          
+        } else {
+          const errorData = await response.json();
+          toast.error(`Error: ${errorData?.message || "Failed to update"}`);
+        }
       } else {
-        const errorData = await response.json();
-        const errorMessage =
-          errorData?.message || "Failed to update notes and status";
-        toast.error(`Error: ${errorMessage}`);
+        toast.info("No changes to save.");
       }
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");
     }
   };
-
   
 
   return (
     <>
       <ToastContainer />
-      <div
-        className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10"
-        style={{
-          animation: modalOpen
-            ? "scaleUp 0.3s ease-out"
-            : "scaleDown 0.3s ease-in",
-        }}
-      >
-        <div className="bg-white p-6 rounded-lg shadow-lg w-full md:w-1/5 lg:w-2/5 max-h-[90vh] overflow-auto hide-scrollbar">
-          <h2 className="text-xl font-semibold mb-4 text-gray-900">
-            Edit Details
-          </h2>
-
-          {/* Only display the current row data */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2 text-gray-800">
-              {currentRowData.name}
-            </h3>
-            <table className="min-w-full table-auto">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="py-2 px-4 text-left text-sm text-gray-700">
-                    Label
-                  </th>
-                  <th className="py-2 px-4 text-left text-sm text-gray-700">
-                    Value
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {/* Name field */}
-                <tr>
-                  <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                    Name
-                  </td>
-                  <td className="py-2 px-4">{currentRowData.name}</td>
-                </tr>
-
-                {/* Organization field */}
-                <tr>
-                  <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                    Organization
-                  </td>
-                  <td className="py-2 px-4">{currentRowData.organization}</td>
-                </tr>
-
-                {/* Date & Time field */}
-                <tr>
-                  <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                    Date & Time
-                  </td>
-                  <td className="py-2 px-4">
-                    {new Date(currentRowData.date_time).toLocaleString()}
-                  </td>
-                </tr>
-
-                {/* Select Type */}
-                <tr>
-                  <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                    Type
-                  </td>
-                  <td className="py-2 px-4">{currentRowData.type}</td>
-                </tr>
-
-                <tr>
-                  <td className="py-2 px-4 text-sm font-medium text-gray-800">
-                    {userRole === "admin"
-                      ? "Admin Notes"
-                      : userRole === "frontoffice"
-                      ? "Front Office Notes"
-                      : userRole === "backoffice"
-                      ? "Back Office Notes"
-                      : "Notes"}
-                  </td>
-
-                  <td className="py-2 px-4 flex items-center gap-2">
-                    {isEditingNotes ? (
-                      <input
-                        type="text"
-                        value={editedNotes}
-                        onChange={(e) => setEditedNotes(e.target.value)}
-                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all duration-300 w-full"
-                      />
-                    ) : (
-                      editedNotes || "No Notes Available"
-                    )}
-
-                    {isEditingNotes ? (
-                      <AiOutlineCheck
-                        onClick={() => setIsEditingNotes(false)}
-                        className="cursor-pointer text-green-500 hover:text-green-700 transition-transform transform hover:scale-110"
-                        title="Save"
-                      />
-                    ) : (
-                      <FileEdit
-                        onClick={() => {
-                          setIsEditingNotes(true);
-                          setIsEditingStatus(false); // Close status edit if open
-                        }}
-                        className="cursor-pointer text-blue-500 hover:text-blue-700 transition-transform transform hover:scale-110"
-                        title="Edit Notes"
-                      />
-                    )}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-4 text-sm font-semibold text-gray-700">
-                    Status
-                  </td>
-
-                  <td className="py-2 px-4 flex items-center gap-3">
-                    {isEditingStatus ? (
-                      <select
-                        value={editedStatus || currentRowData.request_status}
-                        onChange={(e) => setEditedStatus(e.target.value)}
-                        className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none transition-all duration-300"
-                      >
-                        {/* Admin: Show only In Progress and Declined */}
-                        {userRole === "admin" && (
-                          <>
-                            <option value="in_progress">In Progress</option>
-                            <option value="rejected">Rejected</option>
-                          </>
-                        )}
-
-                        {/* Frontoffice: Show status but don't allow editing */}
-                        {userRole === "frontoffice" && (
-                          <option
-                            value={currentRowData?.request_status}
-                            disabled
-                          >
-                            {currentRowData?.request_status
-                              ? currentRowData.request_status.replace(
-                                  /\_/g,
-                                  " "
-                                )
-                              : "No status available"}
-                          </option>
-                        )}
-
-                        {/* Backoffice: Show only Complete */}
-                        {userRole === "backoffice" && (
-                          <>
-                            <option value="complete">Complete</option>
-                          </>
-                        )}
-                      </select>
-                    ) : (
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusClasses(
-                          currentRowData?.request_status
-                        )}`}
-                      >
-                        {currentRowData?.request_status
-                          ? currentRowData.request_status.replace(/\_/g, " ")
-                          : "No status available"}
-                      </span>
-                    )}
-
-                    {isEditingStatus ? (
-                      <AiOutlineCheck
-                        onClick={() => setIsEditingStatus(false)}
-                        className="cursor-pointer text-green-500 hover:text-green-700 transition-transform transform hover:scale-110"
-                        title="Save Status"
-                      />
-                    ) : (
-                      // Conditionally render the FileEdit icon for front office users
-                      userRole !== "frontoffice" && (
-                        <FileEdit
-                          onClick={() => {
-                            setIsEditingStatus(true);
-                            setIsEditingNotes(false); // Close notes edit if open
-                          }}
-                          className="cursor-pointer text-indigo-500 hover:text-indigo-700 transition-transform transform hover:scale-110"
-                          title="Edit Status"
-                        />
-                      )
-                    )}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-50 overflow-y-auto">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 my-8">
+          {/* Header */}
+          <div className="border-b px-6 py-4 flex justify-between items-center bg-gray-50 rounded-t-xl">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Request Details
+            </h2>
+            <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusClasses(currentRowData?.request_status)}`}>
+              {currentRowData?.request_status?.replace(/\_/g, " ") || "No status"}
+            </span>
           </div>
 
-          <div className="flex justify-end gap-4">
+          {/* Content */}
+          <div className="px-6 py-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div className="space-y-6">
+              {/* Basic Info Card */}
+              <div className="bg-gray-50 rounded-lg p-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                  
+
+                    {/* Name */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Name</label>
+                      {userRole === "frontoffice" ? (
+                        <input
+                          type="text"
+                          value={editableFields.name}
+                          onChange={(e) => handleFieldEdit("name", e.target.value)}
+                          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+                        />
+                      ) : (
+                        <p className="text-base text-gray-900">{currentRowData.name}</p>
+                      )}
+                    </div>
+
+                    {/* Organization */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Organization</label>
+                      {userRole === "frontoffice" ? (
+                        <input
+                          type="text"
+                          value={editableFields.organization}
+                          onChange={(e) => handleFieldEdit("organization", e.target.value)}
+                          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+                        />
+                      ) : (
+                        <p className="text-base text-gray-900">{currentRowData.organization}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    {/* Date & Time */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Date & Time</label>
+                      {userRole === "frontoffice" ? (
+                        <input
+                          type="datetime-local"
+                          value={editableFields.date_time}
+                          onChange={(e) => handleFieldEdit("date_time", e.target.value)}
+                          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+                        />
+                      ) : (
+                        <p className="text-base text-gray-900">
+                          {new Date(currentRowData.date_time).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Type */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Type</label>
+                      {userRole === "frontoffice" ? (
+                        <input
+                          type="text"
+                          value={editableFields.type}
+                          onChange={(e) => handleFieldEdit("type", e.target.value)}
+                          className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+                        />
+                      ) : (
+                        <p className="text-base text-gray-900">{currentRowData.type}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Section - Only for Admin */}
+              {userRole === "admin" && (
+                <div className="bg-white rounded-lg border p-6 shadow-sm">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Update Status</h3>
+                  <select
+                    value={editedStatus}
+                    onChange={(e) => setEditedStatus(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="in_progress">In Progress</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Notes Sections */}
+              <div className="grid md:grid-cols-3 gap-6">
+                {/* Front Office Notes */}
+                <div className="bg-white rounded-lg border p-6 shadow-sm">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Front Office Notes</h3>
+                    {userRole === "frontoffice" && (
+                      <button
+                        onClick={() => setIsEditingNotes(!isEditingNotes)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        {isEditingNotes ? (
+                          <AiOutlineCheck className="w-5 h-5" />
+                        ) : (
+                          <FileEdit className="w-5 h-5" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  {userRole === "frontoffice" && isEditingNotes ? (
+                    <textarea
+                      value={editedNotes}
+                      onChange={(e) => setEditedNotes(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      rows={4}
+                      placeholder="Enter front office notes..."
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-700">
+                      {currentRowData.front_office_notes || "No front office notes available"}
+                    </p>
+                  )}
+                </div>
+
+                {/* Admin Notes */}
+                <div className="bg-white rounded-lg border p-6 shadow-sm">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Admin Notes</h3>
+                    {userRole === "admin" && (
+                      <button
+                        onClick={() => setIsEditingNotes(!isEditingNotes)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        {isEditingNotes ? (
+                          <AiOutlineCheck className="w-5 h-5" />
+                        ) : (
+                          <FileEdit className="w-5 h-5" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  {userRole === "admin" && isEditingNotes ? (
+                    <textarea
+                      value={editedNotes}
+                      onChange={(e) => setEditedNotes(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      rows={4}
+                      placeholder="Enter admin notes..."
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-700">
+                      {currentRowData.admin_notes || "No admin notes available"}
+                    </p>
+                  )}
+                </div>
+
+                {/* Back Office Notes */}
+                <div className="bg-white rounded-lg border p-6 shadow-sm">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Back Office Notes</h3>
+                  <p className="text-sm text-gray-700">
+                    {currentRowData.back_office_notes || "No back office notes available"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Programming Stocks Section */}
+              {currentRowData.programming_stocks && currentRowData.programming_stocks.length > 0 && (
+                <div className="bg-white rounded-lg border p-6 shadow-sm">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Programming Stocks</h3>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {currentRowData.programming_stocks.map((stock) => (
+                      <div
+                        key={stock.id}
+                        className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="text-md font-semibold text-gray-800">
+                            {stock.product_name}
+                          </h4>
+                          <span className="text-sm text-gray-500">ID: {stock.product_id}</span>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm text-gray-500">Serial No:</span>
+                            <span className="text-sm font-medium">{stock.serial_no}</span>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-500">Description:</p>
+                            <p className="text-sm">{stock.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="border-t px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
             <button
               onClick={() => setModalOpen(false)}
-              className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition-all duration-300"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-all duration-300"
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Save Changes
             </button>

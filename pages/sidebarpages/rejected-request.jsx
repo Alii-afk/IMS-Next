@@ -1,9 +1,37 @@
 import { columns, peoples } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
 import Table from "@/components/tables/table";
-import React from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import React, { useEffect, useState } from "react";
 
 const RejectedRequest = () => {
+  const [rejectedRequests, setRejectedRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPendingRequests = async () => {
+      let token = Cookies.get("authToken"); 
+      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+      try {
+        const response = await axios.get(`${apiUrl}/api/requests`, {
+          params: { request_status: "rejected" },
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          },
+        });
+        setRejectedRequests(response.data); 
+      } catch (error) {
+        console.error("Error fetching pending requests:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPendingRequests();
+  }, []);
+  
   return (
     <div className="min-h-screen bg-white flex">
       {/* Sidebar Component */}
@@ -23,7 +51,7 @@ const RejectedRequest = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-indigo-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-indigo-900 mb-2">Total Rejected</h3>
-                <p className="text-3xl font-bold text-indigo-600">24</p>
+                <p className="text-3xl font-bold text-indigo-600">{rejectedRequests?.total_requests}</p>
               </div>
               {/* <div className="bg-orange-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-orange-900 mb-2">High Priority</h3>
@@ -38,7 +66,7 @@ const RejectedRequest = () => {
               <h1 className="text-xl font-bold text-gray-900">Rejected Requests</h1>
             </div>
             <div className="px-6">
-              <Table columns={columns} data={peoples} />
+              <Table columns={columns} data={rejectedRequests?.data} />
             </div>
           </div>
         </div>

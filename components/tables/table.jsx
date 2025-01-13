@@ -22,6 +22,7 @@ const Table = ({
   searchEnabled = false,
   showDownload = false,
   fetchData,
+  fetchPendingRequests
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentRowData, setCurrentRowData] = useState(null);
@@ -127,49 +128,55 @@ const Table = ({
 
   // downlaod pdf
   const handleDownload = () => {
-    const columnsToExport = [
+    // Define columns to export
+    let columnsToExport = [
       "name",
       "organization",
       "type",
       "date_time",
-      "notes",
       "request_status",
     ];
-
+  
+    // Conditionally include "notes" column based on userRole
+    if (userRole === "admin" || userRole === "backoffice" || userRole === "frontoffice") {
+      columnsToExport.push("notes");
+    }
+  
     const doc = new jsPDF();
-
+  
     // Add header
     const header = columnsToExport.map((col) => {
       const column = columns.find((colObj) => colObj.key === col);
       return column ? column.name : col; // Get the name of the column (from columns array)
     });
-
+  
     // Map filtered data to ensure every column exists, even if the value is missing
     const body = filteredData.map((row) => {
       const rowData = columnsToExport.map((column) => {
         // Check if the column exists and if the value is valid, fallback to empty string
         const value =
           row[column] !== undefined && row[column] !== null ? row[column] : "";
-
+  
         // If 'date_time' is a date, format it (if needed)
         if (column === "date_time" && value instanceof Date) {
           return value.toLocaleString(); // Format date if needed
         }
-
+  
         return value;
       });
       return rowData;
     });
-
+  
     // Add table to PDF using autoTable
     doc.autoTable({
       head: [header],
       body: body,
     });
-
+  
     // Save PDF with the name 'table_data.pdf'
     doc.save("table_data.pdf");
   };
+  
 
   return (
     <>
@@ -226,14 +233,27 @@ const Table = ({
                         >
                           {column.key === "action" ? (
                             <div className="flex items-center space-x-2 justify-center">
-                               {userRole === "admin" && (
-                                <div
-                                  onClick={handleDownload}
-                                  className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
-                                >
-                                  <FaDownload className="w-5 h-5" />
+                              {column.key === "action" ? (
+                                <div className="flex items-center space-x-2 justify-center">
+                                  {userRole === "admin" && (
+                                    <div
+                                      onClick={handleDownload}
+                                      className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
+                                    >
+                                      <FaDownload className="w-5 h-5" />
+                                    </div>
+                                  )}
+                                  {userRole === "backoffice" && "complete" && (
+                                    <div
+                                      onClick={handleDownload}
+                                      className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
+                                    >
+                                      <FaDownload className="w-5 h-5" />
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              ) : null}
+
                               {!showDownload && (
                                 <>
                                   <div
@@ -253,8 +273,6 @@ const Table = ({
                                   )}
                                 </>
                               )}
-
-                             
                             </div>
                           ) : column.key === "notes" ? (
                             <span>

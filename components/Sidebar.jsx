@@ -97,6 +97,12 @@ const Sidebar = () => {
       icon: ChartPieIcon,
       current: false,
     },
+    {
+      name: "Setting",
+      href: "/sidebarpages/setting-page",
+      icon: ChartPieIcon,
+      current: false,
+    },
   ];
 
   // Navigation for backoffice role
@@ -111,6 +117,18 @@ const Sidebar = () => {
       name: "Completed",
       href: "/sidebarpages/completed",
       icon: FaBatteryFull,
+      current: false,
+    },
+    {
+      name: "Add Stock",
+      href: "/sidebarpages/add-stock",
+      icon: ChartPieIcon,
+      current: false,
+    },
+    {
+      name: "Stock Management",
+      href: "/sidebarpages/stock-management",
+      icon: ChartPieIcon,
       current: false,
     },
   ];
@@ -155,6 +173,12 @@ const Sidebar = () => {
     {
       name: "Profile",
       href: "/sidebarpages/profile",
+      icon: ChartPieIcon,
+      current: false,
+    },
+    {
+      name: "Setting",
+      href: "/sidebarpages/setting-page",
       icon: ChartPieIcon,
       current: false,
     },
