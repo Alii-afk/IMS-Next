@@ -96,9 +96,9 @@ const RequestManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <div className="bg-indigo-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-indigo-900 mb-2">
-                  Total Request
+                  Total Requests
                 </h3>
-                <p className="text-4xl font-bold text-indigo-600">24</p>
+                <p className="text-4xl font-bold text-indigo-600">{requests?.total_requests}</p>
               </div>
               <div className="bg-orange-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-orange-900 mb-2">
