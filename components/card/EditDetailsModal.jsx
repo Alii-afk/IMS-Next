@@ -75,7 +75,7 @@ const EditDetailsModal = ({
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
       const response = await fetch(`${apiUrl}/api/requests`, {
-        method: "POST",
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
