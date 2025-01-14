@@ -37,12 +37,12 @@ const Sidebar = () => {
   // Full navigation for admin
   const fullNavigation = [
     { name: "Home", href: "/sidebarpages/home", icon: HomeIcon, current: true },
-    {
-      name: "Add Request Form",
-      href: "/sidebarpages/add-request-form",
-      icon: UsersIcon,
-      current: false,
-    },
+    // {
+    //   name: "Add Request Form",
+    //   href: "/sidebarpages/add-request-form",
+    //   icon: UsersIcon,
+    //   current: false,
+    // },
     {
       name: "Request Management",
       href: "/sidebarpages/request-management",
@@ -261,7 +261,7 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-160px)] hide-scrollbar">
+        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-120px)] hide-scrollbar">
           {navigation?.map((item) => {
             const isActive = router.pathname === item.href;
             const IconComponent = item.icon;
@@ -293,7 +293,7 @@ const Sidebar = () => {
         </nav>
 
         {/* Footer */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+        <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-gray-200 bg-white">
           <div className="flex items-center justify-between">
             {/* Logout Button */}
             <button

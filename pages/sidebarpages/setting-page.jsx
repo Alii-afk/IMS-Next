@@ -40,10 +40,9 @@ const Setting = () => {
       }
 
       const result = await response.json();
-      console.log("Successfully posted:", result);
+     
       toast.success("Stock added successfully!");
     } catch (error) {
-      console.error("Error posting data:", error.message);
       toast.error(error.message || "Failed to add stock. Please try again.");
     }
   };
@@ -55,7 +54,7 @@ const Setting = () => {
       <div className="flex-1 md:ml-72">
         <div className="bg-white shadow-sm">
           <div className="flex max-w-7xl mx-auto px-6 md:items-start items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Add Stock</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Add Stock Name</h1>
           </div>
         </div>
 

@@ -30,7 +30,7 @@ const RoleAssignmentModal = ({ user, onClose, fetchUsers }) => { // Add fetchUse
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/users/${user.id}`,
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/users/${user.id}`,
         {
           method: "PUT",
           headers: {

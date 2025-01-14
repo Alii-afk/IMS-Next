@@ -13,13 +13,21 @@ import DeleteConfirmation from "../card/DeleteConfirmation";
 import InputSearch from "../InputGroup/InputSearch";
 import FileUpload from "../InputGroup/FileUpload";
 import { TbFileDescription } from "react-icons/tb";
+import Cookies from "js-cookie";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // Utility function to join class names conditionally
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const StockTable = ({ columns, data, searchEnabled = false }) => {
+const StockTable = ({
+  columns,
+  data,
+  searchEnabled = false,
+  fetchStockData,
+}) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentRowData, setCurrentRowData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,35 +44,86 @@ const StockTable = ({ columns, data, searchEnabled = false }) => {
   // Function to close the modal
   const closeModal = () => setIsModalOpen(false);
 
-  // Function to handle the delete action
   const handleDelete = () => {
-    console.log("Item deleted");
-    closeModal();
+    // Log the ID being deleted to confirm correctness
+    console.log("Deleting item with ID:", currentRowData?.id);
+  
+    // Ensure that currentRowData and its id are defined before making the API request
+    if (!currentRowData?.id) {
+      console.error("No ID found for deletion.");
+      toast.error("Failed to delete item!"); // Show error if no valid ID
+      return;
+    }
+  
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+  
+    fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Deleted data:", data); // Handle the response after deletion
+        toast.success("Item successfully deleted!"); // Success toast
+        closeModal(); // Close the modal
+        fetchStockData(); // Refresh the stock data to reflect the deletion
+      })
+      .catch((error) => {
+        console.error("Error deleting:", error); // Handle any errors
+        toast.error("Failed to delete item!"); // Error toast
+      });
   };
-
-  const parseTime = (time) => {
-    const daysAgo = parseInt(time.split(" ")[0], 10);
-    const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() - daysAgo);
-    return currentDate.toISOString().slice(0, 16);
-  };
+  
 
   const handleEditClick = (rowData) => {
     setCurrentRowData(rowData);
     setModalOpen(true);
-    setValue("stockName", rowData.stockName);
-    setValue("modelNumber", rowData.modelNumber);
+    setValue("name", rowData.name);
+    setValue("modelNumber", rowData.model_name);
     setValue("manufacturer", rowData.manufacturer);
-    setValue("serialNumber", rowData.serialNumber);
-    setValue("status", rowData.status);
+    setValue("serialNumber", rowData.serial_no);
+    // setValue("status", rowData.status);
   };
 
   const handleFormSubmit = (data) => {
-    console.log("Updated data:", data);
-    setModalOpen(false);
+    // Extract only the required fields from the form data
+    const payload = {
+      manufacturer: data.manufacturer,
+      model_name: data.modelNumber,
+      name: data.name,
+      serial_no: data.serialNumber,
+    };
+
+    console.log("Updated data:", payload); // You can log to check the payload
+
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    // Check if the payload structure matches what the API expects
+    fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
+      method: "PUT", // Assuming the API expects PUT
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json", // Ensure correct Content-Type
+      },
+      body: JSON.stringify(payload), // Send the payload as a JSON string
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Success:", data);
+        toast.success("Data successfully updated!"); // Success toast
+        setModalOpen(false);
+        fetchStockData(); // Refresh the stock data after successful update
+      })
+      .catch((error) => {
+        console.error("Error:", error); // Handle any errors
+        toast.error("Failed to update data!"); // Error toast
+      });
   };
 
-  // Filter data based on search term
   const filteredData = data.filter((row) =>
     columns.some((column) =>
       row[column.key]
@@ -76,6 +135,8 @@ const StockTable = ({ columns, data, searchEnabled = false }) => {
 
   return (
     <div className="mt-8 flow-root z-10">
+      <ToastContainer />
+
       <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle px-4">
           {/* Search Input */}
@@ -189,7 +250,7 @@ const StockTable = ({ columns, data, searchEnabled = false }) => {
                 {/* Editable fields */}
                 <InputField
                   label="Stock Name"
-                  name="stockName"
+                  name="name"
                   icon={EnvelopeIcon}
                   placeholder="Enter Name"
                   type="text"
@@ -209,8 +270,6 @@ const StockTable = ({ columns, data, searchEnabled = false }) => {
                   name="manufacturer"
                   register={register}
                   icon={FileType}
-                  value={selectedType}
-                  options={TypeOptions}
                 />
                 <InputField
                   label="Serial Number"

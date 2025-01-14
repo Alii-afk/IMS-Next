@@ -1,10 +1,69 @@
-import {filteredData,stockmanagementdata } from "@/components/dummyData/FormData";
+import {
+  filteredData,
+  stockmanagementdata,
+} from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
 import StockTable from "@/components/tables/stockTable";
 import Table from "@/components/tables/table";
-import React from "react";
+import axios from "axios";
+import Cookies from "js-cookie";
+import React, { useEffect, useState } from "react";
 
 const Stockmanagement = () => {
+  const [stockData, setStockData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [statusData, setStatusData] = useState({});
+  console.log("Status Data:", statusData); // Log the entire statusData object
+
+  // Fetch the status data from your API
+  const fetchStatusData = async () => {
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    try {
+      const response = await axios.get(`${apiUrl}/api/warehouse-stock/ratios`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setStatusData(response.data);
+    } catch (error) {
+      console.error("Error fetching status data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatusData();
+  }, []);
+
+  // Fetch data from API
+  const fetchStockData = async () => {
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    try {
+      const response = await axios.get(`${apiUrl}/api/warehouse-stock`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Assuming the response data is an array, you can set it to the state
+      setStockData(response.data);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data when the component mounts
+  useEffect(() => {
+    fetchStockData();
+  }, []);
+
   return (
     <div className="min-h-screen  bg-white flex">
       {/* Sidebar Component */}
@@ -14,32 +73,52 @@ const Stockmanagement = () => {
         {/* Header */}
         <div className="bg-white shadow-sm">
           <div className="flex  px-6 md:items-start items-center py-4">
-            <h1 className="text-2xl font-bold text-gray-900">Stock Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Stock Management
+            </h1>
           </div>
         </div>
 
         {/* Page Content */}
         <div className=" px-6 py-8">
           <div className="flex-1 bg-white shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-indigo-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-indigo-900 mb-2">Total Stock</h3>
-                <p className="text-3xl font-bold text-indigo-600">24</p>
-              </div>
-              <div className="bg-orange-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-orange-900 mb-2">Walkie Talkie</h3>
-                <p className="text-3xl font-bold text-orange-600">8</p>
-              </div>
-              <div className="bg-green-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-green-900 mb-2">Repeater</h3>
-                <p className="text-3xl font-bold text-green-600">12</p>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+  {/* Total Stock Card */}
+  <div className="bg-indigo-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
+    <h3 className="text-xl font-semibold text-indigo-900 mb-3">Total Stock</h3>
+    <p className="text-5xl font-bold text-indigo-600">{statusData.total_stock}</p>
+  </div>
+
+  {/* On Field Card */}
+  <div className="bg-orange-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
+    <h3 className="text-xl font-semibold text-orange-900 mb-3">On Field</h3>
+    <p className="text-5xl font-bold text-orange-600">
+      {statusData?.status_counts?.on_field}
+    </p>
+  </div>
+
+  {/* In House Card */}
+  <div className="bg-green-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
+    <h3 className="text-xl font-semibold text-green-900 mb-3">In House</h3>
+    <p className="text-5xl font-bold text-green-600">
+      {statusData?.status_counts?.in_house}
+    </p>
+  </div>
+</div>
+
+
             <div className="flex  md:items-start items-center py-4">
-              <h1 className="text-xl font-bold text-gray-900">Stock Management</h1>
+              <h1 className="text-xl font-bold text-gray-900">
+                Stock Management
+              </h1>
             </div>
             <div className="px-6">
-              <StockTable columns={stockmanagementdata} data={filteredData} searchEnabled={true} />
+              <StockTable
+                columns={stockmanagementdata}
+                data={stockData}
+                searchEnabled={true}
+                fetchStockData={fetchStockData}
+              />
             </div>
           </div>
         </div>

@@ -11,17 +11,17 @@ const AcceptedRequest = () => {
 
   useEffect(() => {
     const fetchPendingRequests = async () => {
-      let token = Cookies.get("authToken"); 
+      let token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
       try {
         const response = await axios.get(`${apiUrl}/api/requests`, {
           params: { request_status: "in_progress" },
           headers: {
-            Authorization: `Bearer ${token}`, 
+            Authorization: `Bearer ${token}`,
           },
         });
-        setInprogressRequests(response.data); 
+        setInprogressRequests(response.data);
       } catch (error) {
         console.error("Error fetching pending requests:", error);
       } finally {
@@ -50,28 +50,18 @@ const AcceptedRequest = () => {
         <div className=" px-6 py-8">
           <div className="flex-1 bg-white shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-indigo-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-indigo-900 mb-2">
+              <div className="bg-gradient-to-r from-indigo-100 via-indigo-200 to-indigo-50 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+                <h3 className="text-xl font-semibold text-indigo-900 mb-3">
                   Total In Progress
                 </h3>
-                <p className="text-3xl font-bold text-indigo-600">{InprogressRequests?.total_requests}</p>
+                <p className="text-4xl font-bold text-indigo-600">
+                  {InprogressRequests?.total_requests}
+                </p>
               </div>
-              {/* <div className="bg-orange-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-orange-900 mb-2">
-                  High Priority
-                </h3>
-                <p className="text-3xl font-bold text-orange-600">8</p>
-              </div>
-              <div className="bg-green-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-green-900 mb-2">
-                  Processing
-                </h3>
-                <p className="text-3xl font-bold text-green-600">12</p>
-              </div> */}
             </div>
             <div className="flex  md:items-start items-center py-4">
               <h1 className="text-xl font-bold text-gray-900">
-              In Progress Requests
+                In Progress Requests
               </h1>
             </div>
             <div className="px-6">

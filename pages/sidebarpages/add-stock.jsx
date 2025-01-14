@@ -8,14 +8,15 @@ import {
   IdentificationIcon,
   MdNumbers,
 } from "@heroicons/react/24/outline";
-import { MdLibraryAdd } from "react-icons/md";
+import { MdLibraryAdd, MdOutlineNumbers } from "react-icons/md";
 import { yupResolver } from "@hookform/resolvers/yup";
 import SelectField from "@/components/SelectField";
 import { stockNames } from "@/components/dummyData/FormData";
 import axios from "axios";
 import validationSchema from "@/components/validation/validationSchema ";
 import Cookies from "js-cookie";
-
+import { toast, ToastContainer } from "react-toastify"; // Import toast
+import "react-toastify/dist/ReactToastify.css";
 const Addstock = () => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
@@ -24,7 +25,11 @@ const Addstock = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const quantityNumber = useWatch({ control: methods.control, name: "quantityNumber", defaultValue: 1 });
+  const quantityNumber = useWatch({
+    control: methods.control,
+    name: "quantityNumber",
+    defaultValue: 1,
+  });
 
   const stockName = useWatch({
     control: methods.control,
@@ -38,7 +43,7 @@ const Addstock = () => {
       const token = Cookies.get("authToken");
       try {
         const response = await fetch(
-          "http://127.0.0.1:8000/api/stock-products",
+          `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -47,7 +52,7 @@ const Addstock = () => {
           }
         );
         const data = await response.json();
-        setStockOptions(data); // Adjust based on the actual structure
+        setStockOptions(data);
       } catch (error) {
         console.error("Error fetching stock data:", error);
       }
@@ -81,22 +86,28 @@ const Addstock = () => {
   // Handle form submission
   const onSubmit = async (data) => {
     const serial_no = Object.keys(data)
-      .filter((key) => key.startsWith("serialNumber") && data[key] && data[key] !== null && data[key] !== "")
+      .filter(
+        (key) =>
+          key.startsWith("serialNumber") &&
+          data[key] &&
+          data[key] !== null &&
+          data[key] !== ""
+      )
       .map((key) => data[key]);
-  
+
     const submissionData = {
       name: data.name,
       model_name: data.model_name,
-      manufacturer: data.manufacturer, 
-      quantity_no: data.quantityNumber,
+      manufacturer: data.manufacturer,
+      // quantity_no: data.quantityNumber,
       serial_no,
     };
     const token = Cookies.get("authToken");
-  
+
     // Submit data to the warehouse stock API
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/warehouse-stock",
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock`,
         submissionData,
         {
           headers: {
@@ -105,15 +116,16 @@ const Addstock = () => {
           },
         }
       );
-      console.log("Stock successfully added:", response.data);
+      toast.success("Stock successfully added:", response.data);
     } catch (error) {
-      console.error("Error submitting stock data:", error);
+      toast.error("Error submitting stock data:", error);
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-white flex">
+      <ToastContainer />
+
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
       <div className="flex-1 md:ml-72">
         <div className="bg-white shadow-sm">
@@ -187,7 +199,7 @@ const Addstock = () => {
                 <InputField
                   label="Enter the Quantity Number"
                   name="quantityNumber"
-                  icon={MdNumbers}
+                  icon={MdOutlineNumbers}
                   defaultValue={1}
                   placeholder="Enter Quantity Number"
                   type="number"
@@ -214,7 +226,7 @@ const Addstock = () => {
                               {...field}
                               label={`Serial no ${index + 1}`} // Customize the label
                               placeholder={`Enter Serial Number ${index + 1}`}
-                              icon={MdNumbers}
+                              icon={MdOutlineNumbers}
                               type="text"
                             />
                           )}

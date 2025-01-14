@@ -11,16 +11,16 @@ const Dashboard = () => {
 
   const handleLoginSuccess = () => {
     if (role === "backoffice") {
-      console.log("Redirecting to /sidebarpages/inprogress");
+      // console.log("Redirecting to /sidebarpages/inprogress");
       router.push("/sidebarpages/inprogress");
     } else if (role === "admin") {
-      console.log("Redirecting to /sidebarpages/home");
+      // console.log("Redirecting to /sidebarpages/home");
       router.push("/sidebarpages/home");
     } else if (role === "frontoffice") {
-      console.log("Redirecting to /sidebarpages/request-management");
+      // console.log("Redirecting to /sidebarpages/request-management");
       router.push("/sidebarpages/request-management");
     } else {
-      console.log("Redirecting to /sidebarpages/home (default)");
+      // console.log("Redirecting to /sidebarpages/home (default)");
       router.push("/sidebarpages/home");
     }
   };

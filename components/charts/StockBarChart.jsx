@@ -1,8 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import dynamic from 'next/dynamic';
+import Cookies from "js-cookie";
+import axios from "axios";
 const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const StockBarChart = ({ data }) => {
+  const [statusData, setStatusData] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  // Fetch the status data from your API
+  const fetchStatusData = async () => {
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    try {
+      const response = await axios.get(`${apiUrl}/api/warehouse-stock/ratios`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Assuming the response structure includes status_counts and percentages
+      setStatusData(response.data.status_counts);
+    } catch (error) {
+      console.error("Error fetching status data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatusData();
+  }, []);
+
+
+  // Prepare data for the chart
+  const chartData = [
+    statusData?.in_house || 0, // In Warehouse
+    statusData?.on_field || 0,  // On Field
+    data?.total_stock || 0      // Total Stock
+  ];
+
   const chartOptions = {
     chart: {
       type: "bar",
@@ -25,18 +62,17 @@ const StockBarChart = ({ data }) => {
         borderRadius: 2,
         horizontal: false,
         columnWidth: "20%",
-        distributed: true, // Enable individual colors for each bar
+        distributed: true, 
         dataLabels: {
           position: 'top'
         }
       }
     },
-    // Remove colors array from here as we'll use individual colors
     xaxis: {
       categories: ["In Warehouse", "On Field", "Total Stock"],
       labels: {
         style: {
-          fontSize: '3px',
+          fontSize: '12px',
           fontWeight: 600
         }
       }
@@ -61,7 +97,7 @@ const StockBarChart = ({ data }) => {
       }
     },
     legend: {
-      show: false // Hide legend since we're using distributed colors
+      show: false
     },
     grid: {
       show: true,
@@ -73,12 +109,10 @@ const StockBarChart = ({ data }) => {
         }
       }
     },
-    // Define colors for individual bars
     colors: [
-      '#F59E0B', // Amber for Total Stock
-      '#10B981', // Green for on field
-      '#EF4444', // Red for in warehouse
-       
+      '#EF4444', 
+      '#10B981', 
+      '#F59E0B', 
     ],
     theme: {
       mode: 'light'
@@ -91,33 +125,33 @@ const StockBarChart = ({ data }) => {
         <h3 className="text-2xl font-bold text-gray-800">Stock Overview</h3>
         <p className="text-gray-600 mt-1">Current Inventory Status</p>
       </div>
-      
+
       <div className="mt-4">
         <ApexCharts
           options={chartOptions}
           series={[{
             name: "Stock Status",
-            data: data
+            data: chartData
           }]}
           type="bar"
           height={350}
         />
       </div>
+
       {/* Legend */}
       <div className="flex justify-center items-center space-x-6 mt-4">
-      <div className="flex items-center">
-          <div className="w-4 h-4 rounded bg-amber-500 mr-2"></div>
-          <span className="text-sm text-gray-600">Total Stock</span>
-        </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 rounded bg-emerald-500 mr-2"></div>
+          <div className="w-4 h-4 rounded bg-red-500 mr-2"></div>
           <span className="text-sm text-gray-600">In Warehouse</span>
         </div>
         <div className="flex items-center">
-          <div className="w-4 h-4 rounded bg-red-500 mr-2"></div>
+          <div className="w-4 h-4 rounded bg-green-500 mr-2"></div>
           <span className="text-sm text-gray-600">On Field</span>
         </div>
-        
+        <div className="flex items-center">
+          <div className="w-4 h-4 rounded bg-amber-500 mr-2"></div>
+          <span className="text-sm text-gray-600">Total Stock</span>
+        </div>
       </div>
     </div>
   );

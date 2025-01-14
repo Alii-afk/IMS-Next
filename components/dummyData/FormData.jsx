@@ -159,10 +159,10 @@ export const StatusOption = [
 
 
 export const stockmanagementdata = [
-  { key: 'stockName', name: 'Stock Name' },
-  { key: 'modelNumber', name: 'Model Number' },
+  { key: 'name', name: 'Name' },
+  { key: 'model_name', name: 'Model Number' },
   { key: 'manufacturer', name: 'Manufacturer' },
-  { key: 'serialNumber', name: 'Serial Number' },
+  { key: 'serial_no', name: 'Serial Number' },
   { key: 'action', name: 'Actions' },
 ];
 

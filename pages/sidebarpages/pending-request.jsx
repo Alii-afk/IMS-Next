@@ -50,12 +50,15 @@ const PendingRequest = () => {
         <div className="px-6 py-8">
           <div className="flex-1 bg-white shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-indigo-50 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-indigo-900 mb-2">
-                  Total Pending
-                </h3>
-                <p className="text-3xl font-bold text-indigo-600">{pendingRequests.total_requests}</p>
-              </div>
+            <div className="bg-gradient-to-r from-indigo-100 to-indigo-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300">
+  <h3 className="text-lg font-semibold text-indigo-900 mb-2 capitalize">
+    Total Pending
+  </h3>
+  <p className="text-3xl font-bold text-indigo-600">
+    {pendingRequests.total_requests}
+  </p>
+</div>
+
               {/* <div className="bg-orange-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold text-orange-900 mb-2">Deny</h3>
                 <p className="text-3xl font-bold text-orange-600">8</p>

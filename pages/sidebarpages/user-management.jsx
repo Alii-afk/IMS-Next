@@ -32,10 +32,10 @@ const UserManagement = () => {
     { Header: "Email", accessor: "email" },
     { Header: "Role", accessor: "role" },
   ];
-  console.log(users);
+  // console.log(users);
 
   const fetchUsers = async () => {
-    const apiUrl = "http://127.0.0.1:8000/api/users"; // Use your correct API URL here
+    const apiUrl = `${process.env.NEXT_PUBLIC_MAP_KEY}/api/users`; // Use your correct API URL here
     try {
       const response = await axios.get(apiUrl);
       setUsers(response.data); // Assuming response.data is an array
@@ -70,7 +70,7 @@ const UserManagement = () => {
         error.response?.data?.message || "Registration failed";
       toast.error(errorMessage);
     }
-    console.log("data1 ", data);
+    // console.log("data1 ", data);
   };
 
   return (

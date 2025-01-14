@@ -23,12 +23,15 @@ import addValidationSchema from "@/components/validation/AddValidationSchema";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
 
 const AddRequestForm = () => {
   const [selectedValue, setSelectedValue] = useState("");
   const [serialInputs, setSerialInputs] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [stockOptions, setStockOptions] = useState([]);
+
   const router = useRouter();
 
   const methods = useForm({
@@ -49,6 +52,29 @@ const AddRequestForm = () => {
     }));
     setSerialInputs(newInputs);
   }, [quantityNumber]);
+
+  // get all list
+  useEffect(() => {
+    const fetchStockData = async () => {
+      const token = Cookies.get("authToken");
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setStockOptions(data); // Adjust based on the actual structure
+      } catch (error) {
+        console.error("Error fetching stock data:", error);
+      }
+    };
+    fetchStockData();
+  }, []);
 
   const onSubmit = async (data) => {
     try {
@@ -82,12 +108,13 @@ const AddRequestForm = () => {
       };
 
       // Log the request payload for debugging
-      console.log("Request Payload:", requestPayload);
+      // console.log("Request Payload:", requestPayload);
 
       // Get the API URL and auth token
-      const token = localStorage.getItem("authToken");
+      const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
+      // console.log(token);
       // Make the API request with raw JSON
       const response = await axios({
         method: "post",
@@ -106,7 +133,7 @@ const AddRequestForm = () => {
         router.push("/sidebarpages/request-management"); // Redirect to the desired page
       }
     } catch (error) {
-      console.error("Submission error:", error);
+      // console.error("Submission error:", error);
       const errorMessage =
         error.response?.data?.message || "An error occurred. Please try again.";
       toast.error(errorMessage);
@@ -194,7 +221,14 @@ const AddRequestForm = () => {
                   icon={FileType}
                   register={methods.register}
                   showIcon={true}
-                  options={TypeOption}
+                  options={
+                    Array.isArray(stockOptions)
+                      ? stockOptions.map((stock) => ({
+                          label: stock.name,
+                          value: stock.name,
+                        }))
+                      : []
+                  }
                   error={methods.formState.errors.type?.message}
                   // error={methods.formState.errors.productList?.message}
                 />

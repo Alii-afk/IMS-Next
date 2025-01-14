@@ -39,7 +39,7 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
   const handleDelete = async (userId) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/users/${userId}`,
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/users/${userId}`,
         {
           method: "DELETE",
           headers: {
