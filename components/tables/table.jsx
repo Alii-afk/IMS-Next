@@ -22,7 +22,6 @@ const Table = ({
   searchEnabled = false,
   showDownload = false,
   fetchData,
-  fetchPendingRequests
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentRowData, setCurrentRowData] = useState(null);
@@ -94,6 +93,7 @@ const Table = ({
 
     closeModal();
     fetchData();
+    fetchPendingRequests();
   };
 
   const parseTime = (time) => {

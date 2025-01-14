@@ -9,27 +9,27 @@ const AcceptedRequest = () => {
   const [InprogressRequests, setInprogressRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    try {
+      const response = await axios.get(`${apiUrl}/api/requests`, {
+        params: { request_status: "in_progress" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setInprogressRequests(response.data);
+    } catch (error) {
+      console.error("Error fetching pending requests:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPendingRequests = async () => {
-      let token = Cookies.get("authToken");
-      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-      try {
-        const response = await axios.get(`${apiUrl}/api/requests`, {
-          params: { request_status: "in_progress" },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setInprogressRequests(response.data);
-      } catch (error) {
-        console.error("Error fetching pending requests:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPendingRequests();
+    fetchData();
   }, []);
   return (
     <div className="min-h-screen  bg-white flex">
@@ -65,7 +65,7 @@ const AcceptedRequest = () => {
               </h1>
             </div>
             <div className="px-6">
-              <Table columns={columns} data={InprogressRequests?.data} />
+              <Table columns={columns} data={InprogressRequests?.data} fetchData={fetchData} />
             </div>
           </div>
         </div>

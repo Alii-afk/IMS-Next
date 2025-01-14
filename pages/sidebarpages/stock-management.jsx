@@ -82,30 +82,37 @@ const Stockmanagement = () => {
         {/* Page Content */}
         <div className=" px-6 py-8">
           <div className="flex-1 bg-white shadow-sm">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-  {/* Total Stock Card */}
-  <div className="bg-indigo-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
-    <h3 className="text-xl font-semibold text-indigo-900 mb-3">Total Stock</h3>
-    <p className="text-5xl font-bold text-indigo-600">{statusData.total_stock}</p>
-  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+              {/* Total Stock Card */}
+              <div className="bg-indigo-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
+                <h3 className="text-xl font-semibold text-indigo-900 mb-3">
+                  Total Stock
+                </h3>
+                <p className="text-5xl font-bold text-indigo-600">
+                  {statusData.total_stock}
+                </p>
+              </div>
 
-  {/* On Field Card */}
-  <div className="bg-orange-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
-    <h3 className="text-xl font-semibold text-orange-900 mb-3">On Field</h3>
-    <p className="text-5xl font-bold text-orange-600">
-      {statusData?.status_counts?.on_field}
-    </p>
-  </div>
+              {/* On Field Card */}
+              <div className="bg-orange-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
+                <h3 className="text-xl font-semibold text-orange-900 mb-3">
+                  On Field
+                </h3>
+                <p className="text-5xl font-bold text-orange-600">
+                  {statusData?.status_counts?.on_field}
+                </p>
+              </div>
 
-  {/* In House Card */}
-  <div className="bg-green-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
-    <h3 className="text-xl font-semibold text-green-900 mb-3">In House</h3>
-    <p className="text-5xl font-bold text-green-600">
-      {statusData?.status_counts?.in_house}
-    </p>
-  </div>
-</div>
-
+              {/* In House Card */}
+              <div className="bg-green-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
+                <h3 className="text-xl font-semibold text-green-900 mb-3">
+                  In House
+                </h3>
+                <p className="text-5xl font-bold text-green-600">
+                  {statusData?.status_counts?.in_house}
+                </p>
+              </div>
+            </div>
 
             <div className="flex  md:items-start items-center py-4">
               <h1 className="text-xl font-bold text-gray-900">

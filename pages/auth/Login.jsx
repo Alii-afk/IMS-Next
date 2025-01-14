@@ -68,7 +68,8 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   // Axios Interceptors Setup
   useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(attachTokenToRequest);
+    const requestInterceptor =
+      axios.interceptors.request.use(attachTokenToRequest);
 
     const responseInterceptor = axios.interceptors.response.use(
       (response) => response,
@@ -96,12 +97,23 @@ const LoginForm = ({ onLoginSuccess }) => {
       }
     );
 
+    // Auto login if token exists in cookies
+    const token = Cookies.get("authToken");
+    if (token) {
+      autoLogin(token);
+    }
+
     // Cleanup on component unmount
     return () => {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
   }, []);
+
+  // Auto Login with stored token
+  const autoLogin = async () => {
+    onLoginSuccess();
+  };
 
   // Handle Form Submission
   const onSubmit = async (data) => {
@@ -193,7 +205,9 @@ const LoginForm = ({ onLoginSuccess }) => {
                 </span>
               </div>
 
-              {loginError && <p className="text-red-500 text-sm">{loginError}</p>}
+              {loginError && (
+                <p className="text-red-500 text-sm">{loginError}</p>
+              )}
 
               <button
                 type="submit"

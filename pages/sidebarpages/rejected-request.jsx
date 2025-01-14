@@ -9,27 +9,27 @@ const RejectedRequest = () => {
   const [rejectedRequests, setRejectedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    try {
+      const response = await axios.get(`${apiUrl}/api/requests`, {
+        params: { request_status: "rejected" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setRejectedRequests(response.data);
+    } catch (error) {
+      console.error("Error fetching pending requests:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPendingRequests = async () => {
-      let token = Cookies.get("authToken");
-      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-      try {
-        const response = await axios.get(`${apiUrl}/api/requests`, {
-          params: { request_status: "rejected" },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setRejectedRequests(response.data);
-      } catch (error) {
-        console.error("Error fetching pending requests:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPendingRequests();
+    fetchData();
   }, []);
 
   return (
@@ -66,7 +66,7 @@ const RejectedRequest = () => {
               </h1>
             </div>
             <div className="px-6">
-              <Table columns={columns} data={rejectedRequests?.data} />
+              <Table columns={columns} data={rejectedRequests?.data} fetchData={fetchData} />
             </div>
           </div>
         </div>
