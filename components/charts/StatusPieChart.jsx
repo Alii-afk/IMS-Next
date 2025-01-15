@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 const StatusPieChart = () => {
   const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState(null);
 
   // Fetch the status data from your API
   const fetchStatusData = async () => {
@@ -28,8 +29,24 @@ const StatusPieChart = () => {
   };
 
   useEffect(() => {
+    setRole(Cookies.get("role")); // Set the user role from cookies
     fetchStatusData();
   }, []);
+
+  // Labels and series for pie chart
+  let labels = ["Pending", "In Progress", "Completed", "Rejected"];
+  let series = [
+    statusData.pending || 0,
+    statusData.in_progress || 0,
+    statusData.complete || 0,
+    statusData.rejected || 0,
+  ];
+
+  // If the user is backoffice, we only show In Progress and Completed
+  if (role === "backoffice") {
+    labels = ["In Progress", "Completed"];
+    series = [statusData.in_progress || 0, statusData.complete || 0];
+  }
 
   // Configure chart options
   const options = {
@@ -37,8 +54,8 @@ const StatusPieChart = () => {
       type: "pie",
       height: 350,
     },
-    labels: ["Pending", "In Progress", "Completed", "Rejected"],
-    colors: ["#f39c12", "#3498db", "#2ecc71", "#e74c3c"],
+    labels: labels, // Use the conditionally modified labels
+    colors: ["#f39c12", "#3498db", "#2ecc71", "#e74c3c"], // Colors for each status
     title: {
       text: "Approval Status",
       align: "center",
@@ -54,14 +71,6 @@ const StatusPieChart = () => {
       position: "bottom",
     },
   };
-
-  // Use the fetched status counts to populate the pie chart series
-  const series = [
-    statusData.pending || 0,
-    statusData.in_progress || 0,
-    statusData.complete || 0,
-    statusData.rejected || 0,
-  ];
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">

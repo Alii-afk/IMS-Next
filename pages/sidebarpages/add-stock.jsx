@@ -11,15 +11,46 @@ import {
 import { MdLibraryAdd, MdOutlineNumbers } from "react-icons/md";
 import { yupResolver } from "@hookform/resolvers/yup";
 import SelectField from "@/components/SelectField";
-import { stockNames } from "@/components/dummyData/FormData";
+import {
+  stockmanagementdata,
+  stockNames,
+} from "@/components/dummyData/FormData";
 import axios from "axios";
 import validationSchema from "@/components/validation/validationSchema ";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify"; // Import toast
 import "react-toastify/dist/ReactToastify.css";
+import StockTable from "@/components/tables/stockTable";
 const Addstock = () => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
+  const [stockData, setStockData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch data from API
+  const fetchStockData = async () => {
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    try {
+      const response = await axios.get(`${apiUrl}/api/warehouse-stock`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      // Assuming the response data is an array, you can set it to the state
+      setStockData(response.data);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch data when the component mounts
+  useEffect(() => {
+    fetchStockData();
+  }, []);
 
   const methods = useForm({
     resolver: yupResolver(validationSchema),
@@ -38,26 +69,26 @@ const Addstock = () => {
   });
 
   // Fetch stock options from the API
+  const fetchStatusData = async () => {
+    const token = Cookies.get("authToken");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setStockOptions(data);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    }
+  };
   useEffect(() => {
-    const fetchStockData = async () => {
-      const token = Cookies.get("authToken");
-      try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await response.json();
-        setStockOptions(data);
-      } catch (error) {
-        console.error("Error fetching stock data:", error);
-      }
-    };
-    fetchStockData();
+    fetchStatusData();
   }, []);
 
   useEffect(() => {
@@ -99,14 +130,13 @@ const Addstock = () => {
       name: data.name,
       model_name: data.model_name,
       manufacturer: data.manufacturer,
-      // quantity_no: data.quantityNumber,
       serial_no,
     };
+
     const token = Cookies.get("authToken");
 
-    // Submit data to the warehouse stock API
     try {
-      const response = await axios.post(
+      await axios.post(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock`,
         submissionData,
         {
@@ -116,9 +146,20 @@ const Addstock = () => {
           },
         }
       );
-      toast.success("Stock successfully added:", response.data);
+
+      toast.success("Stock successfully added!");
+
+      // Reset the form fields
+      methods.reset();
+
+      methods.setValue("name", "");
+      methods.setValue("model_name", ""); // Reset model name
+      methods.setValue("manufacturer", ""); // Reset manufacturer
+
+      // Clear serial number inputs
+      setSerialInputs([]);
     } catch (error) {
-      toast.error("Error submitting stock data:", error);
+      toast.error("Error submitting stock data.");
     }
   };
 
@@ -244,6 +285,14 @@ const Addstock = () => {
                 </button>
               </form>
             </FormProvider>
+          </div>
+          <div className="px-6">
+            <StockTable
+              columns={stockmanagementdata}
+              data={stockData}
+              searchEnabled={true}
+              fetchStockData={fetchStatusData}
+            />
           </div>
         </div>
       </div>

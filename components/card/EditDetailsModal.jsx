@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 import { FileEdit } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineCheck } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,7 +12,7 @@ const EditDetailsModal = ({
   userRole,
   onSubmit,
   fetchData,
-  datas,
+  // datas,
 }) => {
   if (!modalOpen) return null;
 
@@ -23,7 +23,12 @@ const EditDetailsModal = ({
     date_time: currentRowData.date_time,
     type: currentRowData.type,
   });
-
+  const handleInputChange = (field, value) => {
+    setEditableFields((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
   const [editedStatus, setEditedStatus] = useState(
     currentRowData?.request_status || ""
   );
@@ -57,9 +62,15 @@ const EditDetailsModal = ({
       [field]: value,
     }));
   };
+  const isComplete = currentRowData?.request_status === "complete";
 
   const handleSave = async () => {
     try {
+
+      if (isComplete && userRole !== "admin") {
+        toast.info("Cannot update a completed request.");
+        return;
+      }
       // If the request status is pending, do not allow updates
       if (editedStatus === "pending" && userRole !== "admin") {
         toast.info("Cannot update while the request is pending.");
@@ -119,13 +130,13 @@ const EditDetailsModal = ({
         if (response.ok) {
           await response.json();
           toast.success("Changes saved successfully!");
-          setModalOpen(false);
-          fetchData();
-          datas();
-        } else {
-          const errorData = await response.json();
-          toast.error(`Error: ${errorData?.message || "Failed to update"}`);
+          setTimeout(() => {
+            setModalOpen(false);
+            fetchData();
+            // datas();
+          }, 1000);  // Delay closing the modal by 1 second
         }
+        
       } else {
         toast.info("No changes to save.");
       }
@@ -133,11 +144,11 @@ const EditDetailsModal = ({
       toast.error("An unexpected error occurred. Please try again.");
     }
   };
-
+  
   return (
     <>
-      <ToastContainer />
       <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-50 overflow-y-auto">
+      <ToastContainer />
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 my-8">
           {/* Header */}
           <div className="border-b px-6 py-4 flex justify-between items-center bg-gray-50 rounded-t-xl">
@@ -165,17 +176,39 @@ const EditDetailsModal = ({
                       <label className="text-sm font-medium text-gray-500">
                         Name
                       </label>
-                      <p className="text-base text-gray-900">
-                        {currentRowData.name}
-                      </p>
+                      {userRole === "frontoffice" ? (
+                        <input
+                          type="text"
+                          className="w-full text-base text-gray-900 border border-gray-300 rounded-md p-2"
+                          value={editableFields.name}
+                          onChange={(e) =>
+                            handleInputChange("name", e.target.value)
+                          }
+                        />
+                      ) : (
+                        <p className="text-base text-gray-900">
+                          {currentRowData.name}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500">
                         Organization
                       </label>
-                      <p className="text-base text-gray-900">
-                        {currentRowData.organization}
-                      </p>
+                      {userRole === "frontoffice" ? (
+                        <input
+                          type="text"
+                          className="w-full text-base text-gray-900 border border-gray-300 rounded-md p-2"
+                          value={editableFields.organization}
+                          onChange={(e) =>
+                            handleInputChange("organization", e.target.value)
+                          }
+                        />
+                      ) : (
+                        <p className="text-base text-gray-900">
+                          {currentRowData.organization}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -183,17 +216,39 @@ const EditDetailsModal = ({
                       <label className="text-sm font-medium text-gray-500">
                         Date & Time
                       </label>
-                      <p className="text-base text-gray-900">
-                        {new Date(currentRowData.date_time).toLocaleString()}
-                      </p>
+                      {userRole === "frontoffice" ? (
+                        <input
+                          type="datetime-local"
+                          className="w-full text-base text-gray-900 border border-gray-300 rounded-md p-2"
+                          value={editableFields.date_time.slice(0, 16)}
+                          onChange={(e) =>
+                            handleInputChange("date_time", e.target.value)
+                          }
+                        />
+                      ) : (
+                        <p className="text-base text-gray-900">
+                          {new Date(currentRowData.date_time).toLocaleString()}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-500">
                         Type
                       </label>
-                      <p className="text-base text-gray-900">
-                        {currentRowData.type}
-                      </p>
+                      {userRole === "frontoffice" ? (
+                        <input
+                          type="text"
+                          className="w-full text-base text-gray-900 border border-gray-300 rounded-md p-2"
+                          value={editableFields.type}
+                          onChange={(e) =>
+                            handleInputChange("type", e.target.value)
+                          }
+                        />
+                      ) : (
+                        <p className="text-base text-gray-900">
+                          {currentRowData.type}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -365,7 +420,7 @@ const EditDetailsModal = ({
                               {stock.product_name}
                             </h4>
                             <span className="text-sm text-gray-500">
-                              ID: {stock.product_id}
+                              Product ID: {stock.product_id}
                             </span>
                           </div>
                           <div className="space-y-2">

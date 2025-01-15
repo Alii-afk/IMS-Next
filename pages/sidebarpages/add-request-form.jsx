@@ -24,6 +24,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
+import DateInputField from "@/components/InputGroup/DateInput";
 
 const AddRequestForm = () => {
   const [selectedValue, setSelectedValue] = useState("");
@@ -191,7 +192,7 @@ const AddRequestForm = () => {
                 error={methods.formState.errors.organization?.message}
               />
 
-              <InputField
+              <DateInputField
                 label="Date & Time"
                 name="date_time"
                 type="datetime-local"

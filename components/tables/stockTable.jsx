@@ -45,19 +45,18 @@ const StockTable = ({
   const closeModal = () => setIsModalOpen(false);
 
   const handleDelete = () => {
-    // Log the ID being deleted to confirm correctness
     console.log("Deleting item with ID:", currentRowData?.id);
-  
+
     // Ensure that currentRowData and its id are defined before making the API request
     if (!currentRowData?.id) {
       console.error("No ID found for deletion.");
       toast.error("Failed to delete item!"); // Show error if no valid ID
       return;
     }
-  
+
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-  
+
     fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
       method: "DELETE",
       headers: {
@@ -66,15 +65,14 @@ const StockTable = ({
     })
       .then((response) => response.json())
       .then((data) => {
-        toast.success("Item successfully deleted!"); 
-        closeModal(); 
-        fetchStockData(); 
+        toast.success("Item successfully deleted!");
+        closeModal();
+        fetchStockData();
       })
       .catch((error) => {
-        toast.error("Failed to delete item!"); 
+        toast.error("Failed to delete item!");
       });
   };
-  
 
   const handleEditClick = (rowData) => {
     setCurrentRowData(rowData);
@@ -155,6 +153,7 @@ const StockTable = ({
           )}
 
           {/* Table */}
+          <div className=" max-h-[600px] overflow-y-auto hide-scrollbar border">
           <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
             <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
               <tr className="text-center">
@@ -192,7 +191,10 @@ const StockTable = ({
                             <FaEdit className="w-5 h-5" />
                           </div>
                           <div
-                            onClick={openModal}
+                            onClick={() => {
+                              setCurrentRowData(row); // Set the row data before opening the modal
+                              openModal(); // Open the delete confirmation modal
+                            }}
                             className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
                           >
                             <FaTrash className="w-5 h-5" />
@@ -207,6 +209,7 @@ const StockTable = ({
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

@@ -136,52 +136,55 @@ const Table = ({
       "date_time",
       "request_status",
     ];
-  
+
     // Conditionally include "notes" column based on userRole
-    if (userRole === "admin" || userRole === "backoffice" || userRole === "frontoffice") {
+    if (
+      userRole === "admin" ||
+      userRole === "backoffice" ||
+      userRole === "frontoffice"
+    ) {
       columnsToExport.push("notes");
     }
-  
+
     const doc = new jsPDF();
-  
+
     // Add header
     const header = columnsToExport.map((col) => {
       const column = columns.find((colObj) => colObj.key === col);
       return column ? column.name : col; // Get the name of the column (from columns array)
     });
-  
+
     // Map filtered data to ensure every column exists, even if the value is missing
     const body = filteredData.map((row) => {
       const rowData = columnsToExport.map((column) => {
         // Check if the column exists and if the value is valid, fallback to empty string
         const value =
           row[column] !== undefined && row[column] !== null ? row[column] : "";
-  
+
         // If 'date_time' is a date, format it (if needed)
         if (column === "date_time" && value instanceof Date) {
           return value.toLocaleString(); // Format date if needed
         }
-  
+
         return value;
       });
       return rowData;
     });
-  
+
     // Add table to PDF using autoTable
     doc.autoTable({
       head: [header],
       body: body,
     });
-  
+
     // Save PDF with the name 'table_data.pdf'
     doc.save("table_data.pdf");
   };
-  
 
   return (
     <>
-      <ToastContainer />
       <div className="mt-8 flow-root z-10">
+        <ToastContainer />
         <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle px-4">
             {/* Search Input */}

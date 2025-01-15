@@ -37,12 +37,12 @@ const Sidebar = () => {
   // Full navigation for admin
   const fullNavigation = [
     { name: "Home", href: "/sidebarpages/home", icon: HomeIcon, current: true },
-    // {
-    //   name: "Add Request Form",
-    //   href: "/sidebarpages/add-request-form",
-    //   icon: UsersIcon,
-    //   current: false,
-    // },
+    {
+      name: "Add Request Form",
+      href: "/sidebarpages/add-request-form",
+      icon: UsersIcon,
+      current: false,
+    },
     {
       name: "Request Management",
       href: "/sidebarpages/request-management",
@@ -107,6 +107,8 @@ const Sidebar = () => {
 
   // Navigation for backoffice role
   const backofficeNavigation = [
+    { name: "Home", href: "/sidebarpages/home", icon: HomeIcon, current: true },
+
     {
       name: "In Progress",
       href: "/sidebarpages/inprogress",
@@ -134,6 +136,8 @@ const Sidebar = () => {
   ];
 
   const frontofficeNavigation = [
+    { name: "Home", href: "/sidebarpages/home", icon: HomeIcon, current: true },
+
     {
       name: "Request Management",
       href: "/sidebarpages/request-management",

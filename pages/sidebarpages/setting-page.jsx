@@ -39,9 +39,9 @@ const Setting = () => {
         throw new Error(errorData.message || "Something went wrong");
       }
 
-      const result = await response.json();
      
       toast.success("Stock added successfully!");
+      methods.reset();
     } catch (error) {
       toast.error(error.message || "Failed to add stock. Please try again.");
     }

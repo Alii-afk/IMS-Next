@@ -14,7 +14,6 @@ const Stockmanagement = () => {
   const [loading, setLoading] = useState(true);
 
   const [statusData, setStatusData] = useState({});
-  console.log("Status Data:", statusData); // Log the entire statusData object
 
   // Fetch the status data from your API
   const fetchStatusData = async () => {

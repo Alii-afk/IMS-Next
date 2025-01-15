@@ -4,7 +4,8 @@ import Table from "@/components/tables/table";
 import axios from "axios";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Completed = () => {
   const [completedRequests, setCompletedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,7 @@ const Completed = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+
         setCompletedRequests(response.data);
       } catch (error) {
         console.error("Error fetching pending requests:", error);
@@ -34,6 +36,8 @@ const Completed = () => {
 
   return (
     <div className="min-h-screen bg-white flex">
+      <ToastContainer />
+
       {/* Sidebar Component */}
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 
