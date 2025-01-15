@@ -61,7 +61,7 @@ const EditDetailsModal = ({
   const handleSave = async () => {
     try {
       // If the request status is pending, do not allow updates
-      if (editedStatus === "pending") {
+      if (editedStatus === "pending" && userRole !== "admin") {
         toast.info("Cannot update while the request is pending.");
         return;
       }
@@ -226,6 +226,7 @@ const EditDetailsModal = ({
                     >
                       {userRole === "admin" ? (
                         <>
+                          <option value="">Select</option>
                           <option value="in_progress">In Progress</option>
                           <option value="rejected">Rejected</option>
                         </>

@@ -92,7 +92,7 @@ const Setting = () => {
                       label="Model Name"
                       icon={IdentificationIcon}
                       placeholder="Enter Model Name"
-                      type="number"
+                      type="text"
                     />
                   )}
                 />
