@@ -14,19 +14,21 @@ import { HomeIcon } from "lucide-react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import axiosInstance from "@/utils/axiosInstance";
+import { AiOutlineClose } from "react-icons/ai";
 
 const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
+  console.log(currentRowData.id);
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [additionalData, setAdditionalData] = useState(null);
-  const [selectedStockName, setSelectedStockName] = useState("");
   const [modelOptions, setModelOptions] = useState([]);
-  const [selectedManufacturer, setSelectedManufacturer] = useState("");
+  const [additionalData, setAdditionalData] = useState([]);
   const [serialOptions, setSerialOptions] = useState([]);
+  const [selectedStockName, setSelectedStockName] = useState([]);
+  const [selectedManufacturer, setSelectedManufacturer] = useState([]);
 
-  console.log(stockData);
+  console.log(serialOptions);
 
   const methods = useForm();
 
@@ -55,9 +57,6 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
       const stockData = Array.isArray(response.data)
         ? response.data
         : response.data.data;
-
-      console.log("Fetched Stock Data: ", stockData);
-
       const options = stockData.map((stock) => ({
         label: stock.name,
         value: stock.name,
@@ -73,68 +72,107 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
   };
 
   // This function will be called when the stock name is selected
-  const handleStockChange = async (stockName, manufacturer = "") => {
-    setSelectedStockName(stockName);
-    setSelectedManufacturer(manufacturer);
+  const handleStockChange = async (
+    index,
+    stockName,
+    manufacturer = "",
+    serial_no = "" // Ensure this parameter is passed correctly
+  ) => {
+    console.log("serial_no:", serial_no); // Verify if it's passed correctly
+
+    // Initialize arrays if empty
+    setSelectedStockName((prev) => {
+      const updated = [...(prev || [])];
+      updated[index] = stockName;
+      return updated;
+    });
+
+    setSelectedManufacturer((prev) => {
+      const updated = [...(prev || [])];
+      updated[index] = manufacturer;
+      return updated;
+    });
 
     try {
       setLoading(true);
 
-      // Fetch manufacturers based on stock name
+      // Log the request URL and parameters
+      console.log(
+        "Request URL:",
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`
+      );
+      console.log("Params:", { name: stockName, serial_no: serial_no });
+
+      // Make sure serial_no is included in the first API call
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
-        { params: { name: stockName } }
+        {
+          params: { name: stockName, serial_no: serial_no }, // Send serial_no in request
+        }
       );
 
       const stockData = response.data.data || [];
-      console.log("Manufacturer data for selected stock:", stockData);
 
-      // Map stock data to extract manufacturer
       const manufacturers = stockData.map((stock) => ({
         label: stock.manufacturer,
         value: stock.manufacturer,
       }));
 
-      // Update manufacturer data
-      setAdditionalData(manufacturers);
+      setAdditionalData((prev) => {
+        const updated = [...(prev || [])];
+        updated[index] = manufacturers;
+        return updated;
+      });
 
-      // If manufacturer is selected, fetch model data
       if (manufacturer) {
+        // Send serial_no in the second request as well
         const modelsResponse = await axiosInstance.get(
           `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
-          { params: { name: stockName, manufacturer: manufacturer } }
+          {
+            params: { name: stockName, manufacturer, serial_no: serial_no }, // Send serial_no in request
+          }
         );
 
         const modelsData = modelsResponse.data.data || [];
+
         const models = modelsData.map((model) => ({
           label: model.model_name,
           value: model.model_name,
         }));
 
-        // Update model options in state
-        setModelOptions(models);
+        setModelOptions((prev) => {
+          const updated = [...(prev || [])];
+          updated[index] = models;
+          return updated;
+        });
 
-        // If model name is selected, fetch serial number
         if (models.length > 0) {
+          // Send serial_no in the third request as well
           const serialResponse = await axiosInstance.get(
             `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
             {
               params: {
                 name: stockName,
-                manufacturer: manufacturer,
+                manufacturer,
                 model_name: models[0].value,
+                serial_no: serial_no, // Send serial_no in request
               },
             }
           );
 
           const serialData = serialResponse.data.data || [];
+
           const serialNumbers = serialData.map((serial) => ({
             label: serial.serial_no,
             value: serial.serial_no,
+            id: serial.id,
           }));
 
-          // Update serial number options in state
-          setSerialOptions(serialNumbers);
+          setSerialOptions((prev) => {
+            const updated = [...(prev || [])];
+            updated[index] = serialNumbers;
+            return updated;
+          });
         }
       }
     } catch (error) {
@@ -188,32 +226,49 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
     const devices = [];
 
     serialInputs.forEach((_, index) => {
+      const selectedSerialNo = data[`serial_no${index}`];
+
+      // Find the stock item matching the selected serial number
+      const matchedStock = serialOptions[index]?.find(
+        (item) => item.value === selectedSerialNo
+      );
+
       const deviceData = {
+        name: data[`name${index}`],
         sign_code: data[`signCode${index}`],
         codeplug: data[`codeplug${index}`],
         channels: data[`channels${index}`],
         unit: data[`unit${index}`],
-        serial_no: Object.keys(data)
-          .filter((key) => key.startsWith(`serialNumber${index}`) && data[key])
-          .map((key) => data[key]),
+        serial_no: selectedSerialNo, // Send as a simple value
         model_name: data[`model_name${index}`],
         manufacturer: data[`manufacturer${index}`],
+        id: matchedStock ? matchedStock.id : null, // Include the ID
       };
+
       devices.push(deviceData);
     });
 
     const submissionData = {
       devices,
+      request_Id:currentRowData.id
     };
 
-    console.log(submissionData);
+    console.log("submissionData", submissionData);
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-5xl shadow-lg relative max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">Add New Stock</h2>
-
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold mb-4">Add New Stock</h2>
+          {/* Close Button */}
+          <button
+            onClick={handleCloseModal}
+            className=" right-2 text-gray-500 hover:text-red-700 text-xl"
+          >
+            <AiOutlineClose className="" />
+          </button>
+        </div>
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Quantity Number Input */}
@@ -242,7 +297,6 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
                     Device {index + 1}
                   </h4>
 
-                  {/* Stock Name Dropdown */}
                   <Controller
                     name={`name${index}`}
                     control={methods.control}
@@ -253,11 +307,11 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
                         icon={MdLibraryAdd}
                         placeholder="Select Stock Name"
                         showIcon={true}
-                        options={stockOptions} // Directly use the stockOptions here
+                        options={stockOptions}
                         {...field}
                         onChange={(e) => {
-                          field.onChange(e); // Update form value
-                          handleStockChange(e.target.value); // Trigger manufacturer update
+                          field.onChange(e);
+                          handleStockChange(index, e.target.value); // Pass index here
                         }}
                         error={
                           methods.formState.errors[`name${index}`]?.message
@@ -276,11 +330,15 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
                         icon={MdLibraryAdd}
                         placeholder="Select Manufacturer"
                         showIcon={true}
-                        options={additionalData}
+                        options={additionalData?.[index] || []}
                         {...field}
                         onChange={(e) => {
                           field.onChange(e);
-                          handleStockChange(e.target.value);
+                          handleStockChange(
+                            index,
+                            selectedStockName[index],
+                            e.target.value
+                          ); // Pass index & stock name
                         }}
                         error={
                           methods.formState.errors[`manufacturer${index}`]
@@ -300,13 +358,14 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
                         icon={MdLibraryAdd}
                         placeholder="Select Model Name"
                         showIcon={true}
-                        options={modelOptions}
+                        options={modelOptions[index] || []} // Use index-specific options
                         {...field}
                         onChange={(e) => {
                           field.onChange(e);
                           handleStockChange(
-                            selectedStockName,
-                            selectedManufacturer
+                            index,
+                            selectedStockName[index],
+                            selectedManufacturer[index]
                           );
                         }}
                         error={
@@ -327,8 +386,21 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
                         icon={MdLibraryAdd}
                         placeholder="Select Serial Number"
                         showIcon={true}
-                        options={serialOptions}
+                        options={serialOptions[index] || []} // Use index-specific options
                         {...field}
+                        onChange={(e) => {
+                          field.onChange(e); // Update react-hook-form field value
+                          const selectedSerialNo =
+                            e?.target?.value || field.value; // Get the selected serial_no value
+
+                          // Call handleStockChange with the updated serial_no value
+                          handleStockChange(
+                            index,
+                            selectedStockName[index],
+                            selectedManufacturer[index],
+                            selectedSerialNo // Pass serial_no here
+                          );
+                        }}
                         error={
                           methods.formState.errors[`serial_no${index}`]?.message
                         }
@@ -417,14 +489,6 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
             </div>
           </form>
         </FormProvider>
-
-        {/* Close Button */}
-        <button
-          onClick={handleCloseModal}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
-        >
-          &times;
-        </button>
       </div>
     </div>
   );

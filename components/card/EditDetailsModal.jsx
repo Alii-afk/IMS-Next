@@ -326,7 +326,7 @@ const EditDetailsModal = ({
                 )}
               </div>
 
-              {isModalOpen && <StockModel handleCloseModal={handleCloseModal} />}
+              {isModalOpen && <StockModel handleCloseModal={handleCloseModal} currentRowData={currentRowData} />}
 
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Front Office Notes */}
