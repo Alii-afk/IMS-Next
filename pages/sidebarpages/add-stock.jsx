@@ -197,15 +197,18 @@ const Addstock = () => {
   useEffect(() => {
     const quantity = parseInt(quantityNumber) || 1;
     const newInputs = Array.from({ length: quantity }, (_, index) => ({
-      id: `serial_${index + 1}`,
+      id: `${index + 1}`,
       value: "",
     }));
     setSerialInputs(newInputs);
   }, [quantityNumber]);
+  
 
   // Handle form submission
   const onSubmit = async (data) => {
-    const serial_no = serialInputs.map((input, index) => data[`serial_${input.id}`]).filter(Boolean);
+    const serial_no = Object.keys(data)
+    .filter((key) => key.startsWith("serial_") && data[key])
+    .map((key) => data[key])
 
     const submissionData = {
       name: data.name,
@@ -333,10 +336,7 @@ const Addstock = () => {
                   placeholder="Enter Quantity Number"
                   type="number"
                   {...methods.register("quantityNumber")}
-                  onChange={(e) => {
-                    const quantity = parseInt(e.target.value, 10);
-                    setSerialInputs(Array(quantity).fill({ id: Date.now() })); // Dynamically create serial inputs
-                  }}
+                  
                 />
 
                 {/* Dynamic Serial Number Inputs */}
