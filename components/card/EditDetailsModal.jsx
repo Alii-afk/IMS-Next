@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineCheck } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import StockModel from "./StockModel";
 
 const EditDetailsModal = ({
   modalOpen,
@@ -15,6 +16,7 @@ const EditDetailsModal = ({
   // datas,
 }) => {
   if (!modalOpen) return null;
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [editableFields, setEditableFields] = useState({
     user_name: currentRowData.user_name,
@@ -23,6 +25,14 @@ const EditDetailsModal = ({
     date_time: currentRowData.date_time,
     type: currentRowData.type,
   });
+
+  const [editableField, setEditableField] = useState(
+    currentRowData.programming_stocks.reduce((acc, stock) => {
+      acc[stock.id] = { editable: false, description: stock.description };
+      return acc;
+    }, {})
+  );
+
   const handleInputChange = (field, value) => {
     setEditableFields((prev) => ({
       ...prev,
@@ -56,17 +66,13 @@ const EditDetailsModal = ({
     }
   };
 
-  const handleFieldEdit = (field, value) => {
-    setEditableFields((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
   const isComplete = currentRowData?.request_status === "complete";
 
   const handleSave = async () => {
     try {
-
       if (isComplete && userRole !== "admin") {
         toast.info("Cannot update a completed request.");
         return;
@@ -114,6 +120,17 @@ const EditDetailsModal = ({
         }
       }
 
+      // // Handle changes to descriptions for each stock
+      // currentRowData.programming_stocks.forEach((stock) => {
+      //   const stockId = stock.id;
+      //   const newDescription = editableField[stockId]?.description;
+
+      //   // Only add the description to the payload if it has changed
+      //   if (newDescription !== stock.description) {
+      //     payload[`programming_stocks[${stockId}][description]`] =
+      //       newDescription;
+      //   }
+      // });
       if (Object.keys(payload).length > 1) {
         const token = Cookies.get("authToken");
         const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
@@ -134,9 +151,8 @@ const EditDetailsModal = ({
             setModalOpen(false);
             fetchData();
             // datas();
-          }, 1000);  // Delay closing the modal by 1 second
+          }, 1000); // Delay closing the modal by 1 second
         }
-        
       } else {
         toast.info("No changes to save.");
       }
@@ -144,11 +160,11 @@ const EditDetailsModal = ({
       toast.error("An unexpected error occurred. Please try again.");
     }
   };
-  
+
   return (
     <>
       <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-50 overflow-y-auto">
-      <ToastContainer />
+        <ToastContainer />
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 my-8">
           {/* Header */}
           <div className="border-b px-6 py-4 flex justify-between items-center bg-gray-50 rounded-t-xl">
@@ -255,46 +271,62 @@ const EditDetailsModal = ({
               </div>
 
               {/* Status Section - Admin (Hidden) & Back Office (Visible) */}
-              {(userRole === "admin" ||
-                userRole === "backoffice" ||
-                userRole === "frontoffice") && (
-                <div className="bg-white rounded-lg border p-6 shadow-sm">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">
-                    Status
-                  </h3>
+              <div className="flex  md:flex-row justify-between gap-6">
+                {(userRole === "admin" ||
+                  userRole === "backoffice" ||
+                  userRole === "frontoffice") && (
+                  <div className="bg-white rounded-lg border border-gray-200 shadow-lg px-2 py-3 flex-1">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Status
+                    </h3>
 
-                  {userRole === "frontoffice" ? (
-                    // Front Office: Read-only Status with Color Classes
-                    <p
-                      className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusClasses(
-                        editedStatus
-                      )}`}
+                    {userRole === "frontoffice" ? (
+                      // Front Office: Read-only Status with Color Classes
+                      <p
+                        className={`px-4 py-2 rounded-full text-xs font-medium capitalize ${getStatusClasses(
+                          editedStatus
+                        )}`}
+                      >
+                        {editedStatus || "No status available"}
+                      </p>
+                    ) : (
+                      // Admin and Back Office: Editable Dropdown
+                      <select
+                        value={editedStatus}
+                        onChange={(e) => setEditedStatus(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition ease-in-out duration-200"
+                      >
+                        {userRole === "admin" ? (
+                          <>
+                            <option value="">Select</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="rejected">Rejected</option>
+                          </>
+                        ) : (
+                          <>
+                            <option value="">Select</option>
+                            <option value="complete">Complete</option>
+                          </>
+                        )}
+                      </select>
+                    )}
+                  </div>
+                )}
+
+                {/* Show Add Button for Back Office */}
+                {userRole === "backoffice" && currentRowData.type === "new" && (
+                  <div className="flex justify-end mt-6 md:mt-0">
+                    <button
+                      onClick={handleOpenModal}
+                      className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md px-6 py-3 shadow-md transition ease-in-out duration-200 transform hover:scale-105"
                     >
-                      {editedStatus || "No status available"}
-                    </p>
-                  ) : (
-                    // Admin and Back Office: Editable Dropdown
-                    <select
-                      value={editedStatus}
-                      onChange={(e) => setEditedStatus(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      {userRole === "admin" ? (
-                        <>
-                          <option value="">Select</option>
-                          <option value="in_progress">In Progress</option>
-                          <option value="rejected">Rejected</option>
-                        </>
-                      ) : (
-                        <>
-                          <option value="">Select</option>
-                          <option value="complete">Complete</option>
-                        </>
-                      )}
-                    </select>
-                  )}
-                </div>
-              )}
+                      Add Stock
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {isModalOpen && <StockModel handleCloseModal={handleCloseModal} />}
 
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Front Office Notes */}
@@ -409,39 +441,78 @@ const EditDetailsModal = ({
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
                       Programming Stocks
                     </h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {currentRowData.programming_stocks.map((stock) => (
-                        <div
-                          key={stock.id}
-                          className="bg-gray-50 rounded-lg p-4 border border-gray-200"
-                        >
-                          <div className="flex justify-between items-start mb-3">
-                            <h4 className="text-md font-semibold text-gray-800">
-                              {stock.product_name}
-                            </h4>
+                    {currentRowData.programming_stocks.map((stock) => (
+                      <div
+                        key={stock.id}
+                        className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="text-md font-semibold text-gray-800">
+                            {stock.product_name}
+                          </h4>
+                          <span className="text-sm text-gray-500">
+                            Product ID: {stock.product_id}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
                             <span className="text-sm text-gray-500">
-                              Product ID: {stock.product_id}
+                              Serial No:
+                            </span>
+                            <span className="text-sm font-medium">
+                              {stock.serial_no}
                             </span>
                           </div>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-500">
-                                Serial No:
-                              </span>
-                              <span className="text-sm font-medium">
-                                {stock.serial_no}
-                              </span>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-500">
-                                Description:
+                          <div>
+                            <p className="text-sm text-gray-500">
+                              Description:
+                            </p>
+                            {userRole === "backoffice" && (
+                              <button
+                                onClick={() =>
+                                  setEditableField((prev) => ({
+                                    ...prev,
+                                    [stock.id]: {
+                                      ...prev[stock.id],
+                                      editable: !prev[stock.id].editable,
+                                    },
+                                  }))
+                                }
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                {editableField[stock.id]?.editable ? (
+                                  <AiOutlineCheck className="w-5 h-5" />
+                                ) : (
+                                  <FileEdit className="w-5 h-5" />
+                                )}
+                              </button>
+                            )}
+                            {editableField[stock.id]?.editable ? (
+                              <textarea
+                                value={editableField[stock.id]?.description}
+                                onChange={(e) =>
+                                  setEditableField((prev) => ({
+                                    ...prev,
+                                    [stock.id]: {
+                                      ...prev[stock.id],
+                                      description: e.target.value,
+                                    },
+                                  }))
+                                }
+                                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                rows={4}
+                                placeholder="Enter front office notes..."
+                              />
+                            ) : (
+                              <p className="text-sm text-gray-700">
+                                {stock.description ||
+                                  "No front office notes available"}
                               </p>
-                              <p className="text-sm">{stock.description}</p>
-                            </div>
+                            )}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 )}
             </div>
