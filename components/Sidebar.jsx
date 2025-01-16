@@ -37,12 +37,12 @@ const Sidebar = () => {
   // Full navigation for admin
   const fullNavigation = [
     { name: "Home", href: "/sidebarpages/home", icon: HomeIcon, current: true },
-    {
-      name: "Add Request Form",
-      href: "/sidebarpages/add-request-form",
-      icon: UsersIcon,
-      current: false,
-    },
+    // {
+    //   name: "Add Request Form",
+    //   href: "/sidebarpages/add-request-form",
+    //   icon: UsersIcon,
+    //   current: false,
+    // },
     {
       name: "Request Management",
       href: "/sidebarpages/request-management",
