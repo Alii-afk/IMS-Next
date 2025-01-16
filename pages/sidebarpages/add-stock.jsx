@@ -21,35 +21,124 @@ import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify"; // Import toast
 import "react-toastify/dist/ReactToastify.css";
 import StockTable from "@/components/tables/stockTable";
+import axiosInstance from "@/utils/axiosInstance";
 const Addstock = () => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
   const [stockData, setStockData] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [additionalData, setAdditionalData] = useState(null);
+  const [selectedStockName, setSelectedStockName] = useState("");
+  const [modelOptions, setModelOptions] = useState([]);
+  const [selectedManufacturer, setSelectedManufacturer] = useState("");
+  const [serialOptions, setSerialOptions] = useState([]);
   // Fetch data from API
+
   const fetchStockData = async () => {
-    let token = Cookies.get("authToken");
+    setLoading(true);
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
     try {
-      const response = await axios.get(`${apiUrl}/api/warehouse-stock`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      // Assuming the response data is an array, you can set it to the state
-      setStockData(response.data);
+      const response = await axiosInstance.get(
+        `${apiUrl}/api/warehouse-stock/fetch`
+      );
+
+      const stockData = Array.isArray(response.data)
+        ? response.data
+        : response.data.data;
+
+      console.log("Fetched Stock Data: ", stockData);
+
+      const options = stockData.map((stock) => ({
+        label: stock.name,
+        value: stock.name,
+      }));
+
+      setStockOptions(options);
+      setStockData(stockData); // Save the full stock data
     } catch (error) {
       console.error("Error fetching stock data:", error);
     } finally {
       setLoading(false);
     }
   };
+  const handleStockChange = async (stockName, manufacturer = "") => {
+    setSelectedStockName(stockName);
+    setSelectedManufacturer(manufacturer);
 
-  // Fetch data when the component mounts
+    try {
+      setLoading(true);
+
+      // Fetch manufacturers based on stock name
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
+        { params: { name: stockName } }
+      );
+
+      const stockData = response.data.data || [];
+      console.log("Manufacturer data for selected stock:", stockData);
+
+      // Map stock data to extract manufacturer
+      const manufacturers = stockData.map((stock) => ({
+        label: stock.manufacturer,
+        value: stock.manufacturer,
+      }));
+
+      // Update manufacturer data
+      setAdditionalData(manufacturers);
+
+      // If manufacturer is selected, fetch model data
+      if (manufacturer) {
+        const modelsResponse = await axiosInstance.get(
+          `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
+          { params: { name: stockName, manufacturer: manufacturer } }
+        );
+
+        const modelsData = modelsResponse.data.data || [];
+        const models = modelsData.map((model) => ({
+          label: model.model_name,
+          value: model.model_name,
+        }));
+
+        // Update model options in state
+        setModelOptions(models);
+
+        // If model name is selected, fetch serial number
+        if (models.length > 0) {
+          const serialResponse = await axiosInstance.get(
+            `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
+            {
+              params: {
+                name: stockName,
+                manufacturer: manufacturer,
+                model_name: models[0].value,
+              },
+            }
+          );
+
+          const serialData = serialResponse.data.data || [];
+          const serialNumbers = serialData.map((serial) => ({
+            label: serial.serial_no,
+            value: serial.serial_no,
+          }));
+
+          // Update serial number options in state
+          setSerialOptions(serialNumbers);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchStockData();
+  }, []);
+  // Fetch data when the component mounts
+  useEffect(() => {
+    handleStockChange();
   }, []);
 
   const methods = useForm({
@@ -108,7 +197,7 @@ const Addstock = () => {
   useEffect(() => {
     const quantity = parseInt(quantityNumber) || 1;
     const newInputs = Array.from({ length: quantity }, (_, index) => ({
-      id: `serialNumber${index + 1}`,
+      id: `serial_${index + 1}`,
       value: "",
     }));
     setSerialInputs(newInputs);
@@ -116,15 +205,7 @@ const Addstock = () => {
 
   // Handle form submission
   const onSubmit = async (data) => {
-    const serial_no = Object.keys(data)
-      .filter(
-        (key) =>
-          key.startsWith("serialNumber") &&
-          data[key] &&
-          data[key] !== null &&
-          data[key] !== ""
-      )
-      .map((key) => data[key]);
+    const serial_no = serialInputs.map((input, index) => data[`serial_${input.id}`]).filter(Boolean);
 
     const submissionData = {
       name: data.name,
@@ -182,7 +263,7 @@ const Addstock = () => {
                 onSubmit={methods.handleSubmit(onSubmit)}
                 className="space-y-6"
               >
-                {/* Select stock name */}
+                {/* Select Stock Name */}
                 <Controller
                   name="name"
                   control={methods.control}
@@ -193,50 +274,57 @@ const Addstock = () => {
                       icon={MdLibraryAdd}
                       placeholder="Select Stock Name"
                       showIcon={true}
-                      options={
-                        Array.isArray(stockOptions)
-                          ? stockOptions.map((stock) => ({
-                              label: stock.name,
-                              value: stock.name,
-                            }))
-                          : []
-                      }
+                      options={stockOptions}
                       {...field}
-                      error={methods.formState.errors.stockName?.message}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        handleStockChange(e.target.value); // Call handler on stock selection
+                      }}
+                      error={methods.formState.errors.name?.message}
                     />
                   )}
                 />
 
-                {/* Model Name and Manufacturer as controlled inputs */}
-                <Controller
-                  name="model_name"
-                  control={methods.control}
-                  render={({ field }) => (
-                    <InputField
-                      {...field}
-                      label="Model Name"
-                      icon={IdentificationIcon}
-                      placeholder="Model Number"
-                      type="text"
-                    />
-                  )}
-                />
-
+                {/* Select Manufacturer */}
                 <Controller
                   name="manufacturer"
                   control={methods.control}
                   render={({ field }) => (
-                    <InputField
-                      {...field}
+                    <SelectField
                       label="Manufacturer"
+                      name="manufacturer"
                       icon={HomeIcon}
-                      placeholder="Manufacturer"
-                      type="text"
+                      placeholder="Select Manufacturer"
+                      options={additionalData} // Dynamically populated manufacturers
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        // Fetch models when manufacturer is selected
+                        handleStockChange(selectedStockName, e.target.value);
+                      }}
+                      error={methods.formState.errors.manufacturer?.message}
                     />
                   )}
                 />
 
-                {/* Quantity Number Input */}
+                {/* Select Model Name */}
+                <Controller
+                  name="model_name"
+                  control={methods.control}
+                  render={({ field }) => (
+                    <SelectField
+                      label="Model Name"
+                      name="model_name"
+                      icon={IdentificationIcon}
+                      placeholder="Select Model"
+                      options={modelOptions} // Dynamically populated models
+                      {...field}
+                      error={methods.formState.errors.model_name?.message}
+                    />
+                  )}
+                />
+
+                {/* Quantity Input */}
                 <InputField
                   label="Enter the Quantity Number"
                   name="quantityNumber"
@@ -245,6 +333,10 @@ const Addstock = () => {
                   placeholder="Enter Quantity Number"
                   type="number"
                   {...methods.register("quantityNumber")}
+                  onChange={(e) => {
+                    const quantity = parseInt(e.target.value, 10);
+                    setSerialInputs(Array(quantity).fill({ id: Date.now() })); // Dynamically create serial inputs
+                  }}
                 />
 
                 {/* Dynamic Serial Number Inputs */}
@@ -260,12 +352,12 @@ const Addstock = () => {
                       {serialInputs.map((input, index) => (
                         <Controller
                           key={input.id}
-                          name={input.id} // Ensure unique and correct name for each input
+                          name={`serial_${input.id}`} // Ensure each serial input has a unique name
                           control={methods.control}
                           render={({ field }) => (
                             <InputField
                               {...field}
-                              label={`Serial no ${index + 1}`} // Customize the label
+                              label={`Serial no ${index + 1}`} // Customize label for each serial number
                               placeholder={`Enter Serial Number ${index + 1}`}
                               icon={MdOutlineNumbers}
                               type="text"
@@ -277,6 +369,7 @@ const Addstock = () => {
                   </div>
                 )}
 
+                {/* Submit Button */}
                 <button
                   type="submit"
                   className="w-full mt-6 px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"

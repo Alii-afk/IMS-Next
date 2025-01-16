@@ -44,14 +44,14 @@ const LoginForm = ({ onLoginSuccess }) => {
 
         // Notify all pending requests
         subscribers.forEach((callback) => callback(response.data.token));
-        setSubscribers([]);
+        setSubscribers([]); // Reset subscribers after notifying all
         return response.data.token;
       } else {
         throw new Error("Failed to refresh token");
       }
     } catch (error) {
       Cookies.remove("authToken");
-      window.location.href = "/";
+      window.location.href = "/"; // Redirect to login if refreshing token fails
     } finally {
       setIsRefreshing(false);
     }
@@ -76,6 +76,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       async (error) => {
         const originalRequest = error.config;
 
+        // If token expires (401 error), try to refresh the token
         if (
           error.response &&
           error.response.status === 401 &&

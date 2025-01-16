@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 const SelectField = ({
   label,
-  options = [],
+  options = [], // Default to an empty array if no options are provided
   icon: Icon,
   showIcon = true,
   name,
@@ -16,12 +16,13 @@ const SelectField = ({
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const dropdownRef = useRef(null);
-  
+
   const registerField = register ? register(name) : {};
 
   useEffect(() => {
     if (value) {
-      const selected = options.find((option) => option.value === value);
+      const validOptions = Array.isArray(options) ? options : [];
+      const selected = validOptions.find((option) => option.value === value);
       setSelectedOption(selected || null);
     }
   }, [value, options]);
@@ -41,15 +42,15 @@ const SelectField = ({
     if (disabled) return;
     setSelectedOption(option);
     setIsOpen(false);
-    
+
     if (onChange) {
       onChange({ target: { name, value: option.value } });
     }
-    
+
     if (registerField.onChange) {
       registerField.onChange({
         target: { name, value: option.value },
-        type: 'change'
+        type: "change",
       });
     }
   };
@@ -83,33 +84,34 @@ const SelectField = ({
 
       {isOpen && !disabled && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 max-h-60 overflow-auto">
-          {options.map((option, index) => (
-            <div
-              key={index}
-              onClick={() => handleSelect(option)}
-              className={`px-4 py-3 cursor-pointer flex items-center space-x-2 hover:bg-blue-50 transition-colors duration-150 ${
-                selectedOption?.value === option.value ? "bg-blue-50" : ""
-              }`}
-            >
-              {option.icon && (
-                <span className="text-gray-400">{option.icon}</span>
-              )}
-              <span className="text-gray-700 hover:text-blue-600">
-                {option.label}
-              </span>
-            </div>
-          ))}
+          {Array.isArray(options) &&
+            options.map((option, index) => (
+              <div
+                key={index}
+                onClick={() => handleSelect(option)}
+                className={`px-4 py-3 cursor-pointer flex items-center space-x-2 hover:bg-blue-50 transition-colors duration-150 ${
+                  selectedOption?.value === option.value ? "bg-blue-50" : ""
+                }`}
+              >
+                {option.icon && (
+                  <span className="text-gray-400">{option.icon}</span>
+                )}
+                <span className="text-gray-700 hover:text-blue-600">
+                  {option.label}
+                </span>
+              </div>
+            ))}
         </div>
       )}
-      
+
       {/* Hidden input for React Hook Form */}
       <input
         type="hidden"
         name={name}
-        value={selectedOption?.value || ''}
+        value={selectedOption?.value || ""}
         {...registerField}
       />
-      
+
       {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
