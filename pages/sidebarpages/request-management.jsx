@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import Table from "@/components/tables/table";
 import { columns } from "@/components/dummyData/FormData";
 import Cookies from "js-cookie";
+import { ClipLoader } from "react-spinners";
 
 const RequestManagement = () => {
   const [requests, setRequests] = useState([]);
@@ -155,6 +156,14 @@ const RequestManagement = () => {
           </div>
         </div>
       </div>
+      {/* Loader Overlay */}
+      {loading && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="relative">
+            <ClipLoader color="#ffffff" loading={loading} size={50} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

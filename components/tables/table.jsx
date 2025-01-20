@@ -125,6 +125,10 @@ const Table = ({
         )
       )
     : [];
+  const truncate = (text, maxLength) => {
+    if (!text) return "No Notes Available"; // Handle null or undefined text
+    return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  };
 
   // downlaod pdf
   const handleDownload = () => {
@@ -189,7 +193,7 @@ const Table = ({
           <div className="inline-block min-w-full py-2 align-middle px-4">
             {/* Search Input */}
             {searchEnabled && (
-              <div className="relative flex rounded-md shadow-lg bg-white outline-1 outline-gray-300 max-w-sm mb-6">
+              <div className="relative z-10 flex rounded-md shadow-lg bg-white outline-1 outline-gray-300 max-w-sm mb-6">
                 <input
                   type="text"
                   className="block w-full border-2 rounded-md pl-10 pr-4 py-2 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none sm:text-sm"
@@ -280,10 +284,10 @@ const Table = ({
                           ) : column.key === "notes" ? (
                             <span>
                               {userRole === "admin"
-                                ? row?.admin_notes ?? "Not Found Notes"
+                                ? truncate(row?.admin_notes, 30)
                                 : userRole === "frontoffice"
-                                ? row?.front_office_notes ?? "Not Found Notes"
-                                : row?.back_office_notes ?? "Not Found Notes"}
+                                ? truncate(row?.front_office_notes, 30)
+                                : truncate(row?.back_office_notes, 30)}
                             </span>
                           ) : row[column.key] !== undefined &&
                             row[column.key] !== null ? (
@@ -346,151 +350,3 @@ const Table = ({
 };
 
 export default Table;
-
-// <FormProvider {...methods}>
-// <form
-//   onSubmit={handleSubmit(handleFormSubmit)}
-//   className="space-y-4"
-// >
-//   {/* Editable fields */}
-//   <InputField
-//     label="Name"
-//     name="name"
-//     icon={EnvelopeIcon}
-//     placeholder="Enter Name"
-//     type="text"
-//     register={register}
-//     disabled={userRole === "frontoffice"}
-//   />
-//   <InputField
-//     label="Organization"
-//     name="organization"
-//     icon={GrOrganization}
-//     placeholder="Enter Organization"
-//     type="text"
-//     register={register}
-//     disabled={userRole === "frontoffice"}
-//   />
-//   <InputField
-//     label="Date & Time"
-//     name="date_time"
-//     icon={CiCalendarDate}
-//     type="datetime-local"
-//     register={register}
-//     disabled={userRole === "frontoffice"}
-//   />
-
-//   <SelectField
-//     label="Select the Type"
-//     name="type"
-//     register={register}
-//     icon={FileType}
-//     value={selectedType}
-//     options={TypeOptions}
-//     disabled={userRole === "frontoffice" || userRole === "admin"}
-//   />
-
-//   <InputField
-//     label={label}
-//     name="notes"
-//     icon={TbFileDescription}
-//     placeholder="Enter Notes"
-//     type="text"
-//     register={register}
-//     disabled={userRole === "frontoffice"}
-//   />
-
-//   {/* Status field with dynamic options */}
-//   <SelectField
-//     label="Status"
-//     name="request_status"
-//     icon={SiInstatus}
-//     options={
-//       userRole === "admin"
-//         ? StatusOption.filter(
-//             (option) =>
-//               option.value === "in_progress" ||
-//               option.value === "rejected"
-//           )
-//         : userRole === "backoffice"
-//         ? StatusOption.filter(
-//             (option) => option.value === "completed"
-//           )
-//         : []
-//     }
-//     register={register}
-//     value={selectedStatus}
-//     disabled={userRole === "frontoffice"}
-//   />
-
-//   {selectedType === "New" && (
-//     <>
-//       <InputField
-//         label="Quantity"
-//         name="quantity"
-//         icon={MdOutlineProductionQuantityLimits}
-//         placeholder="Enter Quantity"
-//         type="number"
-//         register={register}
-//       />
-//       <InputField
-//         label="Serial Number"
-//         name="serial_number"
-//         icon={GrKey}
-//         placeholder="Enter Serial Number"
-//         type="text"
-//         register={register}
-//       />
-//       <InputField
-//         label="Sign Code"
-//         name="sign_code"
-//         icon={GrCertificate}
-//         placeholder="Enter Sign Code"
-//         type="text"
-//         register={register}
-//       />
-//       <InputField
-//         label="Codeplug"
-//         name="codeplug"
-//         icon={GrTechnology}
-//         placeholder="Enter Codeplug"
-//         type="text"
-//         register={register}
-//       />
-//       <InputField
-//         label="Channels"
-//         name="channels"
-//         icon={GrChannels}
-//         placeholder="Enter Channels"
-//         type="text"
-//         register={register}
-//       />
-//       <InputField
-//         label="Unit"
-//         name="unit"
-//         icon={GrCube}
-//         placeholder="Enter Unit"
-//         type="text"
-//         register={register}
-//       />
-//     </>
-//   )}
-
-//   <div className="flex gap-4 justify-end">
-//     <button
-//       type="button"
-//       onClick={() => setModalOpen(false)}
-//       className="py-2 px-4 bg-gray-600 text-white rounded-md"
-//     >
-//       Close
-//     </button>
-//     <button
-//       type="submit"
-//       className="py-2 px-4 bg-blue-600 text-white rounded-md"
-//       disabled={userRole === "frontoffice"} // Disable submit for frontoffice
-//     >
-//       Save Changes
-//     </button>
-//   </div>
-// </form>
-// </FormProvider>

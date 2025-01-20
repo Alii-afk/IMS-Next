@@ -4,6 +4,7 @@ import Table from "@/components/tables/table";
 import axios from "axios";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
+import { ClipLoader } from "react-spinners";
 
 const AcceptedRequest = () => {
   const [InprogressRequests, setInprogressRequests] = useState([]);
@@ -70,6 +71,14 @@ const AcceptedRequest = () => {
           </div>
         </div>
       </div>
+       {/* Loader Overlay */}
+       {loading && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="relative">
+            <ClipLoader color="#ffffff" loading={loading} size={50} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

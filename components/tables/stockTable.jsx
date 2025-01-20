@@ -66,8 +66,8 @@ const StockTable = ({
       .then((response) => response.json())
       .then((data) => {
         toast.success("Item successfully deleted!");
-        closeModal();
         fetchStockData();
+        closeModal();
       })
       .catch((error) => {
         toast.error("Failed to delete item!");

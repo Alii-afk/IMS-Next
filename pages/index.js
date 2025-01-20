@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
+import { StrictMode } from "react";
+
 import Dashboard from "./Dashboard";
 
 const geistSans = Geist({
@@ -16,7 +18,10 @@ export default function Home() {
   return (
     <div
     >
-      <Dashboard />
+      <StrictMode>
+
+        <Dashboard />
+      </StrictMode>
     </div>
   );
 }

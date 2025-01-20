@@ -180,12 +180,12 @@ const Sidebar = () => {
       icon: ChartPieIcon,
       current: false,
     },
-    {
-      name: "Setting",
-      href: "/sidebarpages/setting-page",
-      icon: ChartPieIcon,
-      current: false,
-    },
+    // {
+    //   name: "Setting",
+    //   href: "/sidebarpages/setting-page",
+    //   icon: ChartPieIcon,
+    //   current: false,
+    // },
   ];
 
   // Select navigation based on the role
@@ -210,6 +210,15 @@ const Sidebar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [sidebarOpen]);
 
+  let logoSrc;
+
+  if (role === "admin") {
+    logoSrc = "/images/admin.jpg";
+  } else if (role === "backoffice") {
+    logoSrc = "/images/backoffice.jpg";
+  } else if (role === "frontoffice") {
+    logoSrc = "/images/frontoffice.jpg";
+  }
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Backdrop */}
@@ -249,7 +258,7 @@ const Sidebar = () => {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <img
-                src="https://sal-dashboard.demobykiranpal.in/assets/images/avatars/avatar_24.jpg"
+                src={logoSrc}
                 alt="Profile"
                 className="w-12 h-12 rounded-full object-cover border-2 border-indigo-500"
               />

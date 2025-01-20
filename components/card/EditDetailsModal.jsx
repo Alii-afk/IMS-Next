@@ -51,6 +51,23 @@ const EditDetailsModal = ({
       : currentRowData?.front_office_notes || ""
   );
 
+  const [modalContent, setModalContent] = useState("");
+  const [isModalNotesOpen, setIsModalNotesOpen] = useState(false);
+
+  // Function to handle text truncation
+  const truncateText = (text, maxLength = 100) => {
+    if (text.length > maxLength) {
+      return `${text.substring(0, maxLength)}...`;
+    }
+    return text;
+  };
+
+  // Function to open the modal and display full text
+  const openModal = (text) => {
+    setModalContent(text);
+    setIsModalNotesOpen(true);
+  };
+
   const getStatusClasses = (status) => {
     switch (status) {
       case "pending":
@@ -77,14 +94,16 @@ const EditDetailsModal = ({
         toast.info("Cannot update a completed request.");
         return;
       }
+  
       // If the request status is pending, do not allow updates
-      if (editedStatus === "pending" && userRole !== "admin") {
-        toast.info("Cannot update while the request is pending.");
-        return;
-      }
-
+      // if (editedStatus === "pending" && userRole !== "admin") {
+      //   toast.info("Cannot update while the request is pending.");
+      //   return;
+      // }
+  
       const payload = { id: currentRowData.id };
-
+  
+      // Handle field updates based on user role
       if (userRole === "frontoffice") {
         // Front office can edit basic fields and front office notes
         if (editableFields.name !== currentRowData.name) {
@@ -119,22 +138,22 @@ const EditDetailsModal = ({
           payload.back_office_notes = editedNotes;
         }
       }
-
-      // // Handle changes to descriptions for each stock
-      // currentRowData.programming_stocks.forEach((stock) => {
-      //   const stockId = stock.id;
-      //   const newDescription = editableField[stockId]?.description;
-
-      //   // Only add the description to the payload if it has changed
-      //   if (newDescription !== stock.description) {
-      //     payload[`programming_stocks[${stockId}][description]`] =
-      //       newDescription;
-      //   }
-      // });
+  
+      // Handle changes to descriptions for each stock
+      currentRowData.programming_stocks.forEach((stock) => {
+        const stockId = stock.id;
+        const newDescription = editableField.description;
+  
+        // Only add the description to the payload if it has changed
+        if (newDescription !== stock.description) {
+          payload.description = newDescription;
+        }
+      });
+  
       if (Object.keys(payload).length > 1) {
         const token = Cookies.get("authToken");
         const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
+  
         const response = await fetch(`${apiUrl}/api/requests`, {
           method: "PUT",
           headers: {
@@ -143,7 +162,7 @@ const EditDetailsModal = ({
           },
           body: JSON.stringify(payload),
         });
-
+  
         if (response.ok) {
           await response.json();
           toast.success("Changes saved successfully!");
@@ -160,6 +179,7 @@ const EditDetailsModal = ({
       toast.error("An unexpected error occurred. Please try again.");
     }
   };
+  
 
   return (
     <>
@@ -252,14 +272,16 @@ const EditDetailsModal = ({
                         Type
                       </label>
                       {userRole === "frontoffice" ? (
-                        <input
-                          type="text"
+                        <select
                           className="w-full text-base text-gray-900 border border-gray-300 rounded-md p-2"
                           value={editableFields.type}
                           onChange={(e) =>
                             handleInputChange("type", e.target.value)
                           }
-                        />
+                        >
+                          <option value="programming">Programming</option>
+                          <option value="new">New</option>
+                        </select>
                       ) : (
                         <p className="text-base text-gray-900">
                           {currentRowData.type}
@@ -326,8 +348,13 @@ const EditDetailsModal = ({
                 )}
               </div>
 
-              {isModalOpen && <StockModel handleCloseModal={handleCloseModal} currentRowData={currentRowData} />}
-
+              {isModalOpen && (
+                <StockModel
+                  handleCloseModal={handleCloseModal}
+                  currentRowData={currentRowData}
+                  setModalOpen={setModalOpen}
+                />
+              )}
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Front Office Notes */}
                 <div className="bg-white rounded-lg border p-6 shadow-sm">
@@ -357,10 +384,25 @@ const EditDetailsModal = ({
                       placeholder="Enter front office notes..."
                     />
                   ) : (
-                    <p className="text-sm text-gray-700">
-                      {currentRowData.front_office_notes ||
-                        "No front office notes available"}
-                    </p>
+                    <>
+                      <p className="text-sm text-gray-700">
+                        {truncateText(
+                          currentRowData.front_office_notes ||
+                            "No front office notes available"
+                        )}
+                      </p>
+                      {currentRowData.front_office_notes &&
+                        currentRowData.front_office_notes.length > 100 && (
+                          <button
+                            onClick={() =>
+                              openModal(currentRowData.front_office_notes)
+                            }
+                            className="text-blue-600 hover:text-blue-800 mt-2"
+                          >
+                            See More
+                          </button>
+                        )}
+                    </>
                   )}
                 </div>
 
@@ -392,9 +434,25 @@ const EditDetailsModal = ({
                       placeholder="Enter admin notes..."
                     />
                   ) : (
-                    <p className="text-sm text-gray-700">
-                      {currentRowData.admin_notes || "No admin notes available"}
-                    </p>
+                    <>
+                      <p className="text-sm text-gray-700">
+                        {truncateText(
+                          currentRowData.admin_notes ||
+                            "No admin notes available"
+                        )}
+                      </p>
+                      {currentRowData.admin_notes &&
+                        currentRowData.admin_notes.length > 100 && (
+                          <button
+                            onClick={() =>
+                              openModal(currentRowData.admin_notes)
+                            }
+                            className="text-blue-600 hover:text-blue-800 mt-2"
+                          >
+                            See More
+                          </button>
+                        )}
+                    </>
                   )}
                 </div>
 
@@ -426,12 +484,47 @@ const EditDetailsModal = ({
                       placeholder="Enter back office notes..."
                     />
                   ) : (
-                    <p className="text-sm text-gray-700">
-                      {currentRowData.back_office_notes ||
-                        "No back office notes available"}
-                    </p>
+                    <>
+                      <p className="text-sm text-gray-700">
+                        {truncateText(
+                          currentRowData.back_office_notes ||
+                            "No back office notes available"
+                        )}
+                      </p>
+                      {currentRowData.back_office_notes &&
+                        currentRowData.back_office_notes.length > 100 && (
+                          <button
+                            onClick={() =>
+                              openModal(currentRowData.back_office_notes)
+                            }
+                            className="text-blue-600 hover:text-blue-800 mt-2"
+                          >
+                            See More
+                          </button>
+                        )}
+                    </>
                   )}
                 </div>
+
+                {/* Modal to show full notes */}
+                {isModalNotesOpen && (
+                  <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-1/2 max-h-[80vh] overflow-auto">
+                      <h3 className="text-lg font-medium text-gray-900">
+                        Full Notes
+                      </h3>
+                      <div className="mt-4 text-sm text-gray-700 max-h-60 overflow-y-auto">
+                        <p>{modalContent}</p>
+                      </div>
+                      <button
+                        onClick={() => setIsModalNotesOpen(false)}
+                        className="mt-4 text-blue-600 hover:text-blue-800"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Programming Stocks Section - Read-only for all */}

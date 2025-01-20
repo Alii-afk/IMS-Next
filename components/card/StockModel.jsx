@@ -15,9 +15,9 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import axiosInstance from "@/utils/axiosInstance";
 import { AiOutlineClose } from "react-icons/ai";
-
-const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
-  console.log(currentRowData.id);
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen}) => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
   const [stockData, setStockData] = useState([]);
@@ -28,7 +28,6 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
   const [selectedStockName, setSelectedStockName] = useState([]);
   const [selectedManufacturer, setSelectedManufacturer] = useState([]);
 
-  console.log(serialOptions);
 
   const methods = useForm();
 
@@ -222,9 +221,11 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
   }, [quantityNumber]);
 
   // ✅ Handle form submission
+
   const onSubmit = async (data) => {
     const devices = [];
 
+    // Iterating through each serial input and collecting data for each device
     serialInputs.forEach((_, index) => {
       const selectedSerialNo = data[`serial_no${index}`];
 
@@ -233,6 +234,7 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
         (item) => item.value === selectedSerialNo
       );
 
+      // Construct the device data object
       const deviceData = {
         name: data[`name${index}`],
         sign_code: data[`signCode${index}`],
@@ -242,255 +244,293 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal }) => {
         serial_no: selectedSerialNo, // Send as a simple value
         model_name: data[`model_name${index}`],
         manufacturer: data[`manufacturer${index}`],
-        id: matchedStock ? matchedStock.id : null, // Include the ID
+        id: matchedStock ? matchedStock.id : null, // Include the ID if matched
       };
 
       devices.push(deviceData);
     });
 
-    const submissionData = {
+    const payload = {
       devices,
-      request_Id:currentRowData.id
+      request_id: currentRowData.id,
     };
 
-    console.log("submissionData", submissionData);
+    console.log("submissionData", payload);
+
+    // Send the data to the API
+    try {
+      const token = Cookies.get("authToken");
+      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY; // Ensure the correct API URL here
+
+      const response = await fetch(
+        `${apiUrl}/api/warehouse-stock/updateStock`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update stock");
+      }
+
+      const responseData = await response.json();
+      console.log("API Response:", responseData);
+
+      // Show success toast
+      toast.success("Stock updated successfully!");
+      handleCloseModal();
+      setModalOpen(false);
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      // Show error toast
+      toast.error("Failed to update stock. Please try again.");
+    }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-5xl shadow-lg relative max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold mb-4">Add New Stock</h2>
-          {/* Close Button */}
-          <button
-            onClick={handleCloseModal}
-            className=" right-2 text-gray-500 hover:text-red-700 text-xl"
-          >
-            <AiOutlineClose className="" />
-          </button>
-        </div>
-        <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Quantity Number Input */}
-            <InputField
-              label="Enter the Quantity Number"
-              name="quantityNumber"
-              icon={MdOutlineNumbers}
-              defaultValue={1}
-              placeholder="Enter Quantity Number"
-              type="number"
-              {...register("quantityNumber")}
-            />
-
-            {/* Dynamic Device Inputs */}
-            <div
-              className={`gap-4 mt-4 ${
-                serialInputs.length > 1 ? "grid grid-cols-2" : "block"
-              }`}
+    <>
+      <ToastContainer />
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-5xl shadow-lg relative max-h-[90vh] overflow-y-auto">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-bold mb-4">Add New Stock</h2>
+            {/* Close Button */}
+            <button
+              onClick={handleCloseModal}
+              className=" right-2 text-gray-500 hover:text-red-700 text-xl"
             >
-              {serialInputs.map((input, index) => (
-                <div
-                  key={`deviceGroup${index}`}
-                  className="border border-gray-300 p-4 rounded-md shadow-md space-y-4"
+              <AiOutlineClose className="" />
+            </button>
+          </div>
+          <FormProvider {...methods}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* Quantity Number Input */}
+              <InputField
+                label="Enter the Quantity Number"
+                name="quantityNumber"
+                icon={MdOutlineNumbers}
+                defaultValue={1}
+                placeholder="Enter Quantity Number"
+                type="number"
+                {...register("quantityNumber")}
+              />
+
+              {/* Dynamic Device Inputs */}
+              <div
+                className={`gap-4 mt-4 ${
+                  serialInputs.length > 1 ? "grid grid-cols-2" : "block"
+                }`}
+              >
+                {serialInputs.map((input, index) => (
+                  <div
+                    key={`deviceGroup${index}`}
+                    className="border border-gray-300 p-4 rounded-md shadow-md space-y-4"
+                  >
+                    <h4 className="font-semibold text-gray-600">
+                      Device {index + 1}
+                    </h4>
+
+                    <Controller
+                      name={`name${index}`}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <SelectField
+                          label="Stock Name"
+                          name={`name${index}`}
+                          icon={MdLibraryAdd}
+                          placeholder="Select Stock Name"
+                          showIcon={true}
+                          options={stockOptions}
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            handleStockChange(index, e.target.value); // Pass index here
+                          }}
+                          error={
+                            methods.formState.errors[`name${index}`]?.message
+                          }
+                        />
+                      )}
+                    />
+
+                    <Controller
+                      name={`manufacturer${index}`}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <SelectField
+                          label="Manufacturer"
+                          name={`manufacturer${index}`}
+                          icon={MdLibraryAdd}
+                          placeholder="Select Manufacturer"
+                          showIcon={true}
+                          options={additionalData?.[index] || []}
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            handleStockChange(
+                              index,
+                              selectedStockName[index],
+                              e.target.value
+                            ); // Pass index & stock name
+                          }}
+                          error={
+                            methods.formState.errors[`manufacturer${index}`]
+                              ?.message
+                          }
+                        />
+                      )}
+                    />
+
+                    <Controller
+                      name={`model_name${index}`}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <SelectField
+                          label="Model Name"
+                          name={`model_name${index}`}
+                          icon={MdLibraryAdd}
+                          placeholder="Select Model Name"
+                          showIcon={true}
+                          options={modelOptions[index] || []} // Use index-specific options
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            handleStockChange(
+                              index,
+                              selectedStockName[index],
+                              selectedManufacturer[index]
+                            );
+                          }}
+                          error={
+                            methods.formState.errors[`model_name${index}`]
+                              ?.message
+                          }
+                        />
+                      )}
+                    />
+
+                    <Controller
+                      name={`serial_no${index}`}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <SelectField
+                          label="Serial Number"
+                          name={`serial_no${index}`}
+                          icon={MdLibraryAdd}
+                          placeholder="Select Serial Number"
+                          showIcon={true}
+                          options={serialOptions[index] || []} // Use index-specific options
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e); // Update react-hook-form field value
+                            const selectedSerialNo =
+                              e?.target?.value || field.value; // Get the selected serial_no value
+
+                            // Call handleStockChange with the updated serial_no value
+                            handleStockChange(
+                              index,
+                              selectedStockName[index],
+                              selectedManufacturer[index],
+                              selectedSerialNo // Pass serial_no here
+                            );
+                          }}
+                          error={
+                            methods.formState.errors[`serial_no${index}`]
+                              ?.message
+                          }
+                        />
+                      )}
+                    />
+
+                    {/* Sign Code */}
+                    <Controller
+                      name={`signCode${index}`} // Make sure this name is dynamic and matches with onSubmit
+                      control={methods.control}
+                      render={({ field }) => (
+                        <InputField
+                          {...field}
+                          label="Sign Code"
+                          placeholder={`Enter Sign Code ${index + 1}`}
+                          icon={GrCertificate}
+                          type="text"
+                        />
+                      )}
+                    />
+
+                    {/* Codeplug */}
+                    <Controller
+                      name={`codeplug${index}`}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <InputField
+                          {...field}
+                          label="Codeplug"
+                          placeholder={`Enter Codeplug ${index + 1}`}
+                          icon={GrTechnology}
+                          type="text"
+                        />
+                      )}
+                    />
+
+                    {/* Channels */}
+                    <Controller
+                      name={`channels${index}`}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <InputField
+                          {...field}
+                          label="Channels"
+                          placeholder={`Enter Channels ${index + 1}`}
+                          icon={GrChannels}
+                          type="text"
+                        />
+                      )}
+                    />
+
+                    {/* Unit */}
+                    <Controller
+                      name={`unit${index}`}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <InputField
+                          {...field}
+                          label="Unit"
+                          placeholder={`Enter Unit ${index + 1}`}
+                          icon={GrCube}
+                          type="text"
+                        />
+                      )}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end mt-4">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="bg-gray-300 hover:bg-gray-400 text-black font-semibold rounded-md px-4 py-2 mr-2"
                 >
-                  <h4 className="font-semibold text-gray-600">
-                    Device {index + 1}
-                  </h4>
-
-                  <Controller
-                    name={`name${index}`}
-                    control={methods.control}
-                    render={({ field }) => (
-                      <SelectField
-                        label="Stock Name"
-                        name={`name${index}`}
-                        icon={MdLibraryAdd}
-                        placeholder="Select Stock Name"
-                        showIcon={true}
-                        options={stockOptions}
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleStockChange(index, e.target.value); // Pass index here
-                        }}
-                        error={
-                          methods.formState.errors[`name${index}`]?.message
-                        }
-                      />
-                    )}
-                  />
-
-                  <Controller
-                    name={`manufacturer${index}`}
-                    control={methods.control}
-                    render={({ field }) => (
-                      <SelectField
-                        label="Manufacturer"
-                        name={`manufacturer${index}`}
-                        icon={MdLibraryAdd}
-                        placeholder="Select Manufacturer"
-                        showIcon={true}
-                        options={additionalData?.[index] || []}
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleStockChange(
-                            index,
-                            selectedStockName[index],
-                            e.target.value
-                          ); // Pass index & stock name
-                        }}
-                        error={
-                          methods.formState.errors[`manufacturer${index}`]
-                            ?.message
-                        }
-                      />
-                    )}
-                  />
-
-                  <Controller
-                    name={`model_name${index}`}
-                    control={methods.control}
-                    render={({ field }) => (
-                      <SelectField
-                        label="Model Name"
-                        name={`model_name${index}`}
-                        icon={MdLibraryAdd}
-                        placeholder="Select Model Name"
-                        showIcon={true}
-                        options={modelOptions[index] || []} // Use index-specific options
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e);
-                          handleStockChange(
-                            index,
-                            selectedStockName[index],
-                            selectedManufacturer[index]
-                          );
-                        }}
-                        error={
-                          methods.formState.errors[`model_name${index}`]
-                            ?.message
-                        }
-                      />
-                    )}
-                  />
-
-                  <Controller
-                    name={`serial_no${index}`}
-                    control={methods.control}
-                    render={({ field }) => (
-                      <SelectField
-                        label="Serial Number"
-                        name={`serial_no${index}`}
-                        icon={MdLibraryAdd}
-                        placeholder="Select Serial Number"
-                        showIcon={true}
-                        options={serialOptions[index] || []} // Use index-specific options
-                        {...field}
-                        onChange={(e) => {
-                          field.onChange(e); // Update react-hook-form field value
-                          const selectedSerialNo =
-                            e?.target?.value || field.value; // Get the selected serial_no value
-
-                          // Call handleStockChange with the updated serial_no value
-                          handleStockChange(
-                            index,
-                            selectedStockName[index],
-                            selectedManufacturer[index],
-                            selectedSerialNo // Pass serial_no here
-                          );
-                        }}
-                        error={
-                          methods.formState.errors[`serial_no${index}`]?.message
-                        }
-                      />
-                    )}
-                  />
-
-                  {/* Sign Code */}
-                  <Controller
-                    name={`signCode${index}`} // Make sure this name is dynamic and matches with onSubmit
-                    control={methods.control}
-                    render={({ field }) => (
-                      <InputField
-                        {...field}
-                        label="Sign Code"
-                        placeholder={`Enter Sign Code ${index + 1}`}
-                        icon={GrCertificate}
-                        type="text"
-                      />
-                    )}
-                  />
-
-                  {/* Codeplug */}
-                  <Controller
-                    name={`codeplug${index}`}
-                    control={methods.control}
-                    render={({ field }) => (
-                      <InputField
-                        {...field}
-                        label="Codeplug"
-                        placeholder={`Enter Codeplug ${index + 1}`}
-                        icon={GrTechnology}
-                        type="text"
-                      />
-                    )}
-                  />
-
-                  {/* Channels */}
-                  <Controller
-                    name={`channels${index}`}
-                    control={methods.control}
-                    render={({ field }) => (
-                      <InputField
-                        {...field}
-                        label="Channels"
-                        placeholder={`Enter Channels ${index + 1}`}
-                        icon={GrChannels}
-                        type="text"
-                      />
-                    )}
-                  />
-
-                  {/* Unit */}
-                  <Controller
-                    name={`unit${index}`}
-                    control={methods.control}
-                    render={({ field }) => (
-                      <InputField
-                        {...field}
-                        label="Unit"
-                        placeholder={`Enter Unit ${index + 1}`}
-                        icon={GrCube}
-                        type="text"
-                      />
-                    )}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex justify-end mt-4">
-              <button
-                type="button"
-                onClick={handleCloseModal}
-                className="bg-gray-300 hover:bg-gray-400 text-black font-semibold rounded-md px-4 py-2 mr-2"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md px-4 py-2"
-              >
-                Submit
-              </button>
-            </div>
-          </form>
-        </FormProvider>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md px-4 py-2"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </FormProvider>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -6,9 +6,11 @@ import LineChart from "@/components/charts/LineChart";
 import RejectedChart from "@/components/charts/RejectedChart";
 import StockPieChart from "@/components/charts/StatusPieChart";
 import StockBarChart from "@/components/charts/StockBarChart";
+import { ClipLoader } from "react-spinners";
 
 const Home = () => {
   // State for user role and name
+
   const [role, setRole] = useState(null);
   const [name, setName] = useState(null);
   const router = useRouter();
@@ -52,6 +54,7 @@ const Home = () => {
          
         </div>
       </div>
+       
     </div>
   );
 };

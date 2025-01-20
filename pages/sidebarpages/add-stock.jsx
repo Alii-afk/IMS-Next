@@ -22,6 +22,7 @@ import { toast, ToastContainer } from "react-toastify"; // Import toast
 import "react-toastify/dist/ReactToastify.css";
 import StockTable from "@/components/tables/stockTable";
 import axiosInstance from "@/utils/axiosInstance";
+import { ClipLoader } from "react-spinners";
 const Addstock = () => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
@@ -40,7 +41,7 @@ const Addstock = () => {
 
     try {
       const response = await axiosInstance.get(
-        `${apiUrl}/api/warehouse-stock/fetch`
+        `${apiUrl}/api/stock-products/fetchStockNameData`
       );
 
       const stockData = Array.isArray(response.data)
@@ -62,6 +63,7 @@ const Addstock = () => {
       setLoading(false);
     }
   };
+
   const handleStockChange = async (stockName, manufacturer = "") => {
     setSelectedStockName(stockName);
     setSelectedManufacturer(manufacturer);
@@ -202,13 +204,12 @@ const Addstock = () => {
     }));
     setSerialInputs(newInputs);
   }, [quantityNumber]);
-  
 
   // Handle form submission
   const onSubmit = async (data) => {
     const serial_no = Object.keys(data)
-    .filter((key) => key.startsWith("serial_") && data[key])
-    .map((key) => data[key])
+      .filter((key) => key.startsWith("serial_") && data[key])
+      .map((key) => data[key]);
 
     const submissionData = {
       name: data.name,
@@ -336,7 +337,6 @@ const Addstock = () => {
                   placeholder="Enter Quantity Number"
                   type="number"
                   {...methods.register("quantityNumber")}
-                  
                 />
 
                 {/* Dynamic Serial Number Inputs */}
@@ -380,15 +380,27 @@ const Addstock = () => {
             </FormProvider>
           </div>
           <div className="px-6">
-            <StockTable
-              columns={stockmanagementdata}
-              data={stockData}
-              searchEnabled={true}
-              fetchStockData={fetchStatusData}
-            />
+            {stockData && stockData.length > 0 ? (
+              <StockTable
+                columns={stockmanagementdata}
+                data={stockData}
+                searchEnabled={true}
+                fetchStockData={fetchStockData}
+              />
+            ) : (
+              <p>No stock data available</p> // This is a fallback message if no data exists
+            )}
           </div>
         </div>
       </div>
+       {/* Loader Overlay */}
+       {loading && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="relative">
+            <ClipLoader color="#ffffff" loading={loading} size={50} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
