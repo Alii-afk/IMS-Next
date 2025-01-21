@@ -56,8 +56,8 @@ const Sidebar = () => {
       current: false,
     },
     {
-      name: "In Progress",
-      href: "/sidebarpages/inprogress",
+      name: "Approved",
+      href: "/sidebarpages/approved",
       icon: DocumentDuplicateIcon,
       current: false,
     },
@@ -103,6 +103,12 @@ const Sidebar = () => {
       icon: ChartPieIcon,
       current: false,
     },
+    {
+      name: "Profile",
+      href: "/sidebarpages/profile",
+      icon: ChartPieIcon,
+      current: false,
+    },
   ];
 
   // Navigation for backoffice role
@@ -110,8 +116,8 @@ const Sidebar = () => {
     { name: "Home", href: "/sidebarpages/home", icon: HomeIcon, current: true },
 
     {
-      name: "In Progress",
-      href: "/sidebarpages/inprogress",
+      name: "Approved",
+      href: "/sidebarpages/approved",
       icon: DocumentDuplicateIcon,
       current: false,
     },
@@ -130,6 +136,12 @@ const Sidebar = () => {
     {
       name: "Stock Management",
       href: "/sidebarpages/stock-management",
+      icon: ChartPieIcon,
+      current: false,
+    },
+    {
+      name: "Profile",
+      href: "/sidebarpages/profile",
       icon: ChartPieIcon,
       current: false,
     },
@@ -157,8 +169,8 @@ const Sidebar = () => {
       current: false,
     },
     {
-      name: "In Progress",
-      href: "/sidebarpages/inprogress",
+      name: "Approved",
+      href: "/sidebarpages/approved",
       icon: DocumentDuplicateIcon,
       current: false,
     },

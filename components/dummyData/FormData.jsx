@@ -153,7 +153,7 @@ export const columns = [
 export const StatusOption = [
   { label: "Pending", value: "pending" },
   { label: "Rejected", value: "rejected" },
-  { label: "In Progress", value: "in_progress" },
+  { label: "Approved", value: "in_progress" },
   { label: "Completed", value: "completed" },
 ];
 

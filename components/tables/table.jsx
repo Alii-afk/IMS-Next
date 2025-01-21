@@ -239,54 +239,51 @@ const Table = ({
                           )}
                         >
                           {column.key === "action" ? (
-                            <div className="flex items-center space-x-2 justify-center">
-                              {column.key === "action" ? (
-                                <div className="flex items-center space-x-2 justify-center">
-                                  {userRole === "admin" && (
-                                    <div
-                                      onClick={handleDownload}
-                                      className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
-                                    >
-                                      <FaDownload className="w-5 h-5" />
-                                    </div>
-                                  )}
-
-                                  {userRole === "backoffice" && "complete" && (
-                                   <>
-                                    <div
-                                    onClick={() => handleEditClick(row)}
-                                    className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
+                            <div className="flex items-center space-x-2 ">
+                              {/* Admin role */}
+                              {userRole === "admin" &&
+                                row.request_status === "complete" && (
+                                  <button
+                                    className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
+                                    onClick={handleDownload}
                                   >
-                                    <FaEdit className="w-5 h-5" />
-                                  </div>
-                                    <div
+                                    <FaDownload className="w-5 h-5" />
+                                  </button>
+                                )}
+
+                              {userRole === "admin" &&
+                                row.request_status === "complete" && (
+                                  <>
+                                    <button
+                                      className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
                                       onClick={handleDownload}
-                                      className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
                                     >
                                       <FaDownload className="w-5 h-5" />
-                                    </div>
-                                   </>
-                                  )}
-                                </div>
-                              ) : null}
+                                    </button>
+                                    <button
+                                      className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                      onClick={() => handleEditClick(row)}
+                                    >
+                                      <FaEdit className="w-5 h-5" />
+                                    </button>
+                                  </>
+                                )}
 
-                              {!showDownload && (
+                              {(userRole === "admin" ||
+                                userRole === "backoffice" || userRole === "frontoffice") && (
                                 <>
-                                  <div
+                                  <button
+                                    className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
                                     onClick={() => handleEditClick(row)}
-                                    className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
                                   >
                                     <FaEdit className="w-5 h-5" />
-                                  </div>
-
-                                  {userRole === "admin" && (
-                                    <div
-                                      onClick={() => openModal(row)}
-                                      className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
-                                    >
-                                      <FaTrash className="w-5 h-5" />
-                                    </div>
-                                  )}
+                                  </button>
+                                  <button
+                                    className="w-5 h-5 text-red-600 hover:text-red-800 cursor-pointer transition-all"
+                                    onClick={() => openModal(row)}
+                                  >
+                                    <FaTrash className="w-5 h-5" />
+                                  </button>
                                 </>
                               )}
                             </div>

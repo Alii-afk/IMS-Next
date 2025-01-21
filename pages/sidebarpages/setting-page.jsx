@@ -75,7 +75,7 @@ const Setting = () => {
       }
 
       toast.success("Stock added successfully!");
-      fetchStockData()
+      fetchStockData();
       methods.reset();
     } catch (error) {
       toast.error(error.message || "Failed to add stock. Please try again.");
@@ -168,6 +168,7 @@ const Setting = () => {
                 data={stockOptions}
                 searchEnabled={true}
                 fetchStockData={fetchStockData}
+                hideSerialNumberInput={true}
               />
             ) : (
               <p>No stock data available</p>

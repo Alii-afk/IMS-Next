@@ -122,7 +122,7 @@ const RequestManagement = () => {
 
               <div className="bg-gradient-to-r from-green-100 to-green-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-green-900 mb-2 capitalize">
-                  In Progress
+                  Approved
                 </h3>
                 <p className="text-4xl font-bold text-green-600">
                   {requests?.status_counts?.in_progress}

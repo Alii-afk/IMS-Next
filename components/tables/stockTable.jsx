@@ -27,6 +27,7 @@ const StockTable = ({
   data,
   searchEnabled = false,
   fetchStockData,
+  hideSerialNumberInput = false,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentRowData, setCurrentRowData] = useState(null);
@@ -154,61 +155,61 @@ const StockTable = ({
 
           {/* Table */}
           <div className=" max-h-[600px] overflow-y-auto hide-scrollbar border">
-          <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
-            <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
-              <tr className="text-center">
-                {columns.map((column) => (
-                  <th
-                    key={column.key}
-                    scope="col"
-                    className="sticky top-0 z-10 py-4 px-6 text-sm font-semibold tracking-wider text-start capitalize"
-                  >
-                    {column.name}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.map((row) => (
-                <tr
-                  key={row.id}
-                  className="hover:bg-indigo-50 transition-all duration-200 ease-in-out"
-                >
+            <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
+              <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
+                <tr className="text-center">
                   {columns.map((column) => (
-                    <td
+                    <th
                       key={column.key}
-                      className={classNames(
-                        "border-b border-gray-200",
-                        "py-4 px-6  text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
-                      )}
+                      scope="col"
+                      className="sticky top-0 z-10 py-4 px-6 text-sm font-semibold tracking-wider text-start capitalize"
                     >
-                      {column.key === "action" ? (
-                        <div className="flex items-center space-x-2 justify-start">
-                          <div
-                            onClick={() => handleEditClick(row)}
-                            className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
-                          >
-                            <FaEdit className="w-5 h-5" />
-                          </div>
-                          <div
-                            onClick={() => {
-                              setCurrentRowData(row); // Set the row data before opening the modal
-                              openModal(); // Open the delete confirmation modal
-                            }}
-                            className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
-                          >
-                            <FaTrash className="w-5 h-5" />
-                          </div>
-                        </div>
-                      ) : (
-                        row[column.key]
-                      )}
-                    </td>
+                      {column.name}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredData.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="hover:bg-indigo-50 transition-all duration-200 ease-in-out"
+                  >
+                    {columns.map((column) => (
+                      <td
+                        key={column.key}
+                        className={classNames(
+                          "border-b border-gray-200",
+                          "py-4 px-6  text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
+                        )}
+                      >
+                        {column.key === "action" ? (
+                          <div className="flex items-center space-x-2 justify-start">
+                            <div
+                              onClick={() => handleEditClick(row)}
+                              className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
+                            >
+                              <FaEdit className="w-5 h-5" />
+                            </div>
+                            <div
+                              onClick={() => {
+                                setCurrentRowData(row); // Set the row data before opening the modal
+                                openModal(); // Open the delete confirmation modal
+                              }}
+                              className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
+                            >
+                              <FaTrash className="w-5 h-5" />
+                            </div>
+                          </div>
+                        ) : (
+                          row[column.key]
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -272,14 +273,16 @@ const StockTable = ({
                   register={register}
                   icon={FileType}
                 />
-                <InputField
-                  label="Serial Number"
-                  name="serialNumber"
-                  type="text"
-                  icon={TbFileDescription}
-                  placeholder="Enter Serial Number"
-                  register={register}
-                />
+                {!hideSerialNumberInput && (
+                  <InputField
+                    label="Serial Number"
+                    name="serialNumber"
+                    type="text"
+                    icon={TbFileDescription}
+                    placeholder="Enter Serial Number"
+                    register={register}
+                  />
+                )}
                 <div className="flex gap-4 justify-end">
                   <button
                     type="button"

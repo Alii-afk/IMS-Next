@@ -34,7 +34,7 @@ const StatusPieChart = () => {
   }, []);
 
   // Labels and series for pie chart
-  let labels = ["Pending", "In Progress", "Completed", "Rejected"];
+  let labels = ["Pending", "Approved", "Completed", "Rejected"];
   let series = [
     statusData.pending || 0,
     statusData.in_progress || 0,
@@ -42,9 +42,9 @@ const StatusPieChart = () => {
     statusData.rejected || 0,
   ];
 
-  // If the user is backoffice, we only show In Progress and Completed
+  // If the user is backoffice, we only show approved and Completed
   if (role === "backoffice") {
-    labels = ["In Progress", "Completed"];
+    labels = ["Approved", "Completed"];
     series = [statusData.in_progress || 0, statusData.complete || 0];
   }
 

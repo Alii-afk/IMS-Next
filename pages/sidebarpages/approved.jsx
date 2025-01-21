@@ -42,7 +42,7 @@ const AcceptedRequest = () => {
         <div className="bg-white shadow-sm">
           <div className="flex  px-6 md:items-start items-center py-4">
             <h1 className="text-2xl font-bold text-gray-900">
-              In Progress Requests
+              Approved Requests
             </h1>
           </div>
         </div>
@@ -51,28 +51,32 @@ const AcceptedRequest = () => {
         <div className=" px-6 py-8">
           <div className="flex-1 bg-white shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-gradient-to-r from-indigo-100 via-indigo-200 to-indigo-50 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out">
-                <h3 className="text-xl font-semibold text-indigo-900 mb-3">
-                  Total In Progress
+              <div className="bg-gradient-to-r from-green-100 to-green-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
+                <h3 className="text-lg font-semibold text-green-900 mb-2 capitalize">
+                  Approved
                 </h3>
-                <p className="text-4xl font-bold text-indigo-600">
+                <p className="text-4xl font-bold text-green-600">
                   {InprogressRequests?.total_requests}
                 </p>
               </div>
             </div>
             <div className="flex  md:items-start items-center py-4">
               <h1 className="text-xl font-bold text-gray-900">
-                In Progress Requests
+                Approved Requests
               </h1>
             </div>
             <div className="px-6">
-              <Table columns={columns} data={InprogressRequests?.data} fetchData={fetchData} />
+              <Table
+                columns={columns}
+                data={InprogressRequests?.data}
+                fetchData={fetchData}
+              />
             </div>
           </div>
         </div>
       </div>
-       {/* Loader Overlay */}
-       {loading && (
+      {/* Loader Overlay */}
+      {loading && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="relative">
             <ClipLoader color="#ffffff" loading={loading} size={50} />

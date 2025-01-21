@@ -456,13 +456,13 @@ const EditDetailsModal = ({
                         {userRole === "admin" ? (
                           <>
                             <option value="">Select</option>
-                            <option value="in_progress">In Progress</option>
+                            <option value="in_progress">approved</option>
                             <option value="rejected">Rejected</option>
                           </>
                         ) : (
                           <>
                             <option value="">Select</option>
-                            <option value="in_progress">In Progress</option>
+                            <option value="in_progress">approved</option>
                             <option value="complete">Complete</option>
                           </>
                         )}

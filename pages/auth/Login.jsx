@@ -130,6 +130,7 @@ const LoginForm = ({ onLoginSuccess }) => {
         Cookies.set("authToken", token, { expires: 7, path: "/" });
         Cookies.set("role", user.role, { expires: 7, path: "/" });
         Cookies.set("name", user.name, { expires: 7, path: "/" });
+        Cookies.set("email", user.email, { expires: 7, path: "/" });
 
         toast.success("Logged in successfully. Redirecting...");
         onLoginSuccess();
