@@ -8,6 +8,8 @@ import { GrUserAdmin } from "react-icons/gr";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
+import SelectField from "../SelectField";
+import { roles } from "../dummyData/FormData";
 
 const EditUserModal = ({ userData, onSave, onClose, fetchUsers }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -160,16 +162,19 @@ const EditUserModal = ({ userData, onSave, onClose, fetchUsers }) => {
               name="role"
               control={control}
               render={({ field }) => (
-                <InputField
-                  label="Role"
+                <SelectField
+                  label="Select Role"
                   name="role"
+                  value={methods.watch("role")}
+                  onChange={(e) => methods.setValue("role", e.target.value)}
+                  options={roles}
                   icon={GrUserAdmin}
-                  placeholder="Enter Role"
-                  type="text"
-                  {...field} // Spread field to InputField
+                  error={error}
+                  {...field} // This will pass value, onChange, and onBlur
                 />
               )}
             />
+
             <div className="mt-4 flex justify-end">
               <button
                 type="button"

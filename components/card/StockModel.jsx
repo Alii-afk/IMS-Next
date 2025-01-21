@@ -17,7 +17,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import { AiOutlineClose } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen}) => {
+const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,fetchData}) => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
   const [stockData, setStockData] = useState([]);
@@ -27,6 +27,7 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen})
   const [serialOptions, setSerialOptions] = useState([]);
   const [selectedStockName, setSelectedStockName] = useState([]);
   const [selectedManufacturer, setSelectedManufacturer] = useState([]);
+  const [selectedSerialNumbers, setSelectedSerialNumbers] = useState([]);
 
 
   const methods = useForm();
@@ -75,78 +76,66 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen})
     index,
     stockName,
     manufacturer = "",
-    serial_no = "" // Ensure this parameter is passed correctly
+    serial_no = ""
   ) => {
     console.log("serial_no:", serial_no); // Verify if it's passed correctly
-
+  
     // Initialize arrays if empty
     setSelectedStockName((prev) => {
       const updated = [...(prev || [])];
       updated[index] = stockName;
       return updated;
     });
-
+  
     setSelectedManufacturer((prev) => {
       const updated = [...(prev || [])];
       updated[index] = manufacturer;
       return updated;
     });
-
+  
     try {
       setLoading(true);
-
-      // Log the request URL and parameters
-      console.log(
-        "Request URL:",
-        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`
-      );
-      console.log("Params:", { name: stockName, serial_no: serial_no });
-
-      // Make sure serial_no is included in the first API call
+  
+      // Fetch stock data for the selected stockName and serial_no
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
         {
-          params: { name: stockName, serial_no: serial_no }, // Send serial_no in request
+          params: { name: stockName, serial_no: serial_no }, // Include serial_no
         }
       );
-
+  
       const stockData = response.data.data || [];
-
       const manufacturers = stockData.map((stock) => ({
         label: stock.manufacturer,
         value: stock.manufacturer,
       }));
-
+  
       setAdditionalData((prev) => {
         const updated = [...(prev || [])];
         updated[index] = manufacturers;
         return updated;
       });
-
+  
       if (manufacturer) {
-        // Send serial_no in the second request as well
         const modelsResponse = await axiosInstance.get(
           `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
           {
-            params: { name: stockName, manufacturer, serial_no: serial_no }, // Send serial_no in request
+            params: { name: stockName, manufacturer, serial_no: serial_no },
           }
         );
-
         const modelsData = modelsResponse.data.data || [];
-
         const models = modelsData.map((model) => ({
           label: model.model_name,
           value: model.model_name,
         }));
-
+  
         setModelOptions((prev) => {
           const updated = [...(prev || [])];
           updated[index] = models;
           return updated;
         });
-
+  
         if (models.length > 0) {
-          // Send serial_no in the third request as well
           const serialResponse = await axiosInstance.get(
             `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
             {
@@ -154,22 +143,32 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen})
                 name: stockName,
                 manufacturer,
                 model_name: models[0].value,
-                serial_no: serial_no, // Send serial_no in request
+                serial_no: serial_no,
               },
             }
           );
-
+  
           const serialData = serialResponse.data.data || [];
-
           const serialNumbers = serialData.map((serial) => ({
             label: serial.serial_no,
             value: serial.serial_no,
             id: serial.id,
           }));
-
+  
+          // Filter out serial numbers that are already selected in other devices
+          const filteredSerialNumbers = serialNumbers.filter(
+            (serial) => !selectedSerialNumbers.includes(serial.value)
+          );
+  
           setSerialOptions((prev) => {
             const updated = [...(prev || [])];
-            updated[index] = serialNumbers;
+            updated[index] = filteredSerialNumbers;
+            return updated;
+          });
+  
+          // Update the selectedSerialNumbers state with the new selection
+          setSelectedSerialNumbers((prev) => {
+            const updated = [...prev, serial_no];
             return updated;
           });
         }
@@ -180,6 +179,7 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen})
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchStockData();
@@ -255,7 +255,6 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen})
       request_id: currentRowData.id,
     };
 
-    console.log("submissionData", payload);
 
     // Send the data to the API
     try {
@@ -283,6 +282,7 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen})
 
       // Show success toast
       toast.success("Stock updated successfully!");
+      fetchData();
       handleCloseModal();
       setModalOpen(false);
     } catch (error) {

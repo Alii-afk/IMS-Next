@@ -240,28 +240,23 @@ const Table = ({
                         >
                           {column.key === "action" ? (
                             <div className="flex items-center space-x-2 justify-center">
-                              {column.key === "action" ? (
-                                <div className="flex items-center space-x-2 justify-center">
-                                  {userRole === "admin" && (
-                                    <div
-                                      onClick={handleDownload}
-                                      className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
-                                    >
-                                      <FaDownload className="w-5 h-5" />
-                                    </div>
-                                  )}
-                                  {userRole === "backoffice" && "complete" && (
-                                    <div
-                                      onClick={handleDownload}
-                                      className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
-                                    >
-                                      <FaDownload className="w-5 h-5" />
-                                    </div>
-                                  )}
+                              {userRole === "admin" && (
+                                <div
+                                  onClick={handleDownload}
+                                  className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
+                                >
+                                  <FaDownload className="w-5 h-5" />
                                 </div>
-                              ) : null}
-
-                              {!showDownload && (
+                              )}
+                              {userRole === "backoffice" && (
+                                <div
+                                  onClick={handleDownload}
+                                  className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
+                                >
+                                  <FaDownload className="w-5 h-5" />
+                                </div>
+                              )}
+                              {userRole !== "frontoffice" && (
                                 <>
                                   <div
                                     onClick={() => handleEditClick(row)}

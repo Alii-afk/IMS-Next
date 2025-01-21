@@ -50,12 +50,35 @@ const EditDetailsModal = ({
       ? currentRowData?.back_office_notes || ""
       : currentRowData?.front_office_notes || ""
   );
+  const [editingWarehouseStock, setEditingWarehouseStock] = useState({});
+  const [editingProgrammingStock, setEditingProgramming] = useState({});
+  // Toggle edit mode for a specific field and stock ID
+  const toggleWarehouseStockEdit = (stockId, field) => {
+    setEditingWarehouseStock((prev) => ({
+      ...prev,
+      [stockId]: {
+        ...prev[stockId],
+        [field]: !prev[stockId]?.[field],
+      },
+    }));
+  };
+
+  // Update the field value while editing
+  const updateWarehouseStockField = (stockId, field, value) => {
+    setEditableField((prev) => ({
+      ...prev,
+      [stockId]: {
+        ...prev[stockId],
+        [field]: value,
+      },
+    }));
+  };
 
   const [modalContent, setModalContent] = useState("");
   const [isModalNotesOpen, setIsModalNotesOpen] = useState(false);
 
   // Function to handle text truncation
-  const truncateText = (text, maxLength = 100) => {
+  const truncateText = (text, maxLength = 30) => {
     if (text.length > maxLength) {
       return `${text.substring(0, maxLength)}...`;
     }
@@ -87,25 +110,60 @@ const EditDetailsModal = ({
   const handleCloseModal = () => setIsModalOpen(false);
 
   const isComplete = currentRowData?.request_status === "complete";
+  const allowedRoles = ["admin", "backoffice"];
+
+  const handleDeleteStock = async (id) => {
+    try {
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this stock?"
+      );
+      if (!confirmed) return; 
+
+      const token = Cookies.get("authToken");
+      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY; 
+
+      // Send the DELETE request to the API
+      const response = await fetch(
+        `${apiUrl}/api/warehouse-stock/deattachStock`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id }), 
+        }
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        toast.success("Stock deleted successfully!");
+        fetchData(); 
+        setIsModalOpen(false)
+      } else {
+        const error = await response.json();
+        toast.error(
+          error.message || "Failed to delete stock. Please try again."
+        );
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
+  };
 
   const handleSave = async () => {
     try {
-      if (isComplete && userRole !== "admin") {
+      if (isComplete && !allowedRoles.includes(userRole)) {
         toast.info("Cannot update a completed request.");
         return;
       }
-  
-      // If the request status is pending, do not allow updates
-      // if (editedStatus === "pending" && userRole !== "admin") {
-      //   toast.info("Cannot update while the request is pending.");
-      //   return;
-      // }
-  
+
       const payload = { id: currentRowData.id };
-  
+      const programmingStockData = [];
+      const warehouseStockData = [];
+
       // Handle field updates based on user role
       if (userRole === "frontoffice") {
-        // Front office can edit basic fields and front office notes
         if (editableFields.name !== currentRowData.name) {
           payload.name = editableFields.name;
         }
@@ -122,7 +180,6 @@ const EditDetailsModal = ({
           payload.front_office_notes = editedNotes;
         }
       } else if (userRole === "admin") {
-        // Admin can only edit status and admin notes
         if (editedStatus !== currentRowData.request_status) {
           payload.request_status = editedStatus;
         }
@@ -130,7 +187,6 @@ const EditDetailsModal = ({
           payload.admin_notes = editedNotes;
         }
       } else if (userRole === "backoffice") {
-        // Back office can only edit status to complete and back office notes
         if (editedStatus !== currentRowData.request_status) {
           payload.request_status = editedStatus;
         }
@@ -138,22 +194,76 @@ const EditDetailsModal = ({
           payload.back_office_notes = editedNotes;
         }
       }
-  
-      // Handle changes to descriptions for each stock
-      currentRowData.programming_stocks.forEach((stock) => {
-        const stockId = stock.id;
-        const newDescription = editableField.description;
-  
-        // Only add the description to the payload if it has changed
-        if (newDescription !== stock.description) {
-          payload.description = newDescription;
-        }
-      });
-  
+
+      // Handle programming stocks (if any)
+      if (
+        currentRowData.programming_stocks &&
+        currentRowData.programming_stocks.length > 0
+      ) {
+        currentRowData.programming_stocks.forEach((stock) => {
+          const stockId = stock.id;
+          const updatedStock = {
+            id: stockId,
+            sign_code: editableField[stockId]?.sign_code || stock.sign_code,
+            codeplug: editableField[stockId]?.codeplug || stock.codeplug,
+            channels: editableField[stockId]?.channels || stock.channels,
+            unit: editableField[stockId]?.unit || stock.unit,
+          };
+
+          const hasChanges =
+            updatedStock.sign_code !== stock.sign_code ||
+            updatedStock.codeplug !== stock.codeplug ||
+            updatedStock.channels !== stock.channels ||
+            updatedStock.unit !== stock.unit;
+
+          if (hasChanges) {
+            programmingStockData.push(updatedStock);
+          }
+        });
+      }
+
+      // Handle warehouse stocks (if any)
+      if (
+        currentRowData.warehouse_stocks &&
+        currentRowData.warehouse_stocks.length > 0
+      ) {
+        currentRowData.warehouse_stocks.forEach((stock) => {
+          const stockId = stock.id;
+          const updatedStock = {
+            id: stockId,
+            sign_code: editableField[stockId]?.sign_code || stock.sign_code,
+            codeplug: editableField[stockId]?.codeplug || stock.codeplug,
+            channels: editableField[stockId]?.channels || stock.channels,
+            unit: editableField[stockId]?.unit || stock.unit,
+          };
+
+          const hasChanges =
+            updatedStock.sign_code !== stock.sign_code ||
+            updatedStock.codeplug !== stock.codeplug ||
+            updatedStock.channels !== stock.channels ||
+            updatedStock.unit !== stock.unit;
+
+          if (hasChanges) {
+            warehouseStockData.push(updatedStock);
+          }
+        });
+      }
+
+      // Add warehouseStockData to the payload if any changes are detected
+      if (warehouseStockData.length > 0) {
+        payload.warehouse_stocks = warehouseStockData;
+      }
+
+      // Add programmingStockData to the payload if any changes are detected and warehouse data is not updated
+      if (programmingStockData.length > 0 && warehouseStockData.length === 0) {
+        payload.programmingStockData = programmingStockData;
+      }
+
+      // Make the API request if there are changes
       if (Object.keys(payload).length > 1) {
         const token = Cookies.get("authToken");
         const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-  
+
         const response = await fetch(`${apiUrl}/api/requests`, {
           method: "PUT",
           headers: {
@@ -162,15 +272,14 @@ const EditDetailsModal = ({
           },
           body: JSON.stringify(payload),
         });
-  
+
         if (response.ok) {
           await response.json();
           toast.success("Changes saved successfully!");
           setTimeout(() => {
             setModalOpen(false);
             fetchData();
-            // datas();
-          }, 1000); // Delay closing the modal by 1 second
+          }, 1000);
         }
       } else {
         toast.info("No changes to save.");
@@ -179,7 +288,6 @@ const EditDetailsModal = ({
       toast.error("An unexpected error occurred. Please try again.");
     }
   };
-  
 
   return (
     <>
@@ -272,17 +380,20 @@ const EditDetailsModal = ({
                         Type
                       </label>
                       {userRole === "frontoffice" ? (
+                        // Disabling the select field based on conditions
                         <select
                           className="w-full text-base text-gray-900 border border-gray-300 rounded-md p-2"
                           value={editableFields.type}
                           onChange={(e) =>
                             handleInputChange("type", e.target.value)
                           }
+                          disabled
                         >
                           <option value="programming">Programming</option>
                           <option value="new">New</option>
                         </select>
                       ) : (
+                        // Display the current type value as text (non-editable)
                         <p className="text-base text-gray-900">
                           {currentRowData.type}
                         </p>
@@ -327,6 +438,7 @@ const EditDetailsModal = ({
                         ) : (
                           <>
                             <option value="">Select</option>
+                            <option value="in_progress">In Progress</option>
                             <option value="complete">Complete</option>
                           </>
                         )}
@@ -353,6 +465,7 @@ const EditDetailsModal = ({
                   handleCloseModal={handleCloseModal}
                   currentRowData={currentRowData}
                   setModalOpen={setModalOpen}
+                  fetchData={fetchData}
                 />
               )}
               <div className="grid md:grid-cols-3 gap-6">
@@ -526,10 +639,10 @@ const EditDetailsModal = ({
                   </div>
                 )}
               </div>
-
-              {/* Programming Stocks Section - Read-only for all */}
-              {currentRowData.programming_stocks &&
-                currentRowData.programming_stocks.length > 0 && (
+              {currentRowData.type === "programming" ? (
+                // Programming Stocks Section
+                currentRowData.programming_stocks &&
+                currentRowData.programming_stocks.length > 0 ? (
                   <div className="bg-white rounded-lg border p-6 shadow-sm">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">
                       Programming Stocks
@@ -537,77 +650,349 @@ const EditDetailsModal = ({
                     {currentRowData.programming_stocks.map((stock) => (
                       <div
                         key={stock.id}
-                        className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                        className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-4"
                       >
+                        {/* Stock Header */}
                         <div className="flex justify-between items-start mb-3">
-                          <h4 className="text-md font-semibold text-gray-800">
-                            {stock.product_name}
-                          </h4>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-md font-semibold text-gray-800">
+                              {stock.product_name}
+                            </h4>
+                            {userRole === "frontoffice" && (
+                              <button
+                                onClick={() =>
+                                  toggleProgrammingStockEdit(
+                                    stock.id,
+                                    "product_name"
+                                  )
+                                }
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                <FileEdit className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                           <span className="text-sm text-gray-500">
                             Product ID: {stock.product_id}
                           </span>
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
+
+                        <div className="space-y-4">
+                          {/* Serial Number */}
+                          <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-500">
                               Serial No:
                             </span>
-                            <span className="text-sm font-medium">
-                              {stock.serial_no}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              {editingProgrammingStock[stock.id]?.serial_no ? (
+                                <input
+                                  type="text"
+                                  value={
+                                    editableField[stock.id]?.serial_no ||
+                                    stock.serial_no
+                                  }
+                                  onChange={(e) =>
+                                    updateProgrammingStockField(
+                                      stock.id,
+                                      "serial_no",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                                />
+                              ) : (
+                                <span className="text-sm font-medium">
+                                  {stock.serial_no}
+                                </span>
+                              )}
+                              {userRole === "frontoffice" && (
+                                <button
+                                  onClick={() =>
+                                    toggleProgrammingStockEdit(
+                                      stock.id,
+                                      "serial_no"
+                                    )
+                                  }
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  {editingProgrammingStock[stock.id]
+                                    ?.serial_no ? (
+                                    <AiOutlineCheck className="w-4 h-4" />
+                                  ) : (
+                                    <FileEdit className="w-4 h-4" />
+                                  )}
+                                </button>
+                              )}
+                            </div>
                           </div>
+
+                          {/* Description */}
                           <div>
-                            <p className="text-sm text-gray-500">
-                              Description:
-                            </p>
-                            {userRole === "backoffice" && (
-                              <button
-                                onClick={() =>
-                                  setEditableField((prev) => ({
-                                    ...prev,
-                                    [stock.id]: {
-                                      ...prev[stock.id],
-                                      editable: !prev[stock.id].editable,
-                                    },
-                                  }))
-                                }
-                                className="text-blue-600 hover:text-blue-800"
-                              >
-                                {editableField[stock.id]?.editable ? (
-                                  <AiOutlineCheck className="w-5 h-5" />
-                                ) : (
-                                  <FileEdit className="w-5 h-5" />
-                                )}
-                              </button>
-                            )}
-                            {editableField[stock.id]?.editable ? (
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="text-sm text-gray-500">
+                                Description:
+                              </p>
+                              {userRole === "frontoffice" && (
+                                <button
+                                  onClick={() =>
+                                    toggleProgrammingStockEdit(
+                                      stock.id,
+                                      "description"
+                                    )
+                                  }
+                                  className="text-blue-600 hover:text-blue-800"
+                                >
+                                  {editingProgrammingStock[stock.id]
+                                    ?.description ? (
+                                    <AiOutlineCheck className="w-4 h-4" />
+                                  ) : (
+                                    <FileEdit className="w-4 h-4" />
+                                  )}
+                                </button>
+                              )}
+                            </div>
+                            {editingProgrammingStock[stock.id]?.description ? (
                               <textarea
-                                value={editableField[stock.id]?.description}
+                                value={
+                                  editableField[stock.id]?.description ||
+                                  stock.description
+                                }
                                 onChange={(e) =>
-                                  setEditableField((prev) => ({
-                                    ...prev,
-                                    [stock.id]: {
-                                      ...prev[stock.id],
-                                      description: e.target.value,
-                                    },
-                                  }))
+                                  updateProgrammingStockField(
+                                    stock.id,
+                                    "description",
+                                    e.target.value
+                                  )
                                 }
                                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 rows={4}
-                                placeholder="Enter front office notes..."
                               />
                             ) : (
                               <p className="text-sm text-gray-700">
                                 {stock.description ||
-                                  "No front office notes available"}
+                                  "No description available"}
                               </p>
                             )}
                           </div>
+
+                          {/* Other Fields */}
+                          {["sign_code", "codeplug", "channels", "unit"].map(
+                            (field) => (
+                              <div
+                                key={field}
+                                className="flex justify-between items-center"
+                              >
+                                <span className="text-sm text-gray-500 capitalize">
+                                  {field.replace("_", " ")}:
+                                </span>
+                                <div className="flex items-center gap-2">
+                                  {editingProgrammingStock[stock.id]?.[
+                                    field
+                                  ] ? (
+                                    <input
+                                      type="text"
+                                      value={
+                                        editableField[stock.id]?.[field] ||
+                                        stock[field]
+                                      }
+                                      onChange={(e) =>
+                                        updateProgrammingStockField(
+                                          stock.id,
+                                          field,
+                                          e.target.value
+                                        )
+                                      }
+                                      className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                                    />
+                                  ) : (
+                                    <span className="text-sm font-medium">
+                                      {stock[field] || "N/A"}
+                                    </span>
+                                  )}
+                                  {userRole === "frontoffice" && (
+                                    <button
+                                      onClick={() =>
+                                        toggleProgrammingStockEdit(
+                                          stock.id,
+                                          field
+                                        )
+                                      }
+                                      className="text-blue-600 hover:text-blue-800"
+                                    >
+                                      {editingProgrammingStock[stock.id]?.[
+                                        field
+                                      ] ? (
+                                        <AiOutlineCheck className="w-4 h-4" />
+                                      ) : (
+                                        <FileEdit className="w-4 h-4" />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          )}
                         </div>
                       </div>
                     ))}
                   </div>
-                )}
+                ) : (
+                  <div className="text-gray-500 text-center py-6">
+                    No programming stocks available.
+                  </div>
+                )
+              ) : // Warehouse Stocks Section
+              currentRowData.type === "new" &&
+                currentRowData.warehouse_stocks &&
+                currentRowData.warehouse_stocks.length > 0 ? (
+                <div className="bg-white rounded-lg border p-6 shadow-sm">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">
+                    Warehouse Stocks
+                  </h3>
+                  {currentRowData.warehouse_stocks.map((stock) => (
+                    <div
+                      key={stock.id}
+                      className="bg-gray-50 rounded-lg p-4 border border-gray-200 mb-4"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-md font-semibold text-gray-800">
+                            {stock.name} - {stock.model_name}
+                          </h4>
+                          {/* {userRole === "backoffice" && (
+                            <button
+                              onClick={() =>
+                                toggleWarehouseStockEdit(stock.id, "name")
+                              }
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <FileEdit className="w-4 h-4" />
+                            </button>
+                          )} */}
+                        </div>
+                        <span className="text-sm text-gray-500">
+                          Serial No: {stock.serial_no}
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-500">
+                            Manufacturer:
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {editingWarehouseStock[stock.id]?.manufacturer ? (
+                              <input
+                                type="text"
+                                value={
+                                  editableField[stock.id]?.manufacturer ||
+                                  stock.manufacturer
+                                }
+                                onChange={(e) =>
+                                  updateWarehouseStockField(
+                                    stock.id,
+                                    "manufacturer",
+                                    e.target.value
+                                  )
+                                }
+                                className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                              />
+                            ) : (
+                              <span className="text-sm font-medium">
+                                {stock.manufacturer}
+                              </span>
+                            )}
+                            {/* {userRole === "backoffice" && (
+                              <button
+                                onClick={() =>
+                                  toggleWarehouseStockEdit(
+                                    stock.id,
+                                    "manufacturer"
+                                  )
+                                }
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                {editingWarehouseStock[stock.id]
+                                  ?.manufacturer ? (
+                                  <AiOutlineCheck className="w-4 h-4" />
+                                ) : (
+                                  <FileEdit className="w-4 h-4" />
+                                )}
+                              </button>
+                            )} */}
+                          </div>
+                        </div>
+                        {["sign_code", "codeplug", "channels", "unit"].map(
+                          (field) => (
+                            <div key={field} className="flex justify-between">
+                              <span className="text-sm text-gray-500 capitalize">
+                                {field.replace("_", " ")}:
+                              </span>
+                              <div className="flex items-center gap-2">
+                                {editingWarehouseStock[stock.id]?.[field] ? (
+                                  <input
+                                    type="text"
+                                    value={
+                                      editableField[stock.id]?.[field] ||
+                                      // Clean codeplug value if editing (remove quotes)
+                                      (field === "codeplug"
+                                        ? stock[field].replace(/^"|"$/g, "") // Removes quotes only from codeplug
+                                        : stock[field])
+                                    }
+                                    onChange={(e) =>
+                                      updateWarehouseStockField(
+                                        stock.id,
+                                        field,
+                                        e.target.value
+                                      )
+                                    }
+                                    className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                                  />
+                                ) : (
+                                  <span className="text-sm font-medium">
+                                    {field === "codeplug"
+                                      ? stock[field].replace(/^"|"$/g, "") // Clean codeplug value before displaying
+                                      : stock[field]}
+                                  </span>
+                                )}
+                                {userRole === "backoffice" && (
+                                  <button
+                                    onClick={() =>
+                                      toggleWarehouseStockEdit(stock.id, field)
+                                    }
+                                    className="text-blue-600 hover:text-blue-800"
+                                  >
+                                    {editingWarehouseStock[stock.id]?.[
+                                      field
+                                    ] ? (
+                                      <AiOutlineCheck className="w-4 h-4" />
+                                    ) : (
+                                      <FileEdit className="w-4 h-4" />
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        )}
+                      </div>
+
+                      <div className="mt-4">
+                        <button
+                          onClick={() => handleDeleteStock(stock.id)}
+                          className="text-red-600 hover:text-red-800 text-sm font-medium"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-500 text-center py-6">
+                  No warehouse stocks available.
+                </div>
+              )}
             </div>
           </div>
 

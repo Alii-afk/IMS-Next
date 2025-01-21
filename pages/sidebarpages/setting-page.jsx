@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import Sidebar from "@/components/Sidebar";
 import InputField from "@/components/InputGroup/InputField";
@@ -6,8 +6,40 @@ import { HomeIcon, IdentificationIcon } from "@heroicons/react/24/outline";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import StockTable from "@/components/tables/stockTable";
+import { ClipLoader } from "react-spinners";
+import { stockmanagement } from "@/components/dummyData/FormData";
 
 const Setting = () => {
+  const [stockOptions, setStockOptions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStockData = async () => {
+    setLoading(true); // Show loader
+    const token = Cookies.get("authToken");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setStockOptions(data);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    } finally {
+      setLoading(false); // Hide loader after data is fetched
+    }
+  };
+
+  useEffect(() => {
+    fetchStockData();
+  }, []);
+
   const methods = useForm();
 
   const onSubmit = async (data) => {
@@ -25,22 +57,25 @@ const Setting = () => {
     };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(submissionData),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(submissionData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Something went wrong");
       }
 
-     
       toast.success("Stock added successfully!");
+      fetchStockData()
       methods.reset();
     } catch (error) {
       toast.error(error.message || "Failed to add stock. Please try again.");
@@ -121,6 +156,22 @@ const Setting = () => {
                 </button>
               </form>
             </FormProvider>
+          </div>
+          <div className="px-6">
+            {loading ? (
+              <div className="flex justify-center items-center py-10">
+                <ClipLoader color="#3498db" size={50} />
+              </div>
+            ) : stockOptions && stockOptions.length > 0 ? (
+              <StockTable
+                columns={stockmanagement}
+                data={stockOptions}
+                searchEnabled={true}
+                fetchStockData={fetchStockData}
+              />
+            ) : (
+              <p>No stock data available</p>
+            )}
           </div>
         </div>
       </div>

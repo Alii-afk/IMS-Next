@@ -11,28 +11,28 @@ const Completed = () => {
   const [completedRequests, setCompletedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    try {
+      const response = await axios.get(`${apiUrl}/api/requests`, {
+        params: { request_status: "complete" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setCompletedRequests(response.data);
+    } catch (error) {
+      console.error("Error fetching pending requests:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchPendingRequests = async () => {
-      let token = Cookies.get("authToken");
-      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-      try {
-        const response = await axios.get(`${apiUrl}/api/requests`, {
-          params: { request_status: "complete" },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setCompletedRequests(response.data);
-      } catch (error) {
-        console.error("Error fetching pending requests:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPendingRequests();
+    fetchData();
   }, []);
 
   return (
@@ -75,6 +75,7 @@ const Completed = () => {
                 columns={columns}
                 data={completedRequests?.data}
                 showDownload={true}
+                fetchData={fetchData}
               />
             </div>
           </div>

@@ -166,6 +166,12 @@ export const stockmanagementdata = [
   { key: 'action', name: 'Actions' },
 ];
 
+export const stockmanagement = [
+  { key: 'name', name: 'Name' },
+  { key: 'model_name', name: 'Model Number' },
+  { key: 'manufacturer', name: 'Manufacturer' },
+  { key: 'action', name: 'Actions' },
+];
 
 export const filteredData = [
   {

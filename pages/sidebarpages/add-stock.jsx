@@ -137,11 +137,12 @@ const Addstock = () => {
 
   useEffect(() => {
     fetchStockData();
+    handleStockChange();
+
   }, []);
   // Fetch data when the component mounts
-  useEffect(() => {
-    handleStockChange();
-  }, []);
+  // useEffect(() => {
+  // }, []);
 
   const methods = useForm({
     resolver: yupResolver(validationSchema),
@@ -379,7 +380,7 @@ const Addstock = () => {
               </form>
             </FormProvider>
           </div>
-          <div className="px-6">
+          {/* <div className="px-6">
             {stockData && stockData.length > 0 ? (
               <StockTable
                 columns={stockmanagementdata}
@@ -390,17 +391,17 @@ const Addstock = () => {
             ) : (
               <p>No stock data available</p> // This is a fallback message if no data exists
             )}
-          </div>
+          </div> */}
         </div>
       </div>
        {/* Loader Overlay */}
-       {loading && (
+       {/* {loading && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="relative">
             <ClipLoader color="#ffffff" loading={loading} size={50} />
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
