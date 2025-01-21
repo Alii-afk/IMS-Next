@@ -250,13 +250,22 @@ const Table = ({
                                       <FaDownload className="w-5 h-5" />
                                     </div>
                                   )}
+
                                   {userRole === "backoffice" && "complete" && (
+                                   <>
+                                    <div
+                                    onClick={() => handleEditClick(row)}
+                                    className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
+                                  >
+                                    <FaEdit className="w-5 h-5" />
+                                  </div>
                                     <div
                                       onClick={handleDownload}
                                       className="text-blue-600 hover:text-blue-800 cursor-pointer transition-colors duration-300"
                                     >
                                       <FaDownload className="w-5 h-5" />
                                     </div>
+                                   </>
                                   )}
                                 </div>
                               ) : null}
