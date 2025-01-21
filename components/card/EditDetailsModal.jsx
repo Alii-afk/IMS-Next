@@ -818,7 +818,7 @@ const EditDetailsModal = ({
                                         editableField[stock.id]?.[field] ||
                                         // Clean codeplug value if editing (remove quotes)
                                         (field === "codeplug"
-                                          ? stock[field].replace(/^"|"$/g, "") // Removes quotes only from codeplug
+                                          ? stock[field]?.replace(/^"|"$/g, "") // Removes quotes only from codeplug
                                           : stock[field])
                                       }
                                       onChange={(e) =>
@@ -833,7 +833,7 @@ const EditDetailsModal = ({
                                   ) : (
                                     <span className="text-sm font-medium">
                                       {field === "codeplug"
-                                        ? stock[field].replace(/^"|"$/g, "") // Clean codeplug value before displaying
+                                        ? stock[field]?.replace(/^"|"$/g, "") // Clean codeplug value before displaying
                                         : stock[field]}
                                     </span>
                                   )}
@@ -954,7 +954,7 @@ const EditDetailsModal = ({
                           (field) => (
                             <div key={field} className="flex justify-between">
                               <span className="text-sm text-gray-500 capitalize">
-                                {field.replace("_", " ")}:
+                                {field?.replace("_", " ")}:
                               </span>
                               <div className="flex items-center gap-2">
                                 {editingWarehouseStock[stock.id]?.[field] ? (
@@ -964,7 +964,7 @@ const EditDetailsModal = ({
                                       editableField[stock.id]?.[field] ||
                                       // Clean codeplug value if editing (remove quotes)
                                       (field === "codeplug"
-                                        ? stock[field].replace(/^"|"$/g, "") // Removes quotes only from codeplug
+                                        ? stock[field]?.replace(/^"|"$/g, "") // Removes quotes only from codeplug
                                         : stock[field])
                                     }
                                     onChange={(e) =>
@@ -979,7 +979,7 @@ const EditDetailsModal = ({
                                 ) : (
                                   <span className="text-sm font-medium">
                                     {field === "codeplug"
-                                      ? stock[field].replace(/^"|"$/g, "") // Clean codeplug value before displaying
+                                      ? stock[field]?.replace(/^"|"$/g, "") // Clean codeplug value before displaying
                                       : stock[field]}
                                   </span>
                                 )}
