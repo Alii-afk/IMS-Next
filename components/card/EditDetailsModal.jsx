@@ -5,6 +5,7 @@ import { AiOutlineCheck } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StockModel from "./StockModel";
+import FrontOfficeBackOfficePDF from "./frontofficePdf";
 
 const EditDetailsModal = ({
   modalOpen,
@@ -51,7 +52,27 @@ const EditDetailsModal = ({
       : currentRowData?.front_office_notes || ""
   );
   const [editingWarehouseStock, setEditingWarehouseStock] = useState({});
-  const [editingProgrammingStock, setEditingProgramming] = useState({});
+  const [editingProgrammingStock, setEditingProgrammingStock] = useState({});
+
+  const toggleProgrammingStockEdit = (id, field) => {
+    setEditingProgrammingStock((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: !prev[id]?.[field],
+      },
+    }));
+  };
+
+  // Update the specific field of the stock item
+  const updateProgrammingStockField = (stockId, field, value) => {
+    setEditableField((prev) => {
+      const newState = { ...prev };
+      if (!newState[stockId]) newState[stockId] = {};
+      newState[stockId][field] = value;
+      return newState;
+    });
+  };
   // Toggle edit mode for a specific field and stock ID
   const toggleWarehouseStockEdit = (stockId, field) => {
     setEditingWarehouseStock((prev) => ({
@@ -117,10 +138,10 @@ const EditDetailsModal = ({
       const confirmed = window.confirm(
         "Are you sure you want to delete this stock?"
       );
-      if (!confirmed) return; 
+      if (!confirmed) return;
 
       const token = Cookies.get("authToken");
-      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY; 
+      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
       // Send the DELETE request to the API
       const response = await fetch(
@@ -131,15 +152,15 @@ const EditDetailsModal = ({
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ id }), 
+          body: JSON.stringify({ id }),
         }
       );
 
       if (response.ok) {
         const result = await response.json();
         toast.success("Stock deleted successfully!");
-        fetchData(); 
-        setIsModalOpen(false)
+        fetchData();
+        setIsModalOpen(false);
       } else {
         const error = await response.json();
         toast.error(
@@ -208,13 +229,16 @@ const EditDetailsModal = ({
             codeplug: editableField[stockId]?.codeplug || stock.codeplug,
             channels: editableField[stockId]?.channels || stock.channels,
             unit: editableField[stockId]?.unit || stock.unit,
+            description:
+              editableField[stockId]?.description || stock.description,
           };
 
           const hasChanges =
             updatedStock.sign_code !== stock.sign_code ||
             updatedStock.codeplug !== stock.codeplug ||
             updatedStock.channels !== stock.channels ||
-            updatedStock.unit !== stock.unit;
+            updatedStock.unit !== stock.unit ||
+            updatedStock.description !== stock.description; // Ensure description is checked
 
           if (hasChanges) {
             programmingStockData.push(updatedStock);
@@ -254,8 +278,8 @@ const EditDetailsModal = ({
         payload.warehouse_stocks = warehouseStockData;
       }
 
-      // Add programmingStockData to the payload if any changes are detected and warehouse data is not updated
-      if (programmingStockData.length > 0 && warehouseStockData.length === 0) {
+      // Add programmingStockData to the payload if any changes are detected
+      if (programmingStockData.length > 0) {
         payload.programmingStockData = programmingStockData;
       }
 
@@ -468,6 +492,11 @@ const EditDetailsModal = ({
                   fetchData={fetchData}
                 />
               )}
+              <FrontOfficeBackOfficePDF
+                data={currentRowData}
+                userRole={userRole}
+              />
+
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Front Office Notes */}
                 <div className="bg-white rounded-lg border p-6 shadow-sm">
@@ -658,19 +687,16 @@ const EditDetailsModal = ({
                             <h4 className="text-md font-semibold text-gray-800">
                               {stock.product_name}
                             </h4>
-                            {userRole === "frontoffice" && (
-                              <button
-                                onClick={() =>
-                                  toggleProgrammingStockEdit(
-                                    stock.id,
-                                    "product_name"
-                                  )
-                                }
-                                className="text-blue-600 hover:text-blue-800"
-                              >
-                                <FileEdit className="w-4 h-4" />
-                              </button>
-                            )}
+                            {/* {userRole === "backoffice" && (
+                <button
+                  onClick={() =>
+                    toggleProgrammingStockEdit(stock.id, "product_name")
+                  }
+                  className="text-blue-600 hover:text-blue-800"
+                >
+                  <FileEdit className="w-4 h-4" />
+                </button>
+              )} */}
                           </div>
                           <span className="text-sm text-gray-500">
                             Product ID: {stock.product_id}
@@ -684,7 +710,8 @@ const EditDetailsModal = ({
                               Serial No:
                             </span>
                             <div className="flex items-center gap-2">
-                              {editingProgrammingStock[stock.id]?.serial_no ? (
+                              {editingProgrammingStock[stock.id]?.serial_no &&
+                              userRole === "backoffice" ? (
                                 <input
                                   type="text"
                                   value={
@@ -705,24 +732,20 @@ const EditDetailsModal = ({
                                   {stock.serial_no}
                                 </span>
                               )}
-                              {userRole === "frontoffice" && (
-                                <button
-                                  onClick={() =>
-                                    toggleProgrammingStockEdit(
-                                      stock.id,
-                                      "serial_no"
-                                    )
-                                  }
-                                  className="text-blue-600 hover:text-blue-800"
-                                >
-                                  {editingProgrammingStock[stock.id]
-                                    ?.serial_no ? (
-                                    <AiOutlineCheck className="w-4 h-4" />
-                                  ) : (
-                                    <FileEdit className="w-4 h-4" />
-                                  )}
-                                </button>
-                              )}
+                              {/* {userRole === "backoffice" && (
+                  <button
+                    onClick={() =>
+                      toggleProgrammingStockEdit(stock.id, "serial_no")
+                    }
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    {editingProgrammingStock[stock.id]?.serial_no ? (
+                      <AiOutlineCheck className="w-4 h-4" />
+                    ) : (
+                      <FileEdit className="w-4 h-4" />
+                    )}
+                  </button>
+                )} */}
                             </div>
                           </div>
 
@@ -732,7 +755,7 @@ const EditDetailsModal = ({
                               <p className="text-sm text-gray-500">
                                 Description:
                               </p>
-                              {userRole === "frontoffice" && (
+                              {/* {userRole === "backoffice" && (
                                 <button
                                   onClick={() =>
                                     toggleProgrammingStockEdit(
@@ -749,9 +772,10 @@ const EditDetailsModal = ({
                                     <FileEdit className="w-4 h-4" />
                                   )}
                                 </button>
-                              )}
+                              )} */}
                             </div>
-                            {editingProgrammingStock[stock.id]?.description ? (
+                            {editingProgrammingStock[stock.id]?.description &&
+                            userRole === "backoffice" ? (
                               <textarea
                                 value={
                                   editableField[stock.id]?.description ||
@@ -786,14 +810,16 @@ const EditDetailsModal = ({
                                   {field.replace("_", " ")}:
                                 </span>
                                 <div className="flex items-center gap-2">
-                                  {editingProgrammingStock[stock.id]?.[
-                                    field
-                                  ] ? (
+                                  {editingProgrammingStock[stock.id]?.[field] &&
+                                  userRole === "backoffice" ? (
                                     <input
                                       type="text"
                                       value={
                                         editableField[stock.id]?.[field] ||
-                                        stock[field]
+                                        // Clean codeplug value if editing (remove quotes)
+                                        (field === "codeplug"
+                                          ? stock[field].replace(/^"|"$/g, "") // Removes quotes only from codeplug
+                                          : stock[field])
                                       }
                                       onChange={(e) =>
                                         updateProgrammingStockField(
@@ -806,10 +832,12 @@ const EditDetailsModal = ({
                                     />
                                   ) : (
                                     <span className="text-sm font-medium">
-                                      {stock[field] || "N/A"}
+                                      {field === "codeplug"
+                                        ? stock[field].replace(/^"|"$/g, "") // Clean codeplug value before displaying
+                                        : stock[field]}
                                     </span>
                                   )}
-                                  {userRole === "frontoffice" && (
+                                  {userRole === "backoffice" && (
                                     <button
                                       onClick={() =>
                                         toggleProgrammingStockEdit(
