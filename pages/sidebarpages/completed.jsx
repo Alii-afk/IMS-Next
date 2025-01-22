@@ -127,13 +127,13 @@ const Completed = () => {
     worksheet.columns = [
       { width: 4 }, // A
       { width: 3 }, // B
-      { width: 5 }, // C - NO
+      { width: 20 }, // C - NO
       { width: 20 }, // D - Model
-      { width: 15 }, // E - Serial NO
-      { width: 10 }, // F - ID
-      { width: 15 }, // G - Sign Code
+      { width: 20 }, // E - Serial NO
+      { width: 20 }, // F - ID
+      { width: 20 }, // G - Sign Code
       { width: 20 }, // H - CodePlug
-      { width: 8 }, // I - CH
+      { width: 20 }, // I - CH
     ];
 
     // Add title
@@ -151,27 +151,40 @@ const Completed = () => {
       [
         "A.",
         "Adeegga",
-        "fill in new or prog/repair",
+        "",
+        "",
+        "",
         "Date Received",
         "Date Pickup",
       ],
       [
         "B.",
         "Codsi Ref No.",
-        "request letter no",
-        "date dd/mm/yyyy",
-        "date dd/mm/yyyy",
+        "",
+        "",
+        "",
+        "",
+        "",
       ],
-      ["C.", "Ka Yimid:", "from which department"],
-      ["D.", "Shaqo Gaar Ah", "to be filled manually by front desk"],
-      ["E.", "TRANSACTION REF NO", "", "150120251041"],
+      ["C.", "Ka Yimid", ""],
+      ["D.", "Shaqo Gaar Ah", ""],
+      ["E.", "TRANSACTION REF NO", "", ""],
     ];
 
-    headerData.forEach((rowData) => {
+    headerData.forEach((rowData, rowIndex) => {
       const row = worksheet.addRow(["", "", ...rowData]);
       row.getCell(3).style = styles.sectionHeader;
+    
+      if (rowIndex === 4) {
+        // Merge cells for "TRANSACTION REF NO"
+        worksheet.mergeCells(`D${row.number}:E${row.number}`);
+        row.getCell(3).value = rowData[2]; // Assign value to the merged cell
+        row.getCell(3).style = styles.sectionHeader; // Apply style to the merged cell
+      }
+    
       row.height = 20;
     });
+    
 
     worksheet.addRow([]); // Spacing
 
@@ -241,17 +254,24 @@ const Completed = () => {
     worksheet.addRow([]); // Spacing
 
     // Add signature section
-    const signatureHeaders = ["Magaca", "", "Saxiixa", "Tariikh"];
-    const signatureHeaderRow = worksheet.addRow(["", "", ...signatureHeaders]);
-    signatureHeaderRow.getCell(3).style = styles.tableHeader;
+    const signatureHeaders = ["", "Magaca", "Saxiixa", "Tariikh"];
+    const signatureHeaderRow = worksheet.addRow(["", "", "", ...signatureHeaders]);
+    signatureHeaders.style = styles.tableHeader;
+    worksheet.mergeCells(`D21:E21`); // Merge cells C21 and D21
+    const mergedCell = worksheet.getCell('D21'); // Get the starting cell of the merged range
+    mergedCell.value = "Magaca"; // Set the value for the merged cell
+    mergedCell.style = styles.tableHeader; // Apply the desired style
     signatureHeaderRow.height = 25;
 
+
+    
+
     const signatures = [
-      ["Baqaar Haye:", "", "", "date dd/mm/yyyy"],
-      ["Prog/Repair", "", "", "date dd/mm/yyyy"],
-      ["Taliyaha Hogg. ICT", "S/G Salad Maxamed Gouled", "", "date dd/mm/yyyy"],
-      ["Qofka Qaatey:", "", "", "date dd/mm/yyyy"],
-      ["Qofka Siiyey:", "", "", "date dd/mm/yyyy"],
+      ["Baqaar Haye", "","","", ""],
+      ["Prog/Repair", "","","", ""],
+      ["Taliyaha Hogg. ICT", "S/G Salad Maxamed Gouled","","",  ""],
+      ["Qofka Qaatey", "","","", ""],
+      ["Qofka Siiyey", "","","", ""],
     ];
 
     signatures.forEach((rowData, index) => {
@@ -264,13 +284,38 @@ const Completed = () => {
           }
         }
       });
-      row.height = 20;
+      row.height = 50;
     });
+
+    worksheet.mergeCells(`D22:E22`); 
+    worksheet.mergeCells(`D23:E23`); 
+    worksheet.mergeCells(`D24:E24`); 
+    worksheet.mergeCells(`D25:E25`); 
+    worksheet.mergeCells(`D26:E26`); 
+
+    const mergedCell2 = worksheet.getCell('D22');
+    const mergedCell3 = worksheet.getCell('D23');
+    const mergedCell4 = worksheet.getCell('D24');
+    const mergedCell5 = worksheet.getCell('D25');
+    const mergedCell6 = worksheet.getCell('D26');
+
+    mergedCell2.value = "";
+    mergedCell3.value = "";
+    mergedCell4.value = "S/G Salad Maxamed Gouled";
+    mergedCell5.value = "";
+    mergedCell6.value = "";
+    worksheet.getCell('F21').style  = styles.tableHeader;
+    worksheet.getCell('G21').style  = styles.tableHeader;
 
     // Add notes section
     worksheet.addRow([]); // Spacing
     const notesRow = worksheet.addRow(["", "", "Notes"]);
     notesRow.getCell(3).style = styles.sectionHeader;
+
+    worksheet.mergeCells(`C28:G28`);
+    const mergedCellN = worksheet.getCell('C28');
+    mergedCellN.value = "Notes";
+    mergedCellN.style = styles.sectionHeader;
 
     // Generate and save file
     const buffer = await workbook.xlsx.writeBuffer();
