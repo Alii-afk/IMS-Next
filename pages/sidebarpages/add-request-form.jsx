@@ -77,13 +77,16 @@ const AddRequestForm = () => {
     fetchStockData();
   }, []);
 
+
   const onSubmit = async (data) => {
+    setIsSubmitting(true); // Start the submission process
+  
     try {
       // Extract serial numbers from the form data
       const serialNumbers = Object.keys(data)
         .filter((key) => key.startsWith("serialNumber") && data[key] !== "")
         .map((key) => data[key]);
-
+  
       // Prepare the request payload as raw JSON
       const requestPayload = {
         name: data.name,
@@ -93,7 +96,7 @@ const AddRequestForm = () => {
         front_office_notes: data.front_office_notes || "",
         front_office_pdf:
           data.front_office_pdf instanceof File ? data.front_office_pdf : "",
-
+  
         // If type is programming, include programming stock data
         programmingStockData:
           data.type.toLowerCase() === "programming"
@@ -107,15 +110,11 @@ const AddRequestForm = () => {
               ]
             : [],
       };
-
-      // Log the request payload for debugging
-      // console.log("Request Payload:", requestPayload);
-
+  
       // Get the API URL and auth token
       const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-      // console.log(token);
+  
       // Make the API request with raw JSON
       const response = await axios({
         method: "post",
@@ -126,7 +125,7 @@ const AddRequestForm = () => {
           "Content-Type": "multipart/form-data", // Set to application/json
         },
       });
-
+  
       if (response.status === 201) {
         toast.success("Request submitted successfully");
         methods.reset();
@@ -134,12 +133,14 @@ const AddRequestForm = () => {
         router.push("/sidebarpages/request-management"); // Redirect to the desired page
       }
     } catch (error) {
-      // console.error("Submission error:", error);
       const errorMessage =
         error.response?.data?.message || "An error occurred. Please try again.";
       toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false); // Reset the submitting state after the request completes
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -216,22 +217,14 @@ const AddRequestForm = () => {
               />
 
               {selectedValue === "programming" && (
-                <SelectField
+                <InputField
                   label="Product Name (Compulsory)"
                   name="product_name"
+                  type="text"
                   icon={FileType}
+                  placeholder="Enter Product Name"
                   register={methods.register}
-                  showIcon={true}
-                  options={
-                    Array.isArray(stockOptions)
-                      ? stockOptions.map((stock) => ({
-                          label: stock.name,
-                          value: stock.name,
-                        }))
-                      : []
-                  }
-                  error={methods.formState.errors.type?.message}
-                  // error={methods.formState.errors.productList?.message}
+                  // error={methods.formState.errors.id?.message}
                 />
               )}
 

@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import StockTable from "@/components/tables/stockTable";
 import { ClipLoader } from "react-spinners";
 import { stockmanagement } from "@/components/dummyData/FormData";
+import StockSetup from "@/components/tables/StockSetup";
 
 const Setting = () => {
   const [stockOptions, setStockOptions] = useState([]);
@@ -163,7 +164,7 @@ const Setting = () => {
                 <ClipLoader color="#3498db" size={50} />
               </div>
             ) : stockOptions && stockOptions.length > 0 ? (
-              <StockTable
+              <StockSetup
                 columns={stockmanagement}
                 data={stockOptions}
                 searchEnabled={true}

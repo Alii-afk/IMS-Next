@@ -33,7 +33,10 @@ const Addstock = () => {
   const [modelOptions, setModelOptions] = useState([]);
   const [selectedManufacturer, setSelectedManufacturer] = useState("");
   const [serialOptions, setSerialOptions] = useState([]);
+  const [selectedStockId, setSelectedStockId] = useState(null); // Track selected stock id
+
   // Fetch data from API
+  console.log("additionalData", additionalData);
 
   const fetchStockData = async () => {
     setLoading(true);
@@ -84,6 +87,7 @@ const Addstock = () => {
       const manufacturers = stockData.map((stock) => ({
         label: stock.manufacturer,
         value: stock.manufacturer,
+        id: stock.id,
       }));
 
       // Update manufacturer data
@@ -117,11 +121,11 @@ const Addstock = () => {
               },
             }
           );
-
           const serialData = serialResponse.data.data || [];
           const serialNumbers = serialData.map((serial) => ({
             label: serial.serial_no,
             value: serial.serial_no,
+            id: serial.id, // Include id
           }));
 
           // Update serial number options in state
@@ -138,7 +142,6 @@ const Addstock = () => {
   useEffect(() => {
     fetchStockData();
     handleStockChange();
-
   }, []);
   // Fetch data when the component mounts
   // useEffect(() => {
@@ -179,6 +182,7 @@ const Addstock = () => {
       console.error("Error fetching stock data:", error);
     }
   };
+  
   useEffect(() => {
     fetchStatusData();
   }, []);
@@ -209,7 +213,7 @@ const Addstock = () => {
   // Handle form submission
   const onSubmit = async (data) => {
     const serial_no = Object.keys(data)
-      .filter((key) => key.startsWith("serial_") && data[key])
+      .filter((key) => key.startsWith("serial_") && data[key]) 
       .map((key) => data[key]);
 
     const submissionData = {
@@ -217,10 +221,11 @@ const Addstock = () => {
       model_name: data.model_name,
       manufacturer: data.manufacturer,
       serial_no,
-      id: data.id,
+      stock_id: additionalData?.[0]?.id,
     };
 
-    console.log(submissionData);
+    console.log("Submission Data:", submissionData);
+
     const token = Cookies.get("authToken");
 
     try {
@@ -237,16 +242,16 @@ const Addstock = () => {
 
       toast.success("Stock successfully added!");
 
-      // Reset the form fields
-      methods.reset();
-
+      methods.reset(); 
       methods.setValue("name", "");
-      methods.setValue("model_name", ""); // Reset model name
-      methods.setValue("manufacturer", ""); // Reset manufacturer
-
-      // Clear serial number inputs
+      methods.setValue("model_name", "");
+      methods.setValue("manufacturer", "");
       setSerialInputs([]);
+      setSelectedStockName("");
+      setSelectedManufacturer("");
+      setSerialOptions([]);
     } catch (error) {
+      console.error("Error during submission:", error);
       toast.error("Error submitting stock data.");
     }
   };
@@ -382,7 +387,6 @@ const Addstock = () => {
               </form>
             </FormProvider>
           </div>
-         
         </div>
       </div>
     </div>

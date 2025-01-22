@@ -341,7 +341,7 @@ const EditDetailsModal = ({
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">
+                      <label className="text-base font-medium text-gray-500">
                         Name
                       </label>
                       {userRole === "frontoffice" ? (
@@ -360,7 +360,7 @@ const EditDetailsModal = ({
                       )}
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">
+                      <label className="text-base font-medium text-gray-500">
                         Organization
                       </label>
                       {userRole === "frontoffice" ? (
@@ -381,7 +381,7 @@ const EditDetailsModal = ({
                   </div>
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">
+                      <label className="text-base font-medium text-gray-500">
                         Date & Time
                       </label>
                       {userRole === "frontoffice" ? (
@@ -400,7 +400,7 @@ const EditDetailsModal = ({
                       )}
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">
+                      <label className="text-base font-medium text-gray-500">
                         Type
                       </label>
                       {userRole === "frontoffice" ? (
@@ -527,7 +527,7 @@ const EditDetailsModal = ({
                     />
                   ) : (
                     <>
-                      <p className="text-sm text-gray-700">
+                      <p className="text-base text-gray-700">
                         {truncateText(
                           currentRowData.front_office_notes ||
                             "No front office notes available"
@@ -577,7 +577,7 @@ const EditDetailsModal = ({
                     />
                   ) : (
                     <>
-                      <p className="text-sm text-gray-700">
+                      <p className="text-base text-gray-700">
                         {truncateText(
                           currentRowData.admin_notes ||
                             "No admin notes available"
@@ -627,7 +627,7 @@ const EditDetailsModal = ({
                     />
                   ) : (
                     <>
-                      <p className="text-sm text-gray-700">
+                      <p className="text-base text-gray-700">
                         {truncateText(
                           currentRowData.back_office_notes ||
                             "No back office notes available"
@@ -655,7 +655,7 @@ const EditDetailsModal = ({
                       <h3 className="text-lg font-medium text-gray-900">
                         Full Notes
                       </h3>
-                      <div className="mt-4 text-sm text-gray-700 max-h-60 overflow-y-auto">
+                      <div className="mt-4 text-base text-gray-700 max-h-60 overflow-y-auto">
                         <p>{modalContent}</p>
                       </div>
                       <button
@@ -698,7 +698,7 @@ const EditDetailsModal = ({
                 </button>
               )} */}
                           </div>
-                          <span className="text-sm text-gray-500">
+                          <span className="text-base text-gray-500">
                             Product ID: {stock.product_id}
                           </span>
                         </div>
@@ -706,7 +706,7 @@ const EditDetailsModal = ({
                         <div className="space-y-4">
                           {/* Serial Number */}
                           <div className="flex justify-between items-center">
-                            <span className="text-sm text-gray-500">
+                            <span className="text-base text-gray-500">
                               Serial No:
                             </span>
                             <div className="flex items-center gap-2">
@@ -725,10 +725,10 @@ const EditDetailsModal = ({
                                       e.target.value
                                     )
                                   }
-                                  className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                                  className="border border-gray-300 rounded-lg px-3 py-1 text-base"
                                 />
                               ) : (
-                                <span className="text-sm font-medium">
+                                <span className="text-base font-medium">
                                   {stock.serial_no}
                                 </span>
                               )}
@@ -752,7 +752,7 @@ const EditDetailsModal = ({
                           {/* Description */}
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="text-sm text-gray-500">
+                              <p className="text-base text-gray-500">
                                 Description:
                               </p>
                               {/* {userRole === "backoffice" && (
@@ -792,7 +792,7 @@ const EditDetailsModal = ({
                                 rows={4}
                               />
                             ) : (
-                              <p className="text-sm text-gray-700">
+                              <p className="text-base text-gray-700">
                                 {stock.description ||
                                   "No description available"}
                               </p>
@@ -806,7 +806,7 @@ const EditDetailsModal = ({
                                 key={field}
                                 className="flex justify-between items-center"
                               >
-                                <span className="text-sm text-gray-500 capitalize">
+                                <span className="text-base text-gray-500 capitalize">
                                   {field.replace("_", " ")}:
                                 </span>
                                 <div className="flex items-center gap-2">
@@ -828,10 +828,10 @@ const EditDetailsModal = ({
                                           e.target.value
                                         )
                                       }
-                                      className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                                      className="border border-gray-300 rounded-lg px-3 py-1 text-base"
                                     />
                                   ) : (
-                                    <span className="text-sm font-medium">
+                                    <span className="text-base font-medium">
                                       {field === "codeplug"
                                         ? stock[field]?.replace(/^"|"$/g, "") // Clean codeplug value before displaying
                                         : stock[field]}
@@ -898,14 +898,14 @@ const EditDetailsModal = ({
                             </button>
                           )} */}
                         </div>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-base text-gray-500">
                           Serial No: {stock.serial_no}
                         </span>
                       </div>
 
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-sm text-gray-500">
+                          <span className="text-base text-gray-500">
                             Manufacturer:
                           </span>
                           <div className="flex items-center gap-2">
@@ -923,10 +923,10 @@ const EditDetailsModal = ({
                                     e.target.value
                                   )
                                 }
-                                className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                                className="border border-gray-300 rounded-lg px-3 py-1 text-base"
                               />
                             ) : (
-                              <span className="text-sm font-medium">
+                              <span className="text-base font-medium">
                                 {stock.manufacturer}
                               </span>
                             )}
@@ -953,7 +953,7 @@ const EditDetailsModal = ({
                         {["sign_code", "codeplug", "channels", "unit"].map(
                           (field) => (
                             <div key={field} className="flex justify-between">
-                              <span className="text-sm text-gray-500 capitalize">
+                              <span className="text-base text-gray-500 capitalize">
                                 {field?.replace("_", " ")}:
                               </span>
                               <div className="flex items-center gap-2">
@@ -974,10 +974,10 @@ const EditDetailsModal = ({
                                         e.target.value
                                       )
                                     }
-                                    className="border border-gray-300 rounded-lg px-3 py-1 text-sm"
+                                    className="border border-gray-300 rounded-lg px-3 py-1 text-base"
                                   />
                                 ) : (
-                                  <span className="text-sm font-medium">
+                                  <span className="text-base font-medium">
                                     {field === "codeplug"
                                       ? stock[field]?.replace(/^"|"$/g, "") // Clean codeplug value before displaying
                                       : stock[field]}
@@ -1008,7 +1008,7 @@ const EditDetailsModal = ({
                       <div className="mt-4">
                         <button
                           onClick={() => handleDeleteStock(stock.id)}
-                          className="text-red-600 hover:text-red-800 text-sm font-medium"
+                          className="text-red-600 hover:text-red-800 text-base font-medium"
                         >
                           Delete
                         </button>
@@ -1028,13 +1028,13 @@ const EditDetailsModal = ({
           <div className="border-t px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end gap-3">
             <button
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="px-4 py-2 text-base font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Save Changes
             </button>

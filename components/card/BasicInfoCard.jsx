@@ -6,7 +6,7 @@ const BasicInfoCard = ({ editableFields, handleInputChange, currentRowData, user
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-500">Name</label>
+            <label className="text-base font-medium text-gray-500">Name</label>
             {userRole === "frontoffice" ? (
               <input
                 type="text"
@@ -19,7 +19,7 @@ const BasicInfoCard = ({ editableFields, handleInputChange, currentRowData, user
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-500">Organization</label>
+            <label className="text-base font-medium text-gray-500">Organization</label>
             {userRole === "frontoffice" ? (
               <input
                 type="text"
@@ -34,7 +34,7 @@ const BasicInfoCard = ({ editableFields, handleInputChange, currentRowData, user
         </div>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-500">Date & Time</label>
+            <label className="text-base font-medium text-gray-500">Date & Time</label>
             {userRole === "frontoffice" ? (
               <input
                 type="datetime-local"
@@ -49,7 +49,7 @@ const BasicInfoCard = ({ editableFields, handleInputChange, currentRowData, user
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-500">Type</label>
+            <label className="text-base font-medium text-gray-500">Type</label>
             {userRole === "frontoffice" ? (
               <input
                 type="text"

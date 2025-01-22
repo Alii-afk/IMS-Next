@@ -8,15 +8,15 @@ const ProgrammingStocksSection = ({ currentRowData, userRole, editableField, set
           <div key={stock.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex justify-between items-start mb-3">
               <h4 className="text-md font-semibold text-gray-800">{stock.product_name}</h4>
-              <span className="text-sm text-gray-500">Product ID: {stock.product_id}</span>
+              <span className="text-base text-gray-500">Product ID: {stock.product_id}</span>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Serial No:</span>
-                <span className="text-sm font-medium">{stock.serial_no}</span>
+                <span className="text-base text-gray-500">Serial No:</span>
+                <span className="text-base font-medium">{stock.serial_no}</span>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Description:</p>
+                <p className="text-base text-gray-500">Description:</p>
                 {userRole === "backoffice" && (
                   <button
                     onClick={() =>
@@ -54,7 +54,7 @@ const ProgrammingStocksSection = ({ currentRowData, userRole, editableField, set
                     placeholder="Enter description..."
                   />
                 ) : (
-                  <p className="text-sm text-gray-700">
+                  <p className="text-base text-gray-700">
                     {stock.description || "No description available"}
                   </p>
                 )}

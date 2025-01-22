@@ -24,7 +24,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const StockTable = ({
+const StockSetup = ({
   columns,
   data,
   searchEnabled = false,
@@ -47,152 +47,9 @@ const StockTable = ({
 
   const { register, handleSubmit, setValue, control } = methods;
 
-  const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
-  const [stockData, setStockData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [additionalData, setAdditionalData] = useState(null);
-  const [selectedStockName, setSelectedStockName] = useState("");
-  const [modelOptions, setModelOptions] = useState([]);
-  const [selectedManufacturer, setSelectedManufacturer] = useState("");
-  const [serialOptions, setSerialOptions] = useState([]);
-  // Fetch data from API
+ 
 
-  const fetchStockDatas = async () => {
-    setLoading(true);
-    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-    try {
-      const response = await axiosInstance.get(
-        `${apiUrl}/api/stock-products/fetchStockNameData`
-      );
-
-      const stockData = Array.isArray(response.data)
-        ? response.data
-        : response.data.data;
-
-      console.log("Fetched Stock Data: ", stockData);
-
-      const options = stockData.map((stock) => ({
-        label: stock.name,
-        value: stock.name,
-      }));
-
-      setStockOptions(options);
-      setStockData(stockData); // Save the full stock data
-    } catch (error) {
-      console.error("Error fetching stock data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleStockChange = async (stockName, manufacturer = "") => {
-    setSelectedStockName(stockName);
-    setSelectedManufacturer(manufacturer);
-
-    try {
-      setLoading(true);
-
-      // Build the API request parameters
-      let params = { name: stockName };
-
-      // Add manufacturer to params if it's provided
-      if (manufacturer) {
-        params.manufacturer = manufacturer;
-      }
-
-      // Fetch manufacturers based on stock name
-      const response = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
-        { params }
-      );
-
-      const stockData = response.data.data || [];
-      console.log("Manufacturer data for selected stock:", stockData);
-
-      // Check if stock data is empty
-      if (stockData.length === 0) {
-        toast.error("No stock data found matching the criteria.");
-        return; // Exit early if no data is found
-      }
-
-      // Map stock data to extract manufacturer
-      const manufacturers = stockData.map((stock) => ({
-        label: stock.manufacturer,
-        value: stock.manufacturer,
-      }));
-
-      // Update manufacturer data
-      setAdditionalData(manufacturers);
-
-      // If a manufacturer is selected, filter models for that manufacturer
-      const modelsResponse = await axiosInstance.get(
-        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
-        { params }
-      );
-
-      const modelsData = modelsResponse.data.data || [];
-      const models = modelsData.map((model) => ({
-        label: model.model_name,
-        value: model.model_name,
-      }));
-
-      // Update model options in state
-      setModelOptions(models);
-
-      // If model name is selected, fetch serial number
-      if (models.length > 0) {
-        const serialResponse = await axiosInstance.get(
-          `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
-          {
-            params: {
-              name: stockName,
-              manufacturer: manufacturer,
-              model_name: models[0].value,
-            },
-          }
-        );
-
-        const serialData = serialResponse.data.data || [];
-        const serialNumbers = serialData.map((serial) => ({
-          label: serial.serial_no,
-          value: serial.serial_no,
-        }));
-
-        // Update serial number options in state
-        setSerialOptions(serialNumbers);
-      }
-    } catch (error) {
-      // Handle AxiosError
-      if (error.response) {
-        if (error.response.status === 404) {
-          toast.error("No data found for the selected stock or model.");
-        } else {
-          toast.error(
-            "An error occurred while fetching data. Please try again later."
-          );
-        }
-      } else {
-        toast.error(
-          "An error occurred. Please check your internet connection."
-        );
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchStockDatas();
-    handleStockChange();
-  }, []);
-
-  const quantityNumber = useWatch({
-    control: methods.control,
-    name: "quantityNumber",
-    defaultValue: 1,
-  });
 
   const stockName = useWatch({
     control: methods.control,
@@ -229,33 +86,28 @@ const StockTable = ({
         (stock) => stock.name === stockName
       );
       if (selectedStock) {
-        // Set form values for modelName and manufacturer
         methods.setValue("model_name", selectedStock.model_name || "");
         methods.setValue("manufacturer", selectedStock.manufacturer || "");
       }
     }
   }, [stockName, stockOptions, methods]);
 
-  // Function to open the modal
   const openModal = () => setIsModalOpen(true);
 
-  // Function to close the modal
   const closeModal = () => setIsModalOpen(false);
 
   const handleDelete = () => {
     console.log("Deleting item with ID:", currentRowData?.id);
-
-    // Ensure that currentRowData and its id are defined before making the API request
     if (!currentRowData?.id) {
       console.error("No ID found for deletion.");
-      toast.error("Failed to delete item!"); // Show error if no valid ID
+      toast.error("Failed to delete item!"); 
       return;
     }
 
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
-    fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
+    fetch(`${apiUrl}/api/stock-products/${currentRowData.id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -289,33 +141,31 @@ const StockTable = ({
       model_name: data.model_name,
       name: data.name,
       serial_no: data.serialNumber,
-      
     };
 
-    console.log("Updated data:", payload); // You can log to check the payload
+    console.log("Updated data:", payload); 
 
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
-    // Check if the payload structure matches what the API expects
-    fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
-      method: "PUT", // Assuming the API expects PUT
+    fetch(`${apiUrl}/api/stock-products/${currentRowData.id}`, {
+      method: "PUT", 
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json", // Ensure correct Content-Type
+        "Content-Type": "application/json", 
       },
-      body: JSON.stringify(payload), // Send the payload as a JSON string
+      body: JSON.stringify(payload), 
     })
       .then((response) => response.json())
       .then((data) => {
         console.log("Success:", data);
-        toast.success("Data successfully updated!"); // Success toast
+        toast.success("Data successfully updated!"); 
         setModalOpen(false);
-        fetchStockData(); // Refresh the stock data after successful update
+        fetchStockData(); 
       })
       .catch((error) => {
-        console.error("Error:", error); // Handle any errors
-        toast.error("Failed to update data!"); // Error toast
+        console.error("Error:", error); 
+        toast.error("Failed to update data!"); 
       });
   };
 
@@ -360,7 +210,7 @@ const StockTable = ({
                     <th
                       key={column.key}
                       scope="col"
-                      className="sticky top-0 z-10 py-4 px-6 text- font-semibold tracking-wider text-start capitalize"
+                      className="sticky top-0 z-10 py-4 px-6 text-sm font-semibold tracking-wider text-start capitalize"
                     >
                       {column.name}
                     </th>
@@ -448,76 +298,37 @@ const StockTable = ({
                 onSubmit={methods.handleSubmit(handleFormSubmit)}
                 className="space-y-6"
               >
-                {/* Select Stock Name */}
-                <Controller
-                  name="name"
-                  control={methods.control}
-                  render={({ field }) => (
-                    <SelectField
-                      label="Stock Name"
-                      name="name"
-                      icon={MdLibraryAdd}
-                      placeholder="Select Stock Name"
-                      showIcon={true}
-                      options={stockOptions}
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        handleStockChange(e.target.value);
-                      }}
-                      error={methods.formState.errors.name?.message}
-                    />
-                  )}
-                />
-                <Controller
-                  name="manufacturer"
-                  control={methods.control}
-                  render={({ field }) => (
-                    <SelectField
-                      label="Manufacturer"
-                      name="manufacturer"
-                      icon={HomeIcon}
-                      placeholder="Select Manufacturer"
-                      options={additionalData} // Dynamically populated manufacturers
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        // Fetch models when manufacturer is selected
-                        handleStockChange(selectedStockName, e.target.value);
-                      }}
-                      error={methods.formState.errors.manufacturer?.message}
-                    />
-                  )}
-                />
-
-                <Controller
-                  name="model_name"
-                  control={methods.control}
-                  render={({ field }) => (
-                    <SelectField
-                      label="Model Name"
-                      name="model_name"
-                      icon={IdentificationIcon}
-                      placeholder="Select Model"
-                      options={modelOptions}
-                      onChange={(e) => {
-                        field.onChange(e);
-                        // Fetch models when manufacturer is selected
-                        handleStockChange(selectedStockName, e.target.value);
-                      }}
-                      {...field}
-                      error={methods.formState.errors.model_name?.message}
-                    />
-                  )}
-                />
-
+                {/* Stock Name Input */}
                 <InputField
-                  label="serial Number"
-                  name="serialNumber"
-                  icon={MdOutlineNumbers}
-                  placeholder="Enter Serial Number"
-                  type="number"
-                  {...methods.register("serialNumber")}
+                  label="Stock Name"
+                  name="name"
+                  icon={MdLibraryAdd}
+                  placeholder="Enter Stock Name"
+                  {...methods.register("name")}
+                 
+                  error={methods.formState.errors.name?.message}
+                />
+
+                {/* Manufacturer Input */}
+                <InputField
+                  label="Manufacturer"
+                  name="manufacturer"
+                  icon={HomeIcon}
+                  placeholder="Enter Manufacturer"
+                  {...methods.register("manufacturer")}
+                  
+                  error={methods.formState.errors.manufacturer?.message}
+                />
+
+                {/* Model Name Input */}
+                <InputField
+                  label="Model Name"
+                  name="model_name"
+                  icon={IdentificationIcon}
+                  placeholder="Enter Model Name"
+                  {...methods.register("model_name")}
+                  
+                  error={methods.formState.errors.model_name?.message}
                 />
 
                 <div className="flex gap-4 justify-end">
@@ -544,4 +355,4 @@ const StockTable = ({
   );
 };
 
-export default StockTable;
+export default StockSetup;

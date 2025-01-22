@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaDownload, FaEdit, FaSearch, FaTrash } from "react-icons/fa"; // Import icons for edit and delete
+import { FaDownload, FaEdit, FaEye, FaSearch, FaTrash } from "react-icons/fa"; // Import icons for edit and delete
 import { useForm } from "react-hook-form";
 
 import DeleteConfirmation from "../card/DeleteConfirmation";
@@ -11,6 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import ViewCard from "../card/ViewCard";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -28,6 +29,12 @@ const Table = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [completed, setCompleted] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(false);
+
+  const openViewCardModal = (row) => {
+    setCurrentRowData(row);
+    setSelectedRow(true);
+  };
 
   const openModal = (row) => {
     setCurrentRowData(row);
@@ -208,7 +215,6 @@ const Table = ({
               </div>
             )}
 
-            {/* Scrollable Table Container */}
             <div className="overflow-x-auto overflow-y-auto max-h-[600px] rounded-lg shadow-md">
               <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
                 <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
@@ -239,51 +245,137 @@ const Table = ({
                           )}
                         >
                           {column.key === "action" ? (
-                            <div className="flex items-center space-x-2 ">
-                              {/* Admin role */}
-                              {userRole === "admin" &&
-                                row.request_status === "complete" && (
-                                  <button
-                                    className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
-                                    onClick={handleDownload}
-                                  >
-                                    <FaDownload className="w-5 h-5" />
-                                  </button>
-                                )}
-
-                              {userRole === "admin" &&
-                                row.request_status === "complete" && (
-                                  <>
+                            <div className="flex items-center space-x-2">
+                              {/* Admin Role */}
+                              {userRole === "admin" && (
+                                <>
+                                  {row.request_status === "complete" && (
                                     <button
                                       className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
                                       onClick={handleDownload}
                                     >
                                       <FaDownload className="w-5 h-5" />
                                     </button>
+                                  )}
+                                  {row.request_status === "approved" && (
                                     <button
                                       className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
                                       onClick={() => handleEditClick(row)}
                                     >
                                       <FaEdit className="w-5 h-5" />
                                     </button>
-                                  </>
-                                )}
+                                  )}
 
-                              {(userRole === "admin" ||
-                                userRole === "backoffice" || userRole === "frontoffice") && (
+                                  {row.request_status === "rejected" && (
+                                    <>
+                                      <button
+                                        className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                        onClick={() => handleEditClick(row)}
+                                      >
+                                        <FaEdit className="w-5 h-5" />
+                                      </button>
+                                      <button
+                                        className="w-5 h-5 text-red-600 hover:text-red-800 cursor-pointer transition-all"
+                                        onClick={() => openModal(row)}
+                                      >
+                                        <FaTrash className="w-5 h-5" />
+                                      </button>
+                                    </>
+                                  )}
+                                  {row.request_status === "pending" && (
+                                    <>
+                                      <button
+                                        className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                        onClick={() => handleEditClick(row)}
+                                      >
+                                        <FaEdit className="w-5 h-5" />
+                                      </button>
+                                      <button
+                                        className="w-5 h-5 text-red-600 hover:text-red-800 cursor-pointer transition-all"
+                                        onClick={() => openModal(row)}
+                                      >
+                                        <FaTrash className="w-5 h-5" />
+                                      </button>
+                                    </>
+                                  )}
+                                </>
+                              )}
+
+                              {/* FrontOffice Role */}
+                              {userRole === "frontoffice" && (
                                 <>
-                                  <button
-                                    className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
-                                    onClick={() => handleEditClick(row)}
-                                  >
-                                    <FaEdit className="w-5 h-5" />
-                                  </button>
-                                  <button
-                                    className="w-5 h-5 text-red-600 hover:text-red-800 cursor-pointer transition-all"
-                                    onClick={() => openModal(row)}
-                                  >
-                                    <FaTrash className="w-5 h-5" />
-                                  </button>
+                                  {row.request_status === "complete" && (
+                                    <button
+                                      className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
+                                      onClick={handleDownload}
+                                    >
+                                      <FaDownload className="w-5 h-5" />
+                                    </button>
+                                  )}
+                                  {row.request_status === "approved" && (
+                                    <button
+                                      className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                      onClick={() => handleEditClick(row)}
+                                    >
+                                      <FaEdit className="w-5 h-5" />
+                                    </button>
+                                  )}
+                                  {row.request_status === "pending" && (
+                                    <>
+                                      <button
+                                        className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                        onClick={() => handleEditClick(row)}
+                                      >
+                                        <FaEdit className="w-5 h-5" />
+                                      </button>
+                                      <button
+                                        className="w-5 h-5 text-red-600 hover:text-red-800 cursor-pointer transition-all"
+                                        onClick={() => openModal(row)}
+                                      >
+                                        <FaTrash className="w-5 h-5" />
+                                      </button>
+                                    </>
+                                  )}
+
+                                  {row.request_status === "rejected" && (
+                                    <button
+                                      className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                      onClick={() => openViewCardModal(row)} // Function to open the view modal
+                                    >
+                                      <FaEye className="w-5 h-5" />{" "}
+                                      {/* View Icon */}
+                                    </button>
+                                  )}
+                                </>
+                              )}
+
+                              {/* BackOffice Role */}
+                              {userRole === "backoffice" && (
+                                <>
+                                  {row.request_status === "complete" && (
+                                    <>
+                                      <button
+                                        className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                        onClick={() => handleEditClick(row)}
+                                      >
+                                        <FaEdit className="w-5 h-5" />
+                                      </button>
+                                      <button
+                                        className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
+                                        onClick={handleDownload}
+                                      >
+                                        <FaDownload className="w-5 h-5" />
+                                      </button>
+                                    </>
+                                  )}
+                                  {row.request_status === "approved" && (
+                                    <button
+                                      className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                      onClick={() => handleEditClick(row)}
+                                    >
+                                      <FaEdit className="w-5 h-5" />
+                                    </button>
+                                  )}
                                 </>
                               )}
                             </div>
@@ -295,11 +387,21 @@ const Table = ({
                                 ? truncate(row?.front_office_notes, 30)
                                 : truncate(row?.back_office_notes, 30)}
                             </span>
+                          ) : column.key === "date_time" ? (
+                            new Date(row[column.key]).toLocaleString("en-US", {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                              hour12: false, // 24-hour format
+                            })
                           ) : row[column.key] !== undefined &&
                             row[column.key] !== null ? (
                             row[column.key]
                           ) : (
-                            "Not Found Notes"
+                            "Not Found"
                           )}
                         </td>
                       ))}
@@ -343,6 +445,27 @@ const Table = ({
             <EditDetailsModal
               modalOpen={modalOpen}
               setModalOpen={setModalOpen}
+              currentRowData={currentRowData}
+              userRole={userRole}
+              fetchData={fetchData}
+              // onSubmit={onSubmit}
+            />
+          </div>
+        )}
+
+        {selectedRow && (
+          <div
+            className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10"
+            style={{
+              animation: selectedRow
+                ? "scaleUp 0.3s ease-out"
+                : "scaleDown 0.3s ease-in",
+            }}
+          >
+            <ViewCard
+              selectedRow={selectedRow}
+              setModalOpen={setModalOpen}
+              setSelectedRow={setSelectedRow}
               currentRowData={currentRowData}
               userRole={userRole}
               fetchData={fetchData}

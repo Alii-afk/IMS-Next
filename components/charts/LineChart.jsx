@@ -152,10 +152,7 @@ const LineChart = ({ data }) => {
           height={350}
         />
       </div>
-{/*       
-      <div className="mt-4 text-sm text-gray-500 text-center">
-        Showing data for {data.months[0]} - {data.months[data.months.length - 1]}
-      </div> */}
+
     </div>
   );
 };

@@ -71,7 +71,7 @@ const RoleAssignmentModal = ({ user, onClose, fetchUsers }) => { // Add fetchUse
           <div className="mb-4">
             <label
               htmlFor="role"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-base font-medium text-gray-700"
             >
               Select Role
             </label>
