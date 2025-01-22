@@ -382,28 +382,9 @@ const Addstock = () => {
               </form>
             </FormProvider>
           </div>
-          {/* <div className="px-6">
-            {stockData && stockData.length > 0 ? (
-              <StockTable
-                columns={stockmanagementdata}
-                data={stockData}
-                searchEnabled={true}
-                fetchStockData={fetchStockData}
-              />
-            ) : (
-              <p>No stock data available</p> // This is a fallback message if no data exists
-            )}
-          </div> */}
+         
         </div>
       </div>
-       {/* Loader Overlay */}
-       {/* {loading && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="relative">
-            <ClipLoader color="#ffffff" loading={loading} size={50} />
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

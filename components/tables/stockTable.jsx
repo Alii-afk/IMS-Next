@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { FaEdit, FaSearch, FaTrash } from "react-icons/fa"; // Import icons for edit and delete
 import InputField from "../InputGroup/InputField";
-import { FormProvider, useForm } from "react-hook-form";
-import { EnvelopeIcon } from "@heroicons/react/24/outline";
+import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
+import { EnvelopeIcon, IdentificationIcon } from "@heroicons/react/24/outline";
 import { GrmodelNumber, GrOrganization } from "react-icons/gr";
 import { CiCalendarDate } from "react-icons/ci";
 import { StatusOption, TypeOptions } from "../dummyData/FormData";
 import SelectField from "@/components/SelectField";
-import { FileType } from "lucide-react";
+import { FileType, HomeIcon } from "lucide-react";
 import { SiInstatus } from "react-icons/si";
 import DeleteConfirmation from "../card/DeleteConfirmation";
 import InputSearch from "../InputGroup/InputSearch";
@@ -16,6 +16,8 @@ import { TbFileDescription } from "react-icons/tb";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "@/utils/axiosInstance";
+import { MdLibraryAdd, MdOutlineNumbers } from "react-icons/md";
 
 // Utility function to join class names conditionally
 function classNames(...classes) {
@@ -34,10 +36,175 @@ const StockTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { register, handleSubmit, setValue, control, watch, methods } =
-    useForm();
-  const selectedStatus = watch("status");
-  const selectedType = watch("type");
+  const methods = useForm();
+  const { register, handleSubmit, setValue, control } = methods;
+
+  const [serialInputs, setSerialInputs] = useState([]);
+  const [stockOptions, setStockOptions] = useState([]);
+  const [stockData, setStockData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [additionalData, setAdditionalData] = useState(null);
+  const [selectedStockName, setSelectedStockName] = useState("");
+  const [modelOptions, setModelOptions] = useState([]);
+  const [selectedManufacturer, setSelectedManufacturer] = useState("");
+  const [serialOptions, setSerialOptions] = useState([]);
+  // Fetch data from API
+
+  const fetchStockDatas = async () => {
+    setLoading(true);
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+    try {
+      const response = await axiosInstance.get(
+        `${apiUrl}/api/stock-products/fetchStockNameData`
+      );
+
+      const stockData = Array.isArray(response.data)
+        ? response.data
+        : response.data.data;
+
+      console.log("Fetched Stock Data: ", stockData);
+
+      const options = stockData.map((stock) => ({
+        label: stock.name,
+        value: stock.name,
+      }));
+
+      setStockOptions(options);
+      setStockData(stockData); // Save the full stock data
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStockChange = async (stockName, manufacturer = "") => {
+    setSelectedStockName(stockName);
+    setSelectedManufacturer(manufacturer);
+
+    try {
+      setLoading(true);
+
+      // Fetch manufacturers based on stock name
+      const response = await axiosInstance.get(
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
+        { params: { name: stockName } }
+      );
+
+      const stockData = response.data.data || [];
+      console.log("Manufacturer data for selected stock:", stockData);
+
+      // Map stock data to extract manufacturer
+      const manufacturers = stockData.map((stock) => ({
+        label: stock.manufacturer,
+        value: stock.manufacturer,
+      }));
+
+      // Update manufacturer data
+      setAdditionalData(manufacturers);
+
+      // If manufacturer is selected, fetch model data
+      if (manufacturer) {
+        const modelsResponse = await axiosInstance.get(
+          `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
+          { params: { name: stockName, manufacturer: manufacturer } }
+        );
+
+        const modelsData = modelsResponse.data.data || [];
+        const models = modelsData.map((model) => ({
+          label: model.model_name,
+          value: model.model_name,
+        }));
+
+        // Update model options in state
+        setModelOptions(models);
+
+        // If model name is selected, fetch serial number
+        if (models.length > 0) {
+          const serialResponse = await axiosInstance.get(
+            `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
+            {
+              params: {
+                name: stockName,
+                manufacturer: manufacturer,
+                model_name: models[0].value,
+              },
+            }
+          );
+
+          const serialData = serialResponse.data.data || [];
+          const serialNumbers = serialData.map((serial) => ({
+            label: serial.serial_no,
+            value: serial.serial_no,
+          }));
+
+          // Update serial number options in state
+          setSerialOptions(serialNumbers);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStockDatas();
+    handleStockChange();
+  }, []);
+  // Fetch data when the component mounts
+  // useEffect(() => {
+  // }, []);
+
+  const quantityNumber = useWatch({
+    control: methods.control,
+    name: "quantityNumber",
+    defaultValue: 1,
+  });
+
+  const stockName = useWatch({
+    control: methods.control,
+    name: "name",
+    defaultValue: "",
+  });
+
+  // Fetch stock options from the API
+  const fetchStatusData = async () => {
+    const token = Cookies.get("authToken");
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setStockOptions(data);
+    } catch (error) {
+      console.error("Error fetching stock data:", error);
+    }
+  };
+  useEffect(() => {
+    fetchStatusData();
+  }, []);
+
+  useEffect(() => {
+    if (stockName) {
+      const selectedStock = stockOptions.find(
+        (stock) => stock.name === stockName
+      );
+      if (selectedStock) {
+        // Set form values for modelName and manufacturer
+        methods.setValue("model_name", selectedStock.model_name || "");
+        methods.setValue("manufacturer", selectedStock.manufacturer || "");
+      }
+    }
+  }, [stockName, stockOptions, methods]);
 
   // Function to open the modal
   const openModal = () => setIsModalOpen(true);
@@ -244,45 +411,114 @@ const StockTable = ({
         >
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
             <h2 className="text-xl font-semibold mb-4">Edit Details</h2>
+
             <FormProvider {...methods}>
               <form
-                onSubmit={handleSubmit(handleFormSubmit)}
-                className="space-y-4"
+                onSubmit={methods.handleSubmit(handleFormSubmit)}
+                className="space-y-6"
               >
-                {/* Editable fields */}
-                <InputField
-                  label="Stock Name"
+                {/* Select Stock Name */}
+                <Controller
                   name="name"
-                  icon={EnvelopeIcon}
-                  placeholder="Enter Name"
-                  type="text"
-                  register={register}
-                />
-                <InputField
-                  label="Model Number"
-                  name="modelNumber"
-                  icon={GrOrganization}
-                  placeholder="Enter Model Number"
-                  type="text"
-                  register={register}
+                  control={methods.control}
+                  render={({ field }) => (
+                    <SelectField
+                      label="Stock Name"
+                      name="name"
+                      icon={MdLibraryAdd}
+                      placeholder="Select Stock Name"
+                      showIcon={true}
+                      options={stockOptions}
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        handleStockChange(e.target.value); // Call handler on stock selection
+                      }}
+                      error={methods.formState.errors.name?.message}
+                    />
+                  )}
                 />
 
-                <InputField
-                  label="Manufacturer"
+                {/* Select Manufacturer */}
+                <Controller
                   name="manufacturer"
-                  register={register}
-                  icon={FileType}
+                  control={methods.control}
+                  render={({ field }) => (
+                    <SelectField
+                      label="Manufacturer"
+                      name="manufacturer"
+                      icon={HomeIcon}
+                      placeholder="Select Manufacturer"
+                      options={additionalData} // Dynamically populated manufacturers
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        // Fetch models when manufacturer is selected
+                        handleStockChange(selectedStockName, e.target.value);
+                      }}
+                      error={methods.formState.errors.manufacturer?.message}
+                    />
+                  )}
                 />
-                {!hideSerialNumberInput && (
-                  <InputField
-                    label="Serial Number"
-                    name="serialNumber"
-                    type="text"
-                    icon={TbFileDescription}
-                    placeholder="Enter Serial Number"
-                    register={register}
-                  />
+
+                {/* Select Model Name */}
+                <Controller
+                  name="model_name"
+                  control={methods.control}
+                  render={({ field }) => (
+                    <SelectField
+                      label="Model Name"
+                      name="model_name"
+                      icon={IdentificationIcon}
+                      placeholder="Select Model"
+                      options={modelOptions} // Dynamically populated models
+                      {...field}
+                      error={methods.formState.errors.model_name?.message}
+                    />
+                  )}
+                />
+
+                {/* Quantity Input */}
+                <InputField
+                  label="Enter the Quantity Number"
+                  name="quantityNumber"
+                  icon={MdOutlineNumbers}
+                  defaultValue={1}
+                  placeholder="Enter Quantity Number"
+                  type="number"
+                  {...methods.register("quantityNumber")}
+                />
+
+                {/* Dynamic Serial Number Inputs */}
+                {serialInputs.length > 0 && (
+                  <div className="space-y-4">
+                    <div
+                      className={`grid gap-4 ${
+                        serialInputs.length === 1
+                          ? "grid-cols-1"
+                          : "grid-cols-2"
+                      }`}
+                    >
+                      {serialInputs.map((input, index) => (
+                        <Controller
+                          key={input.id}
+                          name={`serial_${input.id}`} // Ensure each serial input has a unique name
+                          control={methods.control}
+                          render={({ field }) => (
+                            <InputField
+                              {...field}
+                              label={`Serial no ${index + 1}`} // Customize label for each serial number
+                              placeholder={`Enter Serial Number ${index + 1}`}
+                              icon={MdOutlineNumbers}
+                              type="text"
+                            />
+                          )}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 )}
+
                 <div className="flex gap-4 justify-end">
                   <button
                     type="button"
