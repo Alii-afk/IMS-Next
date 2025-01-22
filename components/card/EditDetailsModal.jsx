@@ -118,7 +118,7 @@ const EditDetailsModal = ({
         return "bg-yellow-100 text-yellow-800 border border-yellow-300";
       case "rejected":
         return "bg-red-100 text-red-800 border border-red-300";
-      case "in_progress":
+      case "approved":
         return "bg-indigo-100 text-indigo-800 border border-indigo-300";
       case "complete":
         return "bg-green-100 text-green-800 border border-green-300";
@@ -456,13 +456,13 @@ const EditDetailsModal = ({
                         {userRole === "admin" ? (
                           <>
                             <option value="">Select</option>
-                            <option value="in_progress">approved</option>
+                            <option value="approved">approved</option>
                             <option value="rejected">Rejected</option>
                           </>
                         ) : (
                           <>
                             <option value="">Select</option>
-                            <option value="in_progress">approved</option>
+                            <option value="approved">approved</option>
                             <option value="complete">Complete</option>
                           </>
                         )}

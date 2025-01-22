@@ -16,7 +16,7 @@ const AcceptedRequest = () => {
 
     try {
       const response = await axios.get(`${apiUrl}/api/requests`, {
-        params: { request_status: "in_progress" },
+        params: { request_status: "approved" },
         headers: {
           Authorization: `Bearer ${token}`,
         },

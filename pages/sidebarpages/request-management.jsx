@@ -125,7 +125,7 @@ const RequestManagement = () => {
                   Approved
                 </h3>
                 <p className="text-4xl font-bold text-green-600">
-                  {requests?.status_counts?.in_progress}
+                  {requests?.status_counts?.approved}
                 </p>
               </div>
 

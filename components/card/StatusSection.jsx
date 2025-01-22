@@ -23,7 +23,7 @@ const StatusSection = ({ userRole, editedStatus, setEditedStatus, getStatusClass
             {userRole === "admin" ? (
               <>
                 <option value="">Select</option>
-                <option value="in_progress">approved</option>
+                <option value="approved">approved</option>
                 <option value="rejected">Rejected</option>
               </>
             ) : (

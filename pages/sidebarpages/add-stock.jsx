@@ -217,8 +217,10 @@ const Addstock = () => {
       model_name: data.model_name,
       manufacturer: data.manufacturer,
       serial_no,
+      id: data.id,
     };
 
+    console.log(submissionData);
     const token = Cookies.get("authToken");
 
     try {

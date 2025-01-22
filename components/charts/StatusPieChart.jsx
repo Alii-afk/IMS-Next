@@ -37,7 +37,7 @@ const StatusPieChart = () => {
   let labels = ["Pending", "Approved", "Completed", "Rejected"];
   let series = [
     statusData.pending || 0,
-    statusData.in_progress || 0,
+    statusData.approved || 0,
     statusData.complete || 0,
     statusData.rejected || 0,
   ];
@@ -45,7 +45,7 @@ const StatusPieChart = () => {
   // If the user is backoffice, we only show approved and Completed
   if (role === "backoffice") {
     labels = ["Approved", "Completed"];
-    series = [statusData.in_progress || 0, statusData.complete || 0];
+    series = [statusData.approved || 0, statusData.complete || 0];
   }
 
   // Configure chart options

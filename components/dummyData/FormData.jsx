@@ -114,7 +114,7 @@ export const peoples = [
     type: "Programming",
     time: "2 hours ago",
     notes: "This is",
-    status: "in_progress",
+    status: "approved",
   },
   {
     id: 5,
@@ -153,7 +153,7 @@ export const columns = [
 export const StatusOption = [
   { label: "Pending", value: "pending" },
   { label: "Rejected", value: "rejected" },
-  { label: "Approved", value: "in_progress" },
+  { label: "Approved", value: "approved" },
   { label: "Completed", value: "completed" },
 ];
 
