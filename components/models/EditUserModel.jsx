@@ -168,6 +168,8 @@ const EditUserModal = ({ userData, onSave, onClose, fetchUsers }) => {
                   value={methods.watch("role")}
                   onChange={(e) => methods.setValue("role", e.target.value)}
                   options={roles}
+                  showIcon={true}
+                  show={false}
                   icon={GrUserAdmin}
                   error={error}
                   {...field} // This will pass value, onChange, and onBlur

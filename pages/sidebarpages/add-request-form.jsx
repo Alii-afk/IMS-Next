@@ -220,6 +220,7 @@ const AddRequestForm = () => {
                 icon={FileType}
                 register={methods.register}
                 showIcon={true}
+                show={false}
                 options={TypeOptions}
                 error={methods.formState.errors.type?.message}
               />

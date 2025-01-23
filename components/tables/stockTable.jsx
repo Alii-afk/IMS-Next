@@ -37,7 +37,7 @@ const StockTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  console.log(currentRowData)
+  console.log(currentRowData);
 
   const methods = useForm({
     defaultValues: {
@@ -97,57 +97,57 @@ const StockTable = ({
   const handleStockChange = async (stockName, manufacturer = "") => {
     setSelectedStockName(stockName);
     setSelectedManufacturer(manufacturer);
-  
+
     try {
       setLoading(true);
-  
+
       // Build the API request parameters
       let params = { name: stockName };
-  
+
       // Add manufacturer to params if it's provided
       if (manufacturer) {
         params.manufacturer = manufacturer;
       }
-  
+
       // Fetch manufacturers based on stock name
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
         { params }
       );
-  
+
       const stockData = response.data.data || [];
       console.log("Manufacturer data for selected stock:", stockData);
-  
+
       // Check if stock data is empty
       if (stockData.length === 0) {
         toast.error("No stock data found matching the criteria.");
         return; // Exit early if no data is found
       }
-  
+
       // Map stock data to extract manufacturer
       const manufacturers = stockData.map((stock) => ({
         label: stock.manufacturer,
         value: stock.manufacturer,
       }));
-  
+
       // Update manufacturer data
       setAdditionalData(manufacturers);
-  
+
       // Fetch models if a manufacturer is selected
       const modelsResponse = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
         { params }
       );
-  
+
       const modelsData = modelsResponse.data.data || [];
       const models = modelsData.map((model) => ({
         label: model.model_name,
         value: model.model_name,
       }));
-  
+
       // Update model options in state
       setModelOptions(models);
-  
+
       // If model name is selected, fetch serial number
       if (models.length > 0) {
         const serialResponse = await axiosInstance.get(
@@ -160,13 +160,13 @@ const StockTable = ({
             },
           }
         );
-  
+
         const serialData = serialResponse.data.data || [];
         const serialNumbers = serialData.map((serial) => ({
           label: serial.serial_no,
           value: serial.serial_no,
         }));
-  
+
         // Update serial number options in state
         setSerialOptions(serialNumbers);
       }
@@ -174,7 +174,7 @@ const StockTable = ({
       // Handle AxiosError
       if (axios.isAxiosError(error)) {
         const statusCode = error.response?.status;
-  
+
         // Custom handling for 404 errors
         if (statusCode === 404) {
           toast.error("No data found for the selected stock or model.");
@@ -192,7 +192,6 @@ const StockTable = ({
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
     fetchStockDatas();
@@ -300,15 +299,14 @@ const StockTable = ({
       model_name: data.model_name,
       name: data.name,
       serial_no: data.serialNumber,
-      stock_id: currentRowData.stock_id
-
+      stock_id: currentRowData.stock_id,
     };
-  
+
     console.log("Updated data:", payload); // Log payload for debugging
-  
+
     const token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-  
+
     // Fetch request to update data
     fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
       method: "PUT", // Assuming the API expects PUT
@@ -340,7 +338,6 @@ const StockTable = ({
         toast.error(`Error: ${error.message}`); // Show error toast with response message
       });
   };
-  
 
   const filteredData = data.filter((row) =>
     columns.some((column) =>
@@ -483,6 +480,7 @@ const StockTable = ({
                       placeholder="Select Stock Name"
                       showIcon={true}
                       options={stockOptions}
+                      show={false}
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
@@ -500,6 +498,8 @@ const StockTable = ({
                       label="Manufacturer"
                       name="manufacturer"
                       icon={HomeIcon}
+                      showIcon={true}
+                      show={false}
                       placeholder="Select Manufacturer"
                       options={additionalData} // Dynamically populated manufacturers
                       {...field}
@@ -521,6 +521,8 @@ const StockTable = ({
                       label="Model Name"
                       name="model_name"
                       icon={IdentificationIcon}
+                      showIcon={true}
+                      show={false}
                       placeholder="Select Model"
                       options={modelOptions}
                       onChange={(e) => {

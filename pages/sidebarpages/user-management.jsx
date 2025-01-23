@@ -198,6 +198,8 @@ const UserManagement = () => {
                         onChange={(e) =>
                           methods.setValue("role", e.target.value)
                         }
+                        showIcon={true}
+                        show={false}
                         options={roles}
                         icon={TbFileDescription}
                         error={error}

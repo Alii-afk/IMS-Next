@@ -231,7 +231,7 @@ const Addstock = () => {
 
     if (duplicates.length > 0) {
       toast.error(`Duplicate serial numbers found: ${duplicates.join(", ")}`);
-      return; 
+      return;
     }
 
     const submissionData = {
@@ -259,10 +259,10 @@ const Addstock = () => {
       toast.success("Stock successfully added!");
 
       methods.reset();
-      setSerialInputs([]); 
-      setSerialOptions([]); 
-      setSelectedStockName([]); 
-      setSelectedManufacturer([]); 
+      setSerialInputs([]);
+      setSerialOptions([]);
+      setSelectedStockName([]);
+      setSelectedManufacturer([]);
     } catch (error) {
       if (
         error.response &&
@@ -337,7 +337,9 @@ const Addstock = () => {
                       name="manufacturer"
                       icon={HomeIcon}
                       placeholder="Select Manufacturer"
-                      options={additionalData} // Dynamically populated manufacturers
+                      options={additionalData}
+                      showIcon={true}
+                      show={false}
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
@@ -358,6 +360,8 @@ const Addstock = () => {
                       label="Model Name"
                       name="model_name"
                       icon={IdentificationIcon}
+                      showIcon={true}
+                      show={false}
                       placeholder="Select Model"
                       options={modelOptions} // Dynamically populated models
                       {...field}
