@@ -363,6 +363,7 @@ const StockModel = ({
                             icon={MdLibraryAdd}
                             placeholder="Select Serial Number"
                             showIcon={true}
+                            show={true}
                             options={filteredOptions} // Pass filtered options here
                             {...field}
                             onChange={(e) => {

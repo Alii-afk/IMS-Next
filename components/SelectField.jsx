@@ -3,9 +3,10 @@ import React, { useEffect, useRef, useState } from "react";
 
 const SelectField = ({
   label,
-  options = [], // Default to an empty array if no options are provided
+  options = [], 
   icon: Icon,
   showIcon = true,
+  show = true, 
   name,
   value,
   error,
@@ -15,6 +16,7 @@ const SelectField = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(""); 
   const dropdownRef = useRef(null);
 
   const registerField = register ? register(name) : {};
@@ -55,6 +57,10 @@ const SelectField = ({
     }
   };
 
+  const filteredOptions = options.filter(
+    (option) => option.label.toLowerCase().includes(searchQuery.toLowerCase()) 
+  );
+
   return (
     <div className="relative" ref={dropdownRef}>
       <label className="text-base font-medium text-gray-900 flex items-center mb-1">
@@ -76,16 +82,27 @@ const SelectField = ({
         </span>
 
         <ChevronDown
-          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-            isOpen ? "transform rotate-180" : ""
-          }`}
+          className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? "transform rotate-180" : ""}`}
         />
       </div>
 
       {isOpen && !disabled && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 max-h-60 overflow-auto">
-          {Array.isArray(options) &&
-            options.map((option, index) => (
+          {show && (
+            <input
+              type="text"
+              className="w-full px-4 py-2 border-b border-gray-300 focus:outline-none"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+            />
+          )}
+
+          {/* Filtered options */}
+          {filteredOptions.length === 0 ? (
+            <div className="px-4 py-3 text-gray-500">No options found</div>
+          ) : (
+            filteredOptions.map((option, index) => (
               <div
                 key={index}
                 onClick={() => handleSelect(option)}
@@ -100,7 +117,8 @@ const SelectField = ({
                   {option.label}
                 </span>
               </div>
-            ))}
+            ))
+          )}
         </div>
       )}
 
