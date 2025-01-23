@@ -21,8 +21,8 @@ import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify"; // Import toast
 import "react-toastify/dist/ReactToastify.css";
 import StockTable from "@/components/tables/stockTable";
-import axiosInstance from "@/utils/axiosInstance";
 import { ClipLoader } from "react-spinners";
+import axiosInstance from "@/utils/axiosInstance";
 const Addstock = () => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
@@ -40,23 +40,23 @@ const Addstock = () => {
   const fetchStockData = async () => {
     setLoading(true);
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-  
+
     try {
       const response = await axiosInstance.get(
         `${apiUrl}/api/stock-products/fetchStockNameData`
       );
-  
+
       const stockData = Array.isArray(response.data)
         ? response.data
         : response.data.data;
-  
+
       console.log("Fetched Stock Data: ", stockData);
-  
+
       const options = stockData.map((stock) => ({
         label: stock.name,
         value: stock.name,
       }));
-  
+
       setStockOptions(options);
       setStockData(stockData); // Save the full stock data
     } catch (error) {
@@ -70,50 +70,49 @@ const Addstock = () => {
       setLoading(false);
     }
   };
-  
 
   const handleStockChange = async (stockName, manufacturer = "") => {
     setSelectedStockName(stockName);
     setSelectedManufacturer(manufacturer);
-  
+
     try {
       setLoading(true);
-  
+
       // Fetch manufacturers based on stock name
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
         { params: { name: stockName } }
       );
-  
+
       const stockData = response.data.data || [];
       console.log("Manufacturer data for selected stock:", stockData);
-  
+
       // Map stock data to extract manufacturer
       const manufacturers = stockData.map((stock) => ({
         label: stock.manufacturer,
         value: stock.manufacturer,
         id: stock.id,
       }));
-  
+
       // Update manufacturer data
       setAdditionalData(manufacturers);
-  
+
       // If manufacturer is selected, fetch model data
       if (manufacturer) {
         const modelsResponse = await axiosInstance.get(
           `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
           { params: { name: stockName, manufacturer: manufacturer } }
         );
-  
+
         const modelsData = modelsResponse.data.data || [];
         const models = modelsData.map((model) => ({
           label: model.model_name,
           value: model.model_name,
         }));
-  
+
         // Update model options in state
         setModelOptions(models);
-  
+
         // If model name is selected, fetch serial number
         if (models.length > 0) {
           const serialResponse = await axiosInstance.get(
@@ -132,7 +131,7 @@ const Addstock = () => {
             value: serial.serial_no,
             id: serial.id, // Include id
           }));
-  
+
           // Update serial number options in state
           setSerialOptions(serialNumbers);
         }
@@ -148,7 +147,6 @@ const Addstock = () => {
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
     fetchStockData();
@@ -193,7 +191,7 @@ const Addstock = () => {
       console.error("Error fetching stock data:", error);
     }
   };
-  
+
   useEffect(() => {
     fetchStatusData();
   }, []);
@@ -223,21 +221,19 @@ const Addstock = () => {
 
   // Handle form submission
   const onSubmit = async (data) => {
-    // Extract serial numbers
     const serial_no = Object.keys(data)
       .filter((key) => key.startsWith("serial_") && data[key])
       .map((key) => data[key]);
-  
-    // Check for duplicate serial numbers
+
     const duplicates = serial_no.filter(
       (item, index) => serial_no.indexOf(item) !== index
     );
-  
+
     if (duplicates.length > 0) {
       toast.error(`Duplicate serial numbers found: ${duplicates.join(", ")}`);
-      return; // Exit the function to prevent submission
+      return; 
     }
-  
+
     const submissionData = {
       name: data.name,
       model_name: data.model_name,
@@ -245,9 +241,9 @@ const Addstock = () => {
       serial_no,
       stock_id: additionalData?.[0]?.id,
     };
-  
+
     const token = Cookies.get("authToken");
-  
+
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock`,
@@ -259,39 +255,36 @@ const Addstock = () => {
           },
         }
       );
-  
+
       toast.success("Stock successfully added!");
-  
+
       methods.reset();
-      methods.setValue("name", "");
-      methods.setValue("model_name", "");
-      methods.setValue("manufacturer", "");
-      setSerialInputs([]);
-      setSelectedStockName("");
-      setSelectedManufacturer("");
-      setSerialOptions([]);
+      setSerialInputs([]); 
+      setSerialOptions([]); 
+      setSelectedStockName([]); 
+      setSelectedManufacturer([]); 
     } catch (error) {
-      // Check if the error response includes serial number conflict
       if (
         error.response &&
         error.response.data &&
-        error.response.data.message === "Some serial numbers already exist in the database."
+        error.response.data.message ===
+          "Some serial numbers already exist in the database."
       ) {
         const existingSerials = error.response.data.existing_serial_no || [];
         toast.error(
-          `Error: Some serial numbers already exist in the database: ${existingSerials.join(", ")}`
+          `Error: Some serial numbers already exist in the database: ${existingSerials.join(
+            ", "
+          )}`
         );
       } else {
         // Generic error handling
         toast.error("Error submitting stock data.");
       }
-  
-      // Optionally log the error to console for debugging purposes
+
+      // Optionally log the error for debugging purposes
       console.error("Error details:", error.response?.data || error.message);
     }
   };
-  
-  
 
   return (
     <div className="min-h-screen bg-white flex">

@@ -6,6 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import StockModel from "./StockModel";
 import FrontOfficeBackOfficePDF from "./frontofficePdf";
+import UplaodBackPdf from "../models/UploadPdf";
 
 const EditDetailsModal = ({
   modalOpen,
@@ -136,13 +137,13 @@ const EditDetailsModal = ({
   const handleDeleteStock = async (id) => {
     try {
       const confirmed = window.confirm(
-        "Are you sure you want to delete this stock?"
+        "Are you sure you want to delete this item?" // Updated message
       );
       if (!confirmed) return;
-
+  
       const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
+  
       // Send the DELETE request to the API
       const response = await fetch(
         `${apiUrl}/api/warehouse-stock/deattachStock`,
@@ -155,12 +156,15 @@ const EditDetailsModal = ({
           body: JSON.stringify({ id }),
         }
       );
-
+  
       if (response.ok) {
         const result = await response.json();
-        toast.success("Stock deleted successfully!");
+        
         fetchData();
-        setIsModalOpen(false);
+        setTimeout(() => {
+          toast.success("Stock deleted successfully!");
+          setModalOpen(false); 
+        }, 1000); 
       } else {
         const error = await response.json();
         toast.error(
@@ -171,6 +175,8 @@ const EditDetailsModal = ({
       toast.error("An unexpected error occurred. Please try again.");
     }
   };
+  
+  
 
   const handleSave = async () => {
     try {
@@ -496,6 +502,13 @@ const EditDetailsModal = ({
                 data={currentRowData}
                 userRole={userRole}
               />
+
+              {userRole === "backoffice" && (
+                <UplaodBackPdf
+                  currentRowData={currentRowData}
+                  fetchData={fetchData}
+                />
+              )}
 
               <div className="grid md:grid-cols-3 gap-6">
                 {/* Front Office Notes */}

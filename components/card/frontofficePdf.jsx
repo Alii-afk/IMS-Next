@@ -8,7 +8,7 @@ const FrontOfficeBackOfficePDF = ({ data }) => {
       {/* Display Front Office PDF if available */}
       {front_office_pdf && (
         <div>
-          Download Front Office PDF:
+          Front Office PDF:
           <a
             href={`/uploads/${front_office_pdf}`} // Assuming the PDF files are stored in the 'uploads' folder
             download
@@ -24,7 +24,7 @@ const FrontOfficeBackOfficePDF = ({ data }) => {
       {/* Display Back Office PDF if available */}
       {back_office_pdf && (
         <div>
-          Download Back Office PDF:
+          Back Office PDF:
           <a
             href={`/uploads/${back_office_pdf}`}
             download

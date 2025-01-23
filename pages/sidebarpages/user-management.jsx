@@ -12,11 +12,14 @@ import { CiUser } from "react-icons/ci";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
+import { ClipLoader } from "react-spinners";
 
 const UserManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false); // New state for loader
+
   const methods = useForm({
     defaultValues: {
       name: "",
@@ -51,7 +54,7 @@ const UserManagement = () => {
   const handleAddUser = async (data) => {
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
     const token = Cookies.get("authToken");
-
+    setLoading(true);
     try {
       const response = await axios.post(`${apiUrl}/api/register`, data, {
         headers: {
@@ -69,8 +72,9 @@ const UserManagement = () => {
       const errorMessage =
         error.response?.data?.message || "Registration failed";
       toast.error(errorMessage);
+    } finally {
+      setLoading(false); // Stop loader
     }
-    // console.log("data1 ", data);
   };
 
   return (
@@ -106,7 +110,7 @@ const UserManagement = () => {
 
         {showModal && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10">
-            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full h-[80vh] overflow-y-auto">
               <h2 className="text-xl font-semibold mb-4">Add New User</h2>
               <FormProvider {...methods}>
                 <form
@@ -212,9 +216,14 @@ const UserManagement = () => {
                     </button>
                     <button
                       type="submit"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors flex items-center justify-center"
+                      disabled={loading} // Disable button when loading
                     >
-                      Add User
+                      {loading ? (
+                        <ClipLoader size={20} color="#ffffff" />
+                      ) : (
+                        "Add User"
+                      )}
                     </button>
                   </div>
                 </form>

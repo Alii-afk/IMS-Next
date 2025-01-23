@@ -280,9 +280,9 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-120px)] hide-scrollbar">
+        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(75vh-120px)] hide-scrollbar">
           {navigation?.map((item) => {
-            const isActive = router.pathname === item.href;
+            const isActive = router.pathname === item.href
             const IconComponent = item.icon;
 
             return (
@@ -290,7 +290,7 @@ const Sidebar = () => {
                 key={item.name}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200
+                className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors duration-200
                   ${
                     isActive
                       ? "bg-indigo-50 text-indigo-600"

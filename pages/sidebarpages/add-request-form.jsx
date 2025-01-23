@@ -77,16 +77,25 @@ const AddRequestForm = () => {
     fetchStockData();
   }, []);
 
-
   const onSubmit = async (data) => {
     setIsSubmitting(true); // Start the submission process
-  
+
     try {
       // Extract serial numbers from the form data
       const serialNumbers = Object.keys(data)
         .filter((key) => key.startsWith("serialNumber") && data[key] !== "")
         .map((key) => data[key]);
-  
+
+      const duplicates = serialNumbers.filter(
+          (item, index) => serialNumbers.indexOf(item) !== index
+        );
+    
+        if (duplicates.length > 0) {
+          toast.error(`Duplicate serial numbers found: ${duplicates.join(", ")}`);
+          return; 
+        }
+
+
       // Prepare the request payload as raw JSON
       const requestPayload = {
         name: data.name,
@@ -96,7 +105,7 @@ const AddRequestForm = () => {
         front_office_notes: data.front_office_notes || "",
         front_office_pdf:
           data.front_office_pdf instanceof File ? data.front_office_pdf : "",
-  
+
         // If type is programming, include programming stock data
         programmingStockData:
           data.type.toLowerCase() === "programming"
@@ -110,11 +119,11 @@ const AddRequestForm = () => {
               ]
             : [],
       };
-  
+
       // Get the API URL and auth token
       const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-  
+
       // Make the API request with raw JSON
       const response = await axios({
         method: "post",
@@ -125,7 +134,7 @@ const AddRequestForm = () => {
           "Content-Type": "multipart/form-data", // Set to application/json
         },
       });
-  
+
       if (response.status === 201) {
         toast.success("Request submitted successfully");
         methods.reset();
@@ -140,7 +149,6 @@ const AddRequestForm = () => {
       setIsSubmitting(false); // Reset the submitting state after the request completes
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

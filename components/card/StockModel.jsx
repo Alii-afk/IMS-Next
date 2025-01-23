@@ -229,16 +229,16 @@ const StockModel = ({
 
   const onSubmit = async (data) => {
     const devices = [];
-  
+
     // Iterating through each serial input and collecting data for each device
     serialInputs.forEach((_, index) => {
       const selectedSerialNo = data[`serial_no${index}`];
-  
+
       // Find the stock item matching the selected serial number
       const matchedStock = serialOptions[index]?.find(
         (item) => item.value === selectedSerialNo
       );
-  
+
       // Construct the device data object
       const deviceData = {
         name: data[`name${index}`],
@@ -249,31 +249,31 @@ const StockModel = ({
         serial_no: selectedSerialNo, // Send as a simple value
         model_name: data[`model_name${index}`],
         manufacturer: data[`manufacturer${index}`],
-        id: matchedStock ? matchedStock.id : null, // Include the ID if matched
+        id: matchedStock ? matchedStock.id : null,
       };
-  
+
       // Add deviceData only if serial_no and name are valid (adjust conditions as needed)
       if (deviceData.serial_no && deviceData.name) {
         devices.push(deviceData);
       }
     });
-  
+
     // Prevent submission if devices array is empty
     if (devices.length === 0) {
       toast.error("No valid devices to update. Please check your inputs.");
       return;
     }
-  
+
     const payload = {
       devices,
       request_id: currentRowData.id,
     };
-  
+
     // Send the data to the API
     try {
       const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY; // Ensure the correct API URL here
-  
+
       const response = await fetch(
         `${apiUrl}/api/warehouse-stock/updateStock`,
         {
@@ -285,26 +285,23 @@ const StockModel = ({
           body: JSON.stringify(payload),
         }
       );
-  
-      if (!response.ok) {
-        throw new Error("Failed to update stock");
+
+      if (response.ok) {
+        await response.json();
+        toast.success("Changes saved successfully!"); // Show success toast
+        setTimeout(() => {
+          setModalOpen(false); // Close the modal after a 1 second delay
+          fetchData(); // Fetch the updated data
+        }, 1000); // 1-second delay before executing the above actions
+      } else {
+        toast.error("Failed to update stock. Please try again.");
       }
-  
-      const responseData = await response.json();
-      console.log("API Response:", responseData);
-  
-      // Show success toast
-      toast.success("Stock updated successfully!");
-      fetchData();
-      handleCloseModal();
-      setModalOpen(false);
     } catch (error) {
       console.error("Error submitting data:", error);
       // Show error toast
       toast.error("Failed to update stock. Please try again.");
     }
   };
-  
 
   return (
     <>
