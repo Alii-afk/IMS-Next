@@ -64,7 +64,7 @@ const StockModel = ({
         ? response.data
         : response.data.data;
       const options = stockData.map((stock) => ({
-        label: stock.serial_no,
+        label: `${stock.serial_no} ( ${stock.name} - ${stock.manufacturer}  - ${stock.model_name} )`,
         value: stock.serial_no,
       }));
 
