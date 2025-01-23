@@ -64,7 +64,7 @@ const StockModel = ({
         ? response.data
         : response.data.data;
       const options = stockData.map((stock) => ({
-        label: stock.serial_no,
+        label: `${stock.serial_no} ( ${stock.name} - ${stock.manufacturer}  - ${stock.model_name} )`,
         value: stock.serial_no,
       }));
 
@@ -399,14 +399,14 @@ const StockModel = ({
                           showIcon={true}
                           options={stockDataName?.[index] || []}
                           {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            handleStockChange(
-                              index,
-                              stockDataName,
-                              e.target.value
-                            ); // Pass index & stock name
-                          }}
+                          // onChange={(e) => {
+                          //   field.onChange(e);
+                          //   handleStockChange(
+                          //     index,
+                          //     stockDataName,
+                          //     e.target.value
+                          //   ); // Pass index & stock name
+                          // }}
                           error={
                             methods.formState.errors[`name${index}`]?.message
                           }
@@ -426,14 +426,14 @@ const StockModel = ({
                           showIcon={true}
                           options={additionalData?.[index] || []}
                           {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            handleStockChange(
-                              index,
-                              selectedStockName[index],
-                              e.target.value
-                            ); // Pass index & stock name
-                          }}
+                          // onChange={(e) => {
+                          //   field.onChange(e);
+                          //   handleStockChange(
+                          //     index,
+                          //     selectedStockName[index],
+                          //     e.target.value
+                          //   ); // Pass index & stock name
+                          // }}
                           error={
                             methods.formState.errors[`manufacturer${index}`]
                               ?.message
@@ -454,14 +454,14 @@ const StockModel = ({
                           showIcon={true}
                           options={modelOptions[index] || []} // Use index-specific options
                           {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            handleStockChange(
-                              index,
-                              selectedStockName[index],
-                              selectedManufacturer[index]
-                            );
-                          }}
+                          // onChange={(e) => {
+                          //   field.onChange(e);
+                          //   handleStockChange(
+                          //     index,
+                          //     selectedStockName[index],
+                          //     selectedManufacturer[index]
+                          //   );
+                          // }}
                           error={
                             methods.formState.errors[`model_name${index}`]
                               ?.message

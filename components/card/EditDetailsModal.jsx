@@ -547,7 +547,7 @@ const EditDetailsModal = ({
                         )}
                       </p>
                       {currentRowData.front_office_notes &&
-                        currentRowData.front_office_notes.length > 100 && (
+                        currentRowData.front_office_notes.length > 30 && (
                           <button
                             onClick={() =>
                               openModal(currentRowData.front_office_notes)
@@ -597,7 +597,7 @@ const EditDetailsModal = ({
                         )}
                       </p>
                       {currentRowData.admin_notes &&
-                        currentRowData.admin_notes.length > 100 && (
+                        currentRowData.admin_notes.length > 30 && (
                           <button
                             onClick={() =>
                               openModal(currentRowData.admin_notes)
@@ -647,7 +647,7 @@ const EditDetailsModal = ({
                         )}
                       </p>
                       {currentRowData.back_office_notes &&
-                        currentRowData.back_office_notes.length > 100 && (
+                        currentRowData.back_office_notes.length > 30 && (
                           <button
                             onClick={() =>
                               openModal(currentRowData.back_office_notes)

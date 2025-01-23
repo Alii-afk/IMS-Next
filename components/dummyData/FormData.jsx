@@ -1,5 +1,5 @@
 export const TypeOptions = [
-  { value: "programming", label: "Programming" },
+  { value: "programming", label: "Programming/Repair" },
   { value: "new", label: "New" },
 ];
 
