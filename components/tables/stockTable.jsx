@@ -339,7 +339,7 @@ const StockTable = ({
             <div className="relative flex rounded-md shadow-lg bg-white outline-1 outline-gray-300 max-w-sm mb-6">
               <input
                 type="text"
-                className="block w-full border-2 rounded-md pl-10 pr-4 py-2 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none sm:text-sm"
+                className="block w-full border-2 rounded-md pl-10 pr-4 py-2 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none text-base"
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -360,7 +360,7 @@ const StockTable = ({
                     <th
                       key={column.key}
                       scope="col"
-                      className="sticky top-0 z-10 py-4 px-6 text- font-semibold tracking-wider text-start capitalize"
+                      className="sticky top-0 z-10 py-4 px-6 text-base font-semibold tracking-wider text-start capitalize"
                     >
                       {column.name}
                     </th>
@@ -378,7 +378,7 @@ const StockTable = ({
                         key={column.key}
                         className={classNames(
                           "border-b border-gray-200",
-                          "py-4 px-6  text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
+                          "py-4 px-6  text-base font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
                         )}
                       >
                         {column.key === "action" ? (

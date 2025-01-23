@@ -14,14 +14,20 @@ const RequestManagement = () => {
   const refreshAuthToken = async () => {
     try {
       const refreshToken = Cookies.get("authToken"); // Get refresh token from cookies (or localStorage)
+      
+      if (!refreshToken) {
+        throw new Error("No refresh token available. Please log in again.");
+      }
+  
       const response = await axios.post(
-        `   ${process.env.NEXT_PUBLIC_MAP_KEY}/api/refresh-token`,
+        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/refresh-token`,
         {
           token: refreshToken, // Send expired token to refresh it
         }
       );
-
-      if (response && response.data.token) {
+  
+      if (response?.data?.token) {
+        // Save the new token in cookies
         Cookies.set("authToken", response.data.token, {
           expires: 7, // Set expiration
           path: "/",
@@ -32,10 +38,24 @@ const RequestManagement = () => {
         throw new Error("Failed to refresh token");
       }
     } catch (error) {
-      console.error("Error refreshing token:", error);
-      setError("Session expired. Please log in again.");
+      // Handle the error gracefully
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          console.warn("Session expired. Redirecting to login.");
+          setError("Session expired. Please log in again."); // Show a user-friendly message
+          // Optionally, redirect the user to the login page
+          setTimeout(() => {
+            window.location.href = "/login"; // Adjust the login URL if needed
+          }, 2000);
+        } else {
+          console.error("Axios error occurred:", error.message);
+        }
+      } else {
+        console.error("Unexpected error:", error.message);
+      }
     }
   };
+  
 
   const fetchData = async () => {
     try {

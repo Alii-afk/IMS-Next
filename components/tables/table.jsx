@@ -223,7 +223,7 @@ const Table = ({
                       <th
                         key={column.key}
                         scope="col"
-                        className="sticky top-0 z-10 py-4 px-6 text-sm font-semibold tracking-wider text-start capitalize whitespace-nowrap"
+                        className="sticky top-0 z-10 py-4 px-6 text-lg font-semibold tracking-wider text-start capitalize whitespace-nowrap"
                       >
                         {column.name}
                       </th>
@@ -241,7 +241,7 @@ const Table = ({
                           key={column.key}
                           className={classNames(
                             "border-b border-gray-200",
-                            "py-4 px-6 text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
+                            "py-4 px-6  font-medium text-gray-800 whitespace-nowrap text-base text-start"
                           )}
                         >
                           {column.key === "action" ? (
