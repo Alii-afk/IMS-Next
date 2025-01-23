@@ -92,8 +92,8 @@ const EditUserModal = ({ userData, onSave, onClose, fetchUsers }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50 transition-opacity duration-300">
-      <div className="bg-white rounded-lg shadow-lg w-96 p-6 transform transition-all duration-300 scale-95 hover:scale-100">
-        <FormProvider {...methods}>
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full h-[60vh] overflow-y-auto">
+            <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <h3 className="text-lg font-medium text-gray-700">Edit User</h3>
 

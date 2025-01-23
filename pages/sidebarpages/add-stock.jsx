@@ -316,6 +316,7 @@ const Addstock = () => {
                       icon={MdLibraryAdd}
                       placeholder="Select Stock Name"
                       showIcon={true}
+                      show={false}
                       options={stockOptions}
                       {...field}
                       onChange={(e) => {

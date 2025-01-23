@@ -57,9 +57,10 @@ const SelectField = ({
     }
   };
 
-  const filteredOptions = options.filter(
-    (option) => option.label.toLowerCase().includes(searchQuery.toLowerCase()) 
-  );
+  const filteredOptions = Array.isArray(options)
+  ? options.filter((option) => option.label && option.label.toLowerCase().includes(searchQuery.toLowerCase()))
+  : [];
+
 
   return (
     <div className="relative" ref={dropdownRef}>
