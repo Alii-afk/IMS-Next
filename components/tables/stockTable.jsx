@@ -535,11 +535,11 @@ const StockTable = ({
                 />
 
                 <InputField
-                  label="serial Number"
+                  label="Serial Number"
                   name="serialNumber"
                   icon={MdOutlineNumbers}
                   placeholder="Enter Serial Number"
-                  type="number"
+                  type="text"
                   {...methods.register("serialNumber")}
                 />
 
