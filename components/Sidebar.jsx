@@ -253,7 +253,7 @@ const Sidebar = () => {
         {/* Logo Section */}
         <div className="p-6 border-b border-gray-200 flex items-center justify-center">
           <img
-            src="https://sal-dashboard.demobykiranpal.in/main_logo2.jpg"
+            src={"/images/logo.jpg"}
             alt="Logo"
             className="w-32 h-auto object-contain"
           />

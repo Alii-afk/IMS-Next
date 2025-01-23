@@ -2,15 +2,16 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Sidebar from "@/components/Sidebar";
-import LineChart from "@/components/charts/LineChart";
-import RejectedChart from "@/components/charts/RejectedChart";
-import StockPieChart from "@/components/charts/StatusPieChart";
-import StockBarChart from "@/components/charts/StockBarChart";
+import dynamic from "next/dynamic";
 import { ClipLoader } from "react-spinners";
 
-const Home = () => {
-  // State for user role and name
+// Dynamically import chart components to prevent SSR issues
+const LineChart = dynamic(() => import("@/components/charts/LineChart"), { ssr: false });
+const RejectedChart = dynamic(() => import("@/components/charts/RejectedChart"), { ssr: false });
+const StockPieChart = dynamic(() => import("@/components/charts/StatusPieChart"), { ssr: false });
+const StockBarChart = dynamic(() => import("@/components/charts/StockBarChart"), { ssr: false });
 
+const Home = () => {
   const [role, setRole] = useState(null);
   const [name, setName] = useState(null);
   const router = useRouter();
@@ -41,20 +42,16 @@ const Home = () => {
         </div>
 
         <div className="px-4 md:px-12 lg:px-20 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 justify-center">
-          {/* Conditionally render charts based on user role */}
           <StockPieChart data={barData} />
           <StockBarChart data={pieData} />
-          {role !== "backoffice" && (
+          {/* {role !== "backoffice" && (
             <>
-              {/* Always render the RejectedChart */}
               <LineChart data={lineData} />
               <RejectedChart data={rejectedData} />
             </>
-          )}
-         
+          )} */}
         </div>
       </div>
-       
     </div>
   );
 };

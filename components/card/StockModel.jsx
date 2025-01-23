@@ -17,7 +17,13 @@ import axiosInstance from "@/utils/axiosInstance";
 import { AiOutlineClose } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,fetchData}) => {
+const StockModel = ({
+  userRole,
+  currentRowData,
+  handleCloseModal,
+  setModalOpen,
+  fetchData,
+}) => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
   const [stockData, setStockData] = useState([]);
@@ -28,7 +34,7 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
   const [selectedStockName, setSelectedStockName] = useState([]);
   const [selectedManufacturer, setSelectedManufacturer] = useState([]);
   const [selectedSerialNumbers, setSelectedSerialNumbers] = useState([]);
-
+  const [stockDataName, setStockDataName] = useState([]);
 
   const methods = useForm();
 
@@ -58,8 +64,8 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
         ? response.data
         : response.data.data;
       const options = stockData.map((stock) => ({
-        label: stock.name,
-        value: stock.name,
+        label: stock.serial_no,
+        value: stock.serial_no,
       }));
 
       setStockOptions(options);
@@ -71,107 +77,107 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
     }
   };
 
-  // This function will be called when the stock name is selected
   const handleStockChange = async (
     index,
-    stockName,
+    stockName = "",
     manufacturer = "",
-    serial_no = ""
+    serialNo = ""
   ) => {
-    console.log("serial_no:", serial_no); // Verify if it's passed correctly
-  
-    // Initialize arrays if empty
-    setSelectedStockName((prev) => {
-      const updated = [...(prev || [])];
-      updated[index] = stockName;
-      return updated;
-    });
-  
-    setSelectedManufacturer((prev) => {
-      const updated = [...(prev || [])];
-      updated[index] = manufacturer;
-      return updated;
-    });
-  
     try {
       setLoading(true);
-  
-      // Fetch stock data for the selected stockName and serial_no
+
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
         {
-          params: { name: stockName, serial_no: serial_no }, // Include serial_no
+          params: {
+            serial_no: serialNo,
+          },
         }
       );
-  
+
       const stockData = response.data.data || [];
-      const manufacturers = stockData.map((stock) => ({
-        label: stock.manufacturer,
-        value: stock.manufacturer,
-      }));
-  
-      setAdditionalData((prev) => {
-        const updated = [...(prev || [])];
-        updated[index] = manufacturers;
-        return updated;
-      });
-  
-      if (manufacturer) {
-        const modelsResponse = await axiosInstance.get(
-          `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
+
+      // Find the exact match for the serial number
+      const selectedStock =
+        stockData.find((stock) => stock.serial_no === serialNo) || stockData[0];
+
+      if (selectedStock) {
+        // Update form values
+        methods.setValue(`name${index}`, selectedStock.name);
+        methods.setValue(`manufacturer${index}`, selectedStock.manufacturer);
+        methods.setValue(`model_name${index}`, selectedStock.model_name);
+
+        // Prepare options for dropdowns
+        const stockNames = [
           {
-            params: { name: stockName, manufacturer, serial_no: serial_no },
-          }
-        );
-        const modelsData = modelsResponse.data.data || [];
-        const models = modelsData.map((model) => ({
-          label: model.model_name,
-          value: model.model_name,
-        }));
-  
+            label: selectedStock.name,
+            value: selectedStock.name,
+          },
+        ];
+
+        const manufacturers = [
+          {
+            label: selectedStock.manufacturer,
+            value: selectedStock.manufacturer,
+          },
+        ];
+
+        const models = [
+          {
+            label: selectedStock.model_name,
+            value: selectedStock.model_name,
+          },
+        ];
+
+        const serialNumbers = [
+          {
+            label: serialNo,
+            value: serialNo,
+            id: selectedStock.id,
+          },
+        ];
+
+        // Update state for each dropdown
+        setStockDataName((prev) => {
+          const updated = [...(prev || [])];
+          updated[index] = stockNames;
+          return updated;
+        });
+
+        setSelectedStockName((prev) => {
+          const updated = [...(prev || [])];
+          updated[index] = selectedStock.name;
+          return updated;
+        });
+
+        setSelectedManufacturer((prev) => {
+          const updated = [...(prev || [])];
+          updated[index] = selectedStock.manufacturer;
+          return updated;
+        });
+
+        setAdditionalData((prev) => {
+          const updated = [...(prev || [])];
+          updated[index] = manufacturers;
+          return updated;
+        });
+
         setModelOptions((prev) => {
           const updated = [...(prev || [])];
           updated[index] = models;
           return updated;
         });
-  
-        if (models.length > 0) {
-          const serialResponse = await axiosInstance.get(
-            `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
-            {
-              params: {
-                name: stockName,
-                manufacturer,
-                model_name: models[0].value,
-                serial_no: serial_no,
-              },
-            }
-          );
-  
-          const serialData = serialResponse.data.data || [];
-          const serialNumbers = serialData.map((serial) => ({
-            label: serial.serial_no,
-            value: serial.serial_no,
-            id: serial.id,
-          }));
-  
-          // Filter out serial numbers that are already selected in other devices
-          const filteredSerialNumbers = serialNumbers.filter(
-            (serial) => !selectedSerialNumbers.includes(serial.value)
-          );
-  
-          setSerialOptions((prev) => {
-            const updated = [...(prev || [])];
-            updated[index] = filteredSerialNumbers;
-            return updated;
-          });
-  
-          // Update the selectedSerialNumbers state with the new selection
-          setSelectedSerialNumbers((prev) => {
-            const updated = [...prev, serial_no];
-            return updated;
-          });
-        }
+
+        setSerialOptions((prev) => {
+          const updated = [...(prev || [])];
+          updated[index] = serialNumbers;
+          return updated;
+        });
+        setSelectedSerialNumbers((prev) => {
+          const updated = [...prev];
+          updated[index] = serialNo; // Update the serial number for the specific device
+          return updated;
+        });
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -179,7 +185,6 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
       setLoading(false);
     }
   };
-  
 
   useEffect(() => {
     fetchStockData();
@@ -224,16 +229,16 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
 
   const onSubmit = async (data) => {
     const devices = [];
-
+  
     // Iterating through each serial input and collecting data for each device
     serialInputs.forEach((_, index) => {
       const selectedSerialNo = data[`serial_no${index}`];
-
+  
       // Find the stock item matching the selected serial number
       const matchedStock = serialOptions[index]?.find(
         (item) => item.value === selectedSerialNo
       );
-
+  
       // Construct the device data object
       const deviceData = {
         name: data[`name${index}`],
@@ -246,21 +251,29 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
         manufacturer: data[`manufacturer${index}`],
         id: matchedStock ? matchedStock.id : null, // Include the ID if matched
       };
-
-      devices.push(deviceData);
+  
+      // Add deviceData only if serial_no and name are valid (adjust conditions as needed)
+      if (deviceData.serial_no && deviceData.name) {
+        devices.push(deviceData);
+      }
     });
-
+  
+    // Prevent submission if devices array is empty
+    if (devices.length === 0) {
+      toast.error("No valid devices to update. Please check your inputs.");
+      return;
+    }
+  
     const payload = {
       devices,
       request_id: currentRowData.id,
     };
-
-
+  
     // Send the data to the API
     try {
       const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY; // Ensure the correct API URL here
-
+  
       const response = await fetch(
         `${apiUrl}/api/warehouse-stock/updateStock`,
         {
@@ -272,14 +285,14 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
           body: JSON.stringify(payload),
         }
       );
-
+  
       if (!response.ok) {
         throw new Error("Failed to update stock");
       }
-
+  
       const responseData = await response.json();
       console.log("API Response:", responseData);
-
+  
       // Show success toast
       toast.success("Stock updated successfully!");
       fetchData();
@@ -291,6 +304,7 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
       toast.error("Failed to update stock. Please try again.");
     }
   };
+  
 
   return (
     <>
@@ -336,6 +350,47 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
                     </h4>
 
                     <Controller
+                      name={`serial_no${index}`}
+                      control={methods.control}
+                      render={({ field }) => {
+                        const filteredOptions = stockOptions.filter(
+                          (option) =>
+                            !selectedSerialNumbers.includes(option.value) ||
+                            option.value === field.value
+                        );
+
+                        return (
+                          <SelectField
+                            label="Serial Number"
+                            name={`serial_no${index}`}
+                            icon={MdLibraryAdd}
+                            placeholder="Select Serial Number"
+                            showIcon={true}
+                            options={filteredOptions} // Pass filtered options here
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              const selectedSerialNo =
+                                e?.target?.value || field.value;
+
+                              // Call handleStockChange with the updated serial_no value
+                              handleStockChange(
+                                index,
+                                selectedStockName[index],
+                                selectedManufacturer[index],
+                                selectedSerialNo
+                              );
+                            }}
+                            error={
+                              methods.formState.errors[`serial_no${index}`]
+                                ?.message
+                            }
+                          />
+                        );
+                      }}
+                    />
+
+                    <Controller
                       name={`name${index}`}
                       control={methods.control}
                       render={({ field }) => (
@@ -345,11 +400,15 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
                           icon={MdLibraryAdd}
                           placeholder="Select Stock Name"
                           showIcon={true}
-                          options={stockOptions}
+                          options={stockDataName?.[index] || []}
                           {...field}
                           onChange={(e) => {
                             field.onChange(e);
-                            handleStockChange(index, e.target.value); // Pass index here
+                            handleStockChange(
+                              index,
+                              stockDataName,
+                              e.target.value
+                            ); // Pass index & stock name
                           }}
                           error={
                             methods.formState.errors[`name${index}`]?.message
@@ -408,39 +467,6 @@ const StockModel = ({ userRole, currentRowData, handleCloseModal ,setModalOpen,f
                           }}
                           error={
                             methods.formState.errors[`model_name${index}`]
-                              ?.message
-                          }
-                        />
-                      )}
-                    />
-
-                    <Controller
-                      name={`serial_no${index}`}
-                      control={methods.control}
-                      render={({ field }) => (
-                        <SelectField
-                          label="Serial Number"
-                          name={`serial_no${index}`}
-                          icon={MdLibraryAdd}
-                          placeholder="Select Serial Number"
-                          showIcon={true}
-                          options={serialOptions[index] || []} // Use index-specific options
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e); // Update react-hook-form field value
-                            const selectedSerialNo =
-                              e?.target?.value || field.value; // Get the selected serial_no value
-
-                            // Call handleStockChange with the updated serial_no value
-                            handleStockChange(
-                              index,
-                              selectedStockName[index],
-                              selectedManufacturer[index],
-                              selectedSerialNo // Pass serial_no here
-                            );
-                          }}
-                          error={
-                            methods.formState.errors[`serial_no${index}`]
                               ?.message
                           }
                         />

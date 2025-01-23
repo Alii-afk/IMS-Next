@@ -18,6 +18,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "@/utils/axiosInstance";
 import { MdLibraryAdd, MdOutlineNumbers } from "react-icons/md";
+import axios from "axios";
 
 // Utility function to join class names conditionally
 function classNames(...classes) {
@@ -35,6 +36,8 @@ const StockTable = ({
   const [currentRowData, setCurrentRowData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  console.log(currentRowData)
 
   const methods = useForm({
     defaultValues: {
@@ -81,7 +84,11 @@ const StockTable = ({
       setStockOptions(options);
       setStockData(stockData); // Save the full stock data
     } catch (error) {
-      console.error("Error fetching stock data:", error);
+      if (error.response && error.response.status === 404) {
+        toast.error("No stock data found matching the criteria.");
+      } else {
+        console.error("Error fetching stock data:", error);
+      }
     } finally {
       setLoading(false);
     }
@@ -90,57 +97,57 @@ const StockTable = ({
   const handleStockChange = async (stockName, manufacturer = "") => {
     setSelectedStockName(stockName);
     setSelectedManufacturer(manufacturer);
-
+  
     try {
       setLoading(true);
-
+  
       // Build the API request parameters
       let params = { name: stockName };
-
+  
       // Add manufacturer to params if it's provided
       if (manufacturer) {
         params.manufacturer = manufacturer;
       }
-
+  
       // Fetch manufacturers based on stock name
       const response = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
         { params }
       );
-
+  
       const stockData = response.data.data || [];
       console.log("Manufacturer data for selected stock:", stockData);
-
+  
       // Check if stock data is empty
       if (stockData.length === 0) {
         toast.error("No stock data found matching the criteria.");
         return; // Exit early if no data is found
       }
-
+  
       // Map stock data to extract manufacturer
       const manufacturers = stockData.map((stock) => ({
         label: stock.manufacturer,
         value: stock.manufacturer,
       }));
-
+  
       // Update manufacturer data
       setAdditionalData(manufacturers);
-
-      // If a manufacturer is selected, filter models for that manufacturer
+  
+      // Fetch models if a manufacturer is selected
       const modelsResponse = await axiosInstance.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
         { params }
       );
-
+  
       const modelsData = modelsResponse.data.data || [];
       const models = modelsData.map((model) => ({
         label: model.model_name,
         value: model.model_name,
       }));
-
+  
       // Update model options in state
       setModelOptions(models);
-
+  
       // If model name is selected, fetch serial number
       if (models.length > 0) {
         const serialResponse = await axiosInstance.get(
@@ -153,20 +160,23 @@ const StockTable = ({
             },
           }
         );
-
+  
         const serialData = serialResponse.data.data || [];
         const serialNumbers = serialData.map((serial) => ({
           label: serial.serial_no,
           value: serial.serial_no,
         }));
-
+  
         // Update serial number options in state
         setSerialOptions(serialNumbers);
       }
     } catch (error) {
       // Handle AxiosError
-      if (error.response) {
-        if (error.response.status === 404) {
+      if (axios.isAxiosError(error)) {
+        const statusCode = error.response?.status;
+  
+        // Custom handling for 404 errors
+        if (statusCode === 404) {
           toast.error("No data found for the selected stock or model.");
         } else {
           toast.error(
@@ -175,13 +185,14 @@ const StockTable = ({
         }
       } else {
         toast.error(
-          "An error occurred. Please check your internet connection."
+          "An unexpected error occurred. Please check your internet connection."
         );
       }
     } finally {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchStockDatas();
@@ -289,35 +300,47 @@ const StockTable = ({
       model_name: data.model_name,
       name: data.name,
       serial_no: data.serialNumber,
-      
+      stock_id: currentRowData.stock_id
+
     };
-
-    console.log("Updated data:", payload); // You can log to check the payload
-
-    let token = Cookies.get("authToken");
+  
+    console.log("Updated data:", payload); // Log payload for debugging
+  
+    const token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-    // Check if the payload structure matches what the API expects
+  
+    // Fetch request to update data
     fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
       method: "PUT", // Assuming the API expects PUT
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json", // Ensure correct Content-Type
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(payload), // Send the payload as a JSON string
     })
-      .then((response) => response.json())
+      .then(async (response) => {
+        if (!response.ok) {
+          // If the response is not ok, extract and throw the error message
+          const errorData = await response.json();
+          throw new Error(
+            errorData?.message || "An unknown error occurred during the update."
+          );
+        }
+        return response.json(); // Parse response JSON if successful
+      })
       .then((data) => {
-        console.log("Success:", data);
+        console.log("Success:", data); // Log success data
         toast.success("Data successfully updated!"); // Success toast
         setModalOpen(false);
         fetchStockData(); // Refresh the stock data after successful update
       })
       .catch((error) => {
-        console.error("Error:", error); // Handle any errors
-        toast.error("Failed to update data!"); // Error toast
+        // Handle and display error
+        console.error("Error details:", error.message); // Log the error message
+        toast.error(`Error: ${error.message}`); // Show error toast with response message
       });
   };
+  
 
   const filteredData = data.filter((row) =>
     columns.some((column) =>
