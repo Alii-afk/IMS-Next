@@ -2,27 +2,43 @@ import React, { useEffect, useState } from "react";
 import dynamic from 'next/dynamic';
 import Cookies from "js-cookie";
 import axios from "axios";
+import { toast,ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const StockBarChart = ({ data }) => {
   const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Fetch the status data from your API
+  
   const fetchStatusData = async () => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
+  
     try {
-      const response = await axios.get(`${apiUrl}/api/warehouse-stock/ratios`, {
+      const response = await axios.get(`${apiUrl}/api/requests/ratios`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      // Assuming the response structure includes status_counts and percentages
+      // Assuming the response structure includes status_counts
       setStatusData(response.data.status_counts);
     } catch (error) {
-      console.error("Error fetching status data:", error);
+      if (axios.isAxiosError(error)) {
+        // Handle known Axios errors
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized: Please log in again.");
+        } else if (error.response?.status >= 500) {
+          toast.error("Server error. Please try again later.");
+        } else {
+          toast.error("Failed to fetch data. Please check your connection.");
+        }
+        console.error("API Error:", error.response?.data || error.message); // Log for debugging
+      } else {
+        // Handle unexpected errors
+        toast.error("An unexpected error occurred. Please try again.");
+        console.error("Unexpected Error:", error); // Log for debugging
+      }
     } finally {
       setLoading(false);
     }
@@ -121,6 +137,8 @@ const StockBarChart = ({ data }) => {
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg">
+            <ToastContainer />
+
       <div className="mb-6">
         <h3 className="text-2xl font-bold text-gray-800">Stock Overview</h3>
         <p className="text-gray-600 mt-1">Current Inventory Status</p>

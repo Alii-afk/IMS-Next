@@ -97,9 +97,7 @@ const StockSetup = ({
   const closeModal = () => setIsModalOpen(false);
 
   const handleDelete = () => {
-    console.log("Deleting item with ID:", currentRowData?.id);
     if (!currentRowData?.id) {
-      console.error("No ID found for deletion.");
       toast.error("Failed to delete item!"); 
       return;
     }
@@ -143,7 +141,6 @@ const StockSetup = ({
       serial_no: data.serialNumber,
     };
 
-    console.log("Updated data:", payload); 
 
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
@@ -158,7 +155,6 @@ const StockSetup = ({
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Success:", data);
         toast.success("Data successfully updated!"); 
         setModalOpen(false);
         fetchStockData(); 

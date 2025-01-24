@@ -37,7 +37,6 @@ const StockTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  console.log(currentRowData);
 
   const methods = useForm({
     defaultValues: {
@@ -74,7 +73,6 @@ const StockTable = ({
         ? response.data
         : response.data.data;
 
-      console.log("Fetched Stock Data: ", stockData);
 
       const options = stockData.map((stock) => ({
         label: stock.name,
@@ -116,7 +114,6 @@ const StockTable = ({
       );
 
       const stockData = response.data.data || [];
-      console.log("Manufacturer data for selected stock:", stockData);
 
       // Check if stock data is empty
       if (stockData.length === 0) {
@@ -253,7 +250,6 @@ const StockTable = ({
   const closeModal = () => setIsModalOpen(false);
 
   const handleDelete = () => {
-    console.log("Deleting item with ID:", currentRowData?.id);
 
     // Ensure that currentRowData and its id are defined before making the API request
     if (!currentRowData?.id) {
@@ -302,7 +298,6 @@ const StockTable = ({
       stock_id: currentRowData.stock_id,
     };
 
-    console.log("Updated data:", payload); // Log payload for debugging
 
     const token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
@@ -324,18 +319,17 @@ const StockTable = ({
             errorData?.message || "An unknown error occurred during the update."
           );
         }
-        return response.json(); // Parse response JSON if successful
+        return response.json(); 
       })
       .then((data) => {
-        console.log("Success:", data); // Log success data
-        toast.success("Data successfully updated!"); // Success toast
+        toast.success("Data successfully updated!"); 
         setModalOpen(false);
-        fetchStockData(); // Refresh the stock data after successful update
+        fetchStockData(); 
       })
       .catch((error) => {
         // Handle and display error
-        console.error("Error details:", error.message); // Log the error message
-        toast.error(`Error: ${error.message}`); // Show error toast with response message
+        console.error("Error details:", error.message); 
+        toast.error(`Error: ${error.message}`); 
       });
   };
 

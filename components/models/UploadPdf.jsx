@@ -5,7 +5,7 @@ import FileUpload from "@/components/InputGroup/FileUpload";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
-const UplaodBackPdf = ({ currentRowData }) => {
+const UplaodBackPdf = ({ currentRowData,fetchData,setModalOpen }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const methods = useForm();
 
@@ -32,9 +32,6 @@ const UplaodBackPdf = ({ currentRowData }) => {
       const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
-      console.log("API URL:", apiUrl);
-      console.log("Token:", token);
-
       const response = await fetch(`${apiUrl}/api/requests/uploadBackOfficePdf`, {
         method: "POST",
         headers: {
@@ -46,12 +43,13 @@ const UplaodBackPdf = ({ currentRowData }) => {
       if (response.ok) {
         const result = await response.json();
         toast.success("File uploaded successfully!");
+        fetchData()
+        setModalOpen(false)
       } else {
         const errorData = await response.json();
         toast.error(`Failed to upload file. Error: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error("Error during file upload:", error);
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -70,7 +68,6 @@ const UplaodBackPdf = ({ currentRowData }) => {
                 label="Attach back Office Supporting Document"
                 icon={AiOutlineFilePdf}
                 onFileChange={(file) => {
-                  console.log("File selected:", file); // Log the file selected
                   field.onChange(file);
                 }}
               />

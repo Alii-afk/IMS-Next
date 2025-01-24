@@ -6,10 +6,12 @@ import { HomeIcon, IdentificationIcon } from "@heroicons/react/24/outline";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import StockTable from "@/components/tables/stockTable";
 import { ClipLoader } from "react-spinners";
 import { stockmanagement } from "@/components/dummyData/FormData";
-import StockSetup from "@/components/tables/StockSetup";
+import dynamic from "next/dynamic";
+const StockSetup = dynamic(() => import("@/components/tables/StockSetup"), { 
+  ssr: false 
+});
 
 const Setting = () => {
   const [stockOptions, setStockOptions] = useState([]);

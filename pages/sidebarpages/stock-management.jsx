@@ -3,12 +3,18 @@ import {
   stockmanagementdata,
 } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
-import StockTable from "@/components/tables/stockTable";
+// import StockTable from "@/components/tables/stockTable";
 import Table from "@/components/tables/table";
 import axios from "axios";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import dynamic from "next/dynamic";
+const StockTable = dynamic(() => import("@/components/tables/stockTable"), {
+  ssr: false,
+});
 
 const Stockmanagement = () => {
   const [stockData, setStockData] = useState([]);
@@ -29,7 +35,17 @@ const Stockmanagement = () => {
       });
       setStatusData(response.data);
     } catch (error) {
-      console.error("Error fetching status data:", error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized. Please log in again.");
+        } else if (error.response?.status === 404) {
+          toast.error("Requests not found.");
+        } else {
+          toast.error("Failed to fetch pending requests.");
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -53,12 +69,21 @@ const Stockmanagement = () => {
       // Assuming the response data is an array, you can set it to the state
       setStockData(response.data);
     } catch (error) {
-      console.error("Error fetching stock data:", error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized. Please log in again.");
+        } else if (error.response?.status === 404) {
+          toast.error("Requests not found.");
+        } else {
+          toast.error("Failed to fetch pending requests.");
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
   };
-
   // Fetch data when the component mounts
   useEffect(() => {
     fetchStockData();
@@ -66,6 +91,8 @@ const Stockmanagement = () => {
 
   return (
     <div className="min-h-screen  bg-white flex">
+      <ToastContainer />
+
       {/* Sidebar Component */}
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 
@@ -130,8 +157,8 @@ const Stockmanagement = () => {
           </div>
         </div>
       </div>
-       {/* Loader Overlay */}
-       {loading && (
+      {/* Loader Overlay */}
+      {loading && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="relative">
             <ClipLoader color="#ffffff" loading={loading} size={50} />

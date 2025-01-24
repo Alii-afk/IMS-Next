@@ -1,6 +1,5 @@
 import { columns, peoples } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
-import Table from "@/components/tables/table";
 import axios from "axios";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
@@ -9,6 +8,11 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ExcelJS from "exceljs";
 import { DownloadIcon } from "lucide-react";
+import dynamic from "next/dynamic";
+const Table = dynamic(() => import("@/components/tables/table"), { 
+  ssr: false 
+});
+
 
 const userRole = Cookies.get("role");
 
@@ -42,12 +46,22 @@ const Completed = () => {
       });
 
       setCompletedRequests(response.data);
-    } catch (error) {
-      console.error("Error fetching pending requests:", error);
+    }  catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized. Please log in again.");
+        } else if (error.response?.status === 404) {
+          toast.error("Requests not found.");
+        } else {
+          toast.error("Failed to fetch pending requests.");
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
-  };
+   };
 
   useEffect(() => {
     fetchData();

@@ -13,12 +13,10 @@ const Dashboard = () => {
     if (role === "backoffice") {
       router.push("/sidebarpages/home");
     } else if (role === "admin") {
-      // console.log("Redirecting to /sidebarpages/home");
       router.push("/sidebarpages/home");
     } else if (role === "frontoffice") {
       router.push("/sidebarpages/request-management");
     } else {
-      // console.log("Redirecting to /sidebarpages/home (default)");
       router.push("/sidebarpages/home");
     }
   };

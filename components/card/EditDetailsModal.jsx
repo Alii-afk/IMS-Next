@@ -507,6 +507,8 @@ const EditDetailsModal = ({
                 <UplaodBackPdf
                   currentRowData={currentRowData}
                   fetchData={fetchData}
+                  setModalOpen={setModalOpen}
+
                 />
               )}
 

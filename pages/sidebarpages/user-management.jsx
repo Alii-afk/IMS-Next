@@ -35,7 +35,6 @@ const UserManagement = () => {
     { Header: "Email", accessor: "email" },
     { Header: "Role", accessor: "role" },
   ];
-  // console.log(users);
 
   const fetchUsers = async () => {
     const apiUrl = `${process.env.NEXT_PUBLIC_MAP_KEY}/api/users`; // Use your correct API URL here
@@ -110,7 +109,7 @@ const UserManagement = () => {
 
         {showModal && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-60 flex justify-center items-center z-10">
-            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full h-[80vh] overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full h-[80vh]  overflow-y-auto">
               <h2 className="text-xl font-semibold mb-4">Add New User</h2>
               <FormProvider {...methods}>
                 <form

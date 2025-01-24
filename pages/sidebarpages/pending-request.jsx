@@ -1,10 +1,15 @@
 import { columns, peoples } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
-import Table from "@/components/tables/table";
 import axios from "axios";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import dynamic from "next/dynamic";
+const Table = dynamic(() => import("@/components/tables/table"), { 
+  ssr: false 
+});
 
 const PendingRequest = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -13,7 +18,7 @@ const PendingRequest = () => {
   const fetchData = async () => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
+   
     try {
       const response = await axios.get(`${apiUrl}/api/requests`, {
         params: { request_status: "pending" },
@@ -23,16 +28,28 @@ const PendingRequest = () => {
       });
       setPendingRequests(response.data);
     } catch (error) {
-      console.error("Error fetching pending requests:", error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized. Please log in again.");
+        } else if (error.response?.status === 404) {
+          toast.error("Requests not found.");
+        } else {
+          toast.error("Failed to fetch pending requests.");
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
-  };
+   };
   useEffect(() => {
     fetchData();
   }, []);
   return (
     <div className="m w-full bg-white flex ">
+            <ToastContainer />
+
       {/* Sidebar Component */}
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 

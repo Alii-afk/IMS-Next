@@ -3,11 +3,6 @@ import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import Sidebar from "@/components/Sidebar";
 import dynamic from "next/dynamic";
-import { ClipLoader } from "react-spinners";
-
-// Dynamically import chart components to prevent SSR issues
-const LineChart = dynamic(() => import("@/components/charts/LineChart"), { ssr: false });
-const RejectedChart = dynamic(() => import("@/components/charts/RejectedChart"), { ssr: false });
 const StockPieChart = dynamic(() => import("@/components/charts/StatusPieChart"), { ssr: false });
 const StockBarChart = dynamic(() => import("@/components/charts/StockBarChart"), { ssr: false });
 
@@ -19,11 +14,6 @@ const Home = () => {
   // Chart Data
   const barData = [120, 45];
   const pieData = [300, 50, 100];
-  const lineData = {
-    months: ["Jan", "Feb", "Mar", "Apr", "May"],
-    values: [30, 40, 45, 50, 49],
-  };
-  const rejectedData = [20, 30, 25, 40, 35];
 
   useEffect(() => {
     setRole(Cookies.get("role"));

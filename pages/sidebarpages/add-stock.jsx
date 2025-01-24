@@ -50,7 +50,6 @@ const Addstock = () => {
         ? response.data
         : response.data.data;
 
-      console.log("Fetched Stock Data: ", stockData);
 
       const options = stockData.map((stock) => ({
         label: stock.name,
@@ -85,7 +84,6 @@ const Addstock = () => {
       );
 
       const stockData = response.data.data || [];
-      console.log("Manufacturer data for selected stock:", stockData);
 
       // Map stock data to extract manufacturer
       const manufacturers = stockData.map((stock) => ({

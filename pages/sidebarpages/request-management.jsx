@@ -1,89 +1,51 @@
 import { useEffect, useState } from "react";
 import axios from "axios"; // Optional, if you're using axios
 import Sidebar from "@/components/Sidebar";
-import Table from "@/components/tables/table";
 import { columns } from "@/components/dummyData/FormData";
 import Cookies from "js-cookie";
 import { ClipLoader } from "react-spinners";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import dynamic from "next/dynamic";
+const Table = dynamic(() => import("@/components/tables/table"), { 
+  ssr: false 
+});
 
 const RequestManagement = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const refreshAuthToken = async () => {
-    try {
-      const refreshToken = Cookies.get("authToken"); // Get refresh token from cookies (or localStorage)
-      
-      if (!refreshToken) {
-        throw new Error("No refresh token available. Please log in again.");
-      }
-  
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_MAP_KEY}/api/refresh-token`,
-        {
-          token: refreshToken, // Send expired token to refresh it
-        }
-      );
-  
-      if (response?.data?.token) {
-        // Save the new token in cookies
-        Cookies.set("authToken", response.data.token, {
-          expires: 7, // Set expiration
-          path: "/",
-          secure: false,
-        });
-        return response.data.token;
-      } else {
-        throw new Error("Failed to refresh token");
-      }
-    } catch (error) {
-      // Handle the error gracefully
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
-          console.warn("Session expired. Redirecting to login.");
-          setError("Session expired. Please log in again."); // Show a user-friendly message
-          // Optionally, redirect the user to the login page
-          setTimeout(() => {
-            window.location.href = "/login"; // Adjust the login URL if needed
-          }, 2000);
-        } else {
-          console.error("Axios error occurred:", error.message);
-        }
-      } else {
-        console.error("Unexpected error:", error.message);
-      }
-    }
-  };
+
   
 
   const fetchData = async () => {
     try {
       let token = Cookies.get("authToken");
-
+      
       if (!token) {
         setError("No token found. Please log in.");
         return;
       }
+      
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-      // Try to fetch data with the existing token
+      
       const response = await axios.get(`${apiUrl}/api/requests`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      setRequests(response.data); // Store fetched data
+      
+      setRequests(response.data);
     } catch (error) {
-      if (error.response && error.response.data.error === "Token has expired") {
-        const newToken = await refreshAuthToken();
-        if (newToken) {
-          await fetchData();
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized. Please log in again.");
+        } else if (error.response?.status === 404) {
+          toast.error("Resource not found.");
+        } else {
+          toast.error("An unexpected error occurred.");
         }
-      } else {
-        console.error("Error fetching data:", error);
-        setError("There was an error fetching the requests.");
       }
     } finally {
       setLoading(false);
@@ -96,6 +58,8 @@ const RequestManagement = () => {
 
   return (
     <div className="min-h-screen bg-white flex">
+            <ToastContainer />
+
       {/* Sidebar Component */}
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 

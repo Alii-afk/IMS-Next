@@ -1,10 +1,15 @@
 import { columns, peoples } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
-import Table from "@/components/tables/table";
 import axios from "axios";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import dynamic from "next/dynamic";
+const Table = dynamic(() => import("@/components/tables/table"), { 
+  ssr: false 
+});
 
 const AcceptedRequest = () => {
   const [InprogressRequests, setInprogressRequests] = useState([]);
@@ -23,7 +28,17 @@ const AcceptedRequest = () => {
       });
       setInprogressRequests(response.data);
     } catch (error) {
-      console.error("Error fetching pending requests:", error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized. Please log in again.");
+        } else if (error.response?.status === 404) {
+          toast.error("Requests not found.");
+        } else {
+          toast.error("Failed to fetch pending requests.");
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
       setLoading(false);
     }
@@ -34,6 +49,8 @@ const AcceptedRequest = () => {
   }, []);
   return (
     <div className="min-h-screen  bg-white flex">
+      <ToastContainer />
+
       {/* Sidebar Component */}
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
 
