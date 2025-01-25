@@ -230,5 +230,5 @@ export const roles = [
   { value: "user", label: "User" },
   { value: "backoffice", label: "Back Office" },
   { value: "frontoffice", label: "Front Office" },
-  { value: "admin", label: "Admin" },
+  // { value: "admin", label: "Admin" },
 ];

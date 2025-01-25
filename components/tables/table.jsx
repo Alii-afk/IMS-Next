@@ -101,7 +101,7 @@ const Table = ({
 
     closeModal();
     fetchData();
-    fetchPendingRequests();
+    // fetchPendingRequests();
   };
 
   const parseTime = (time) => {
