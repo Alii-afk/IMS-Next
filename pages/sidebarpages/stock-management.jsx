@@ -12,6 +12,7 @@ import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 const StockTable = dynamic(() => import("@/components/tables/stockTable"), {
   ssr: false,
 });
@@ -21,6 +22,8 @@ const Stockmanagement = () => {
   const [loading, setLoading] = useState(true);
 
   const [statusData, setStatusData] = useState({});
+  const router = useRouter()
+
 
   // Fetch the status data from your API
   const fetchStatusData = async () => {
@@ -72,6 +75,7 @@ const Stockmanagement = () => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           toast.error("Unauthorized. Please log in again.");
+          router.push("/");
         } else if (error.response?.status === 404) {
           toast.error("Requests not found.");
         } else {

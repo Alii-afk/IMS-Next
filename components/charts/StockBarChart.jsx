@@ -4,19 +4,20 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { toast,ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/router";
 const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
 const StockBarChart = ({ data }) => {
   const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
 
-  
+  const router = useRouter()
   const fetchStatusData = async () => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
   
     try {
-      const response = await axios.get(`${apiUrl}/api/requests/ratios`, {
+      const response = await axios.get(`${apiUrl}/api/warehouse-stock/ratios`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -28,12 +29,12 @@ const StockBarChart = ({ data }) => {
         // Handle known Axios errors
         if (error.response?.status === 401) {
           toast.error("Unauthorized: Please log in again.");
+          router.push("/");
         } else if (error.response?.status >= 500) {
           toast.error("Server error. Please try again later.");
         } else {
           toast.error("Failed to fetch data. Please check your connection.");
         }
-        console.error("API Error:", error.response?.data || error.message); // Log for debugging
       } else {
         // Handle unexpected errors
         toast.error("An unexpected error occurred. Please try again.");
@@ -47,13 +48,14 @@ const StockBarChart = ({ data }) => {
   useEffect(() => {
     fetchStatusData();
   }, []);
-
+  const totalStock =
+  (statusData?.in_house || 0) + (statusData?.on_field || 0);
 
   // Prepare data for the chart
   const chartData = [
     statusData?.in_house || 0, // In Warehouse
     statusData?.on_field || 0,  // On Field
-    data?.total_stock || 0      // Total Stock
+    totalStock || data?.total_stock || 0,
   ];
 
   const chartOptions = {

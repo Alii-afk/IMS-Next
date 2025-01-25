@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import ExcelJS from "exceljs";
 import { DownloadIcon } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 const Table = dynamic(() => import("@/components/tables/table"), { 
   ssr: false 
 });
@@ -32,6 +33,7 @@ const Completed = () => {
   const [completedRequests, setCompletedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [datas, setDatas] = useState([]);
+  const router = useRouter()
 
   const fetchData = async () => {
     let token = Cookies.get("authToken");
@@ -50,6 +52,7 @@ const Completed = () => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           toast.error("Unauthorized. Please log in again.");
+          router.push("/");
         } else if (error.response?.status === 404) {
           toast.error("Requests not found.");
         } else {

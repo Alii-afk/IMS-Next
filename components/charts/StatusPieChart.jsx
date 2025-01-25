@@ -4,11 +4,13 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/router";
 
 const StatusPieChart = () => {
   const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState(null);
+  const router = useRouter()
 
   const fetchStatusData = async () => {
     const token = Cookies.get("authToken");
@@ -27,6 +29,7 @@ const StatusPieChart = () => {
         // Generic error messages without specific details
         if (error.response?.status === 401) {
           toast.error("Authentication failed. Please log in again.");
+          router.push("/");
         } else if (error.response?.status >= 500) {
           toast.error("Server error. Please try again later.");
         } else {

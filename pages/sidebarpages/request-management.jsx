@@ -7,6 +7,7 @@ import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 const Table = dynamic(() => import("@/components/tables/table"), { 
   ssr: false 
 });
@@ -17,7 +18,8 @@ const RequestManagement = () => {
   const [error, setError] = useState(null);
 
 
-  
+  const router = useRouter()
+
 
   const fetchData = async () => {
     try {
@@ -41,6 +43,7 @@ const RequestManagement = () => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           toast.error("Unauthorized. Please log in again.");
+          router.push("/");
         } else if (error.response?.status === 404) {
           toast.error("Resource not found.");
         } else {

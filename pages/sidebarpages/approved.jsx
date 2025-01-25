@@ -7,6 +7,7 @@ import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
 const Table = dynamic(() => import("@/components/tables/table"), { 
   ssr: false 
 });
@@ -14,6 +15,7 @@ const Table = dynamic(() => import("@/components/tables/table"), {
 const AcceptedRequest = () => {
   const [InprogressRequests, setInprogressRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter()
 
   const fetchData = async () => {
     let token = Cookies.get("authToken");
@@ -31,6 +33,7 @@ const AcceptedRequest = () => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           toast.error("Unauthorized. Please log in again.");
+          router.push("/");
         } else if (error.response?.status === 404) {
           toast.error("Requests not found.");
         } else {

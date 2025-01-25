@@ -5,6 +5,7 @@ import {
   GrTechnology,
   GrChannels,
   GrCube,
+  GrChannel,
 } from "react-icons/gr";
 import InputField from "../InputGroup/InputField";
 import { Controller, useForm, useWatch, FormProvider } from "react-hook-form";
@@ -510,7 +511,7 @@ const StockModel = ({
                           {...field}
                           label="Channels"
                           placeholder={`Enter Channels ${index + 1}`}
-                          icon={GrChannels}
+                          icon={GrChannel}
                           type="text"
                         />
                       )}
