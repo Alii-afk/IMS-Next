@@ -12,8 +12,6 @@ import { toast } from "react-toastify";
 const LoginForm = ({ onLoginSuccess }) => {
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [subscribers, setSubscribers] = useState([]);
 
   const methods = useForm({
     resolver: yupResolver(loginSchema),
@@ -21,100 +19,6 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
-  // Refresh Token Logic
-  const refreshAuthToken = async () => {
-    if (isRefreshing) {
-      return new Promise((resolve) => {
-        setSubscribers((prev) => [...prev, resolve]);
-      });
-    }
-
-    setIsRefreshing(true);
-    try {
-      const refreshToken = Cookies.get("authToken");
-      const response = await axios.post(`${apiUrl}/api/refresh-token`, {
-        token: refreshToken,
-      });
-
-      if (response && response.data.token) {
-        Cookies.set("authToken", response.data.token, {
-          expires: 7,
-          path: "/",
-        });
-
-        // Notify all pending requests
-        subscribers.forEach((callback) => callback(response.data.token));
-        setSubscribers([]); // Reset subscribers after notifying all
-        return response.data.token;
-      } else {
-        throw new Error("Failed to refresh token");
-      }
-    } catch (error) {
-      Cookies.remove("authToken");
-      window.location.href = "/"; // Redirect to login if refreshing token fails
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
-  // Add Authorization Header
-  const attachTokenToRequest = (config) => {
-    const token = Cookies.get("authToken");
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    return config;
-  };
-
-  // Axios Interceptors Setup
-  useEffect(() => {
-    const requestInterceptor =
-      axios.interceptors.request.use(attachTokenToRequest);
-
-    const responseInterceptor = axios.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const originalRequest = error.config;
-
-        // If token expires (401 error), try to refresh the token
-        if (
-          error.response &&
-          error.response.status === 401 &&
-          error.response.data.error === "Token has expired" &&
-          !originalRequest._retry
-        ) {
-          originalRequest._retry = true;
-
-          try {
-            const newToken = await refreshAuthToken();
-            originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-            return axios(originalRequest);
-          } catch (err) {
-            console.error("Token refresh failed:", err);
-            return Promise.reject(err);
-          }
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    // Auto login if token exists in cookies
-    const token = Cookies.get("authToken");
-    if (token) {
-      autoLogin(token);
-    }
-
-    // Cleanup on component unmount
-    return () => {
-      axios.interceptors.request.eject(requestInterceptor);
-      axios.interceptors.response.eject(responseInterceptor);
-    };
-  }, []);
-
-  // Auto Login with stored token
-  const autoLogin = async () => {
-    onLoginSuccess();
-  };
 
   // Handle Form Submission
   const onSubmit = async (data) => {
@@ -139,7 +43,6 @@ const LoginForm = ({ onLoginSuccess }) => {
       }
     } catch (error) {
       if (error.response?.data?.error === "Token has expired") {
-        await refreshAuthToken();
         onSubmit(data); // Retry login
       } else {
         toast.error("Login failed. Please try again.");

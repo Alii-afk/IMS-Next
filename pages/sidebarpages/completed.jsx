@@ -8,6 +8,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ExcelJS from "exceljs";
 import { DownloadIcon } from "lucide-react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 const Table = dynamic(() => import("@/components/tables/table"), { 
@@ -70,142 +72,313 @@ const Completed = () => {
     fetchData();
   }, []);
 
-  const downloadExcel = async () => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Report");
+  // const downloadExcel = async () => {
+  //   const workbook = new ExcelJS.Workbook();
+  //   const worksheet = workbook.addWorksheet("Report");
 
-    // Define consistent styles
-    const styles = {
-      title: {
-        font: { bold: true, size: 16, color: { argb: "FFFFFF" } },
-        alignment: { horizontal: "center", vertical: "middle" },
-        fill: {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "1F4E79" },
-        },
-        border: {
-          top: { style: "medium", color: { argb: "1F4E79" } },
-          left: { style: "medium", color: { argb: "1F4E79" } },
-          bottom: { style: "medium", color: { argb: "1F4E79" } },
-          right: { style: "medium", color: { argb: "1F4E79" } },
-        },
-      },
-      sectionHeader: {
-        font: { bold: true, size: 11, color: { argb: "FFFFFF" } },
-        alignment: { horizontal: "left", vertical: "middle" },
-        fill: {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "4472C4" },
-        },
-        border: {
-          top: { style: "thin", color: { argb: "4472C4" } },
-          left: { style: "thin", color: { argb: "4472C4" } },
-          bottom: { style: "thin", color: { argb: "4472C4" } },
-          right: { style: "thin", color: { argb: "4472C4" } },
-        },
-      },
-      tableHeader: {
-        font: { bold: true, size: 11, color: { argb: "FFFFFF" } },
-        alignment: { horizontal: "center", vertical: "middle" },
-        fill: {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "4472C4" },
-        },
-        border: {
-          top: { style: "thin", color: { argb: "000000" } },
-          left: { style: "thin", color: { argb: "000000" } },
-          bottom: { style: "thin", color: { argb: "000000" } },
-          right: { style: "thin", color: { argb: "000000" } },
-        },
-      },
-      normalCell: {
-        font: { size: 10 },
-        alignment: { horizontal: "left", vertical: "middle" },
-        border: {
-          top: { style: "thin", color: { argb: "D9D9D9" } },
-          left: { style: "thin", color: { argb: "D9D9D9" } },
-          bottom: { style: "thin", color: { argb: "D9D9D9" } },
-          right: { style: "thin", color: { argb: "D9D9D9" } },
-        },
-      },
-      alternateRow: {
-        fill: {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "F2F2F2" },
-        },
-      },
-    };
+  //   // Define consistent styles
+  //   const styles = {
+  //     title: {
+  //       font: { bold: true, size: 16, color: { argb: "FFFFFF" } },
+  //       alignment: { horizontal: "center", vertical: "middle" },
+  //       fill: {
+  //         type: "pattern",
+  //         pattern: "solid",
+  //         fgColor: { argb: "1F4E79" },
+  //       },
+  //       border: {
+  //         top: { style: "medium", color: { argb: "1F4E79" } },
+  //         left: { style: "medium", color: { argb: "1F4E79" } },
+  //         bottom: { style: "medium", color: { argb: "1F4E79" } },
+  //         right: { style: "medium", color: { argb: "1F4E79" } },
+  //       },
+  //     },
+  //     sectionHeader: {
+  //       font: { bold: true, size: 11, color: { argb: "FFFFFF" } },
+  //       alignment: { horizontal: "left", vertical: "middle" },
+  //       fill: {
+  //         type: "pattern",
+  //         pattern: "solid",
+  //         fgColor: { argb: "4472C4" },
+  //       },
+  //       border: {
+  //         top: { style: "thin", color: { argb: "4472C4" } },
+  //         left: { style: "thin", color: { argb: "4472C4" } },
+  //         bottom: { style: "thin", color: { argb: "4472C4" } },
+  //         right: { style: "thin", color: { argb: "4472C4" } },
+  //       },
+  //     },
+  //     tableHeader: {
+  //       font: { bold: true, size: 11, color: { argb: "FFFFFF" } },
+  //       alignment: { horizontal: "center", vertical: "middle" },
+  //       fill: {
+  //         type: "pattern",
+  //         pattern: "solid",
+  //         fgColor: { argb: "4472C4" },
+  //       },
+  //       border: {
+  //         top: { style: "thin", color: { argb: "000000" } },
+  //         left: { style: "thin", color: { argb: "000000" } },
+  //         bottom: { style: "thin", color: { argb: "000000" } },
+  //         right: { style: "thin", color: { argb: "000000" } },
+  //       },
+  //     },
+  //     normalCell: {
+  //       font: { size: 10 },
+  //       alignment: { horizontal: "left", vertical: "middle" },
+  //       border: {
+  //         top: { style: "thin", color: { argb: "D9D9D9" } },
+  //         left: { style: "thin", color: { argb: "D9D9D9" } },
+  //         bottom: { style: "thin", color: { argb: "D9D9D9" } },
+  //         right: { style: "thin", color: { argb: "D9D9D9" } },
+  //       },
+  //     },
+  //     alternateRow: {
+  //       fill: {
+  //         type: "pattern",
+  //         pattern: "solid",
+  //         fgColor: { argb: "F2F2F2" },
+  //       },
+  //     },
+  //   };
 
-    // Set column widths
-    worksheet.columns = [
-      { width: 4 }, // A
-      { width: 3 }, // B
-      { width: 20 }, // C - NO
-      { width: 20 }, // D - Model
-      { width: 20 }, // E - Serial NO
-      { width: 20 }, // F - ID
-      { width: 20 }, // G - Sign Code
-      { width: 20 }, // H - CodePlug
-      { width: 20 }, // I - CH
-    ];
+  //   // Set column widths
+  //   worksheet.columns = [
+  //     { width: 4 }, // A
+  //     { width: 3 }, // B
+  //     { width: 20 }, // C - NO
+  //     { width: 20 }, // D - Model
+  //     { width: 20 }, // E - Serial NO
+  //     { width: 20 }, // F - ID
+  //     { width: 20 }, // G - Sign Code
+  //     { width: 20 }, // H - CodePlug
+  //     { width: 20 }, // I - CH
+  //   ];
 
+  //   // Add title
+  //   const titleRow = worksheet.addRow([
+  //     "",
+  //     "",
+  //     "MAAREYNTA GACANKA ISGAARSIINTA",
+  //   ]);
+  //   worksheet.mergeCells("C1:I1");
+  //   titleRow.getCell(3).style = styles.title;
+  //   worksheet.addRow([]); // Spacing
+
+  //   // Add header information
+  //   const headerData = [
+  //     [
+  //       "A.",
+  //       "Adeegga",
+  //       "",
+  //       "",
+  //       "",
+  //       "Date Received",
+  //       "Date Pickup",
+  //     ],
+  //     [
+  //       "B.",
+  //       "Codsi Ref No.",
+  //       "",
+  //       "",
+  //       "",
+  //       "",
+  //       "",
+  //     ],
+  //     ["C.", "Ka Yimid", ""],
+  //     ["D.", "Shaqo Gaar Ah", ""],
+  //     ["E.", "TRANSACTION REF NO", "", ""],
+  //   ];
+
+  //   headerData.forEach((rowData, rowIndex) => {
+  //     const row = worksheet.addRow(["", "", ...rowData]);
+  //     row.getCell(3).style = styles.sectionHeader;
+    
+  //     if (rowIndex === 4) {
+  //       // Merge cells for "TRANSACTION REF NO"
+  //       worksheet.mergeCells(`D${row.number}:E${row.number}`);
+  //       row.getCell(3).value = rowData[2]; // Assign value to the merged cell
+  //       row.getCell(3).style = styles.sectionHeader; // Apply style to the merged cell
+  //     }
+    
+  //     row.height = 20;
+  //   });
+    
+
+  //   worksheet.addRow([]); // Spacing
+
+  //   // Add table headers
+  //   const tableHeaders = [
+  //     "NO",
+  //     "Model",
+  //     "Serial NO",
+  //     "ID",
+  //     "Sign Code",
+  //     "CodePlug",
+  //     "CH",
+  //   ];
+  //   const headerRow = worksheet.addRow(["", "", ...tableHeaders]);
+  //   headerRow.eachCell((cell, colNumber) => {
+  //     if (colNumber > 2) {
+  //       cell.style = styles.tableHeader;
+  //     }
+  //   });
+  //   headerRow.height = 25;
+
+  //   // Add table data
+  //   const tableData = [
+  //     [1, "Moto R7", "865EAQB494", "1139", "GORGOR 11", "R7-G-D-290125", "ch1"],
+  //     [2, "Moto R7", "865EAQB877", "1044", "OB 1", "R7-G-DA-290125", "ch2"],
+  //     [3, "Moto R7", "865EAQB311", "831", "DAYAX 4", "R7-G-A-290125", "Ch3"],
+  //     [4, "Moto R7", "865EAQB241", "", "", "MOTO-R7-L-290125", "ch4"],
+  //   ];
+
+  //   tableData.forEach((rowData, index) => {
+  //     const row = worksheet.addRow(["", "", ...rowData]);
+  //     row.eachCell((cell, colNumber) => {
+  //       if (colNumber > 2) {
+  //         cell.style = styles.normalCell;
+  //         if (index % 2 === 1) {
+  //           cell.style = { ...styles.normalCell, ...styles.alternateRow };
+  //         }
+  //       }
+  //     });
+  //     row.height = 20;
+  //   });
+
+  //   // Add empty rows
+  //   for (let i = 0; i < 6; i++) {
+  //     const emptyRow = worksheet.addRow([
+  //       "",
+  //       "",
+  //       i + 5,
+  //       "",
+  //       "",
+  //       "",
+  //       "",
+  //       "",
+  //       "",
+  //     ]);
+  //     emptyRow.eachCell((cell, colNumber) => {
+  //       if (colNumber > 2) {
+  //         cell.style = styles.normalCell;
+  //         if (i % 2 === 1) {
+  //           cell.style = { ...styles.normalCell, ...styles.alternateRow };
+  //         }
+  //       }
+  //     });
+  //     emptyRow.height = 20;
+  //   }
+
+  //   worksheet.addRow([]); // Spacing
+
+  //   // Add signature section
+  //   const signatureHeaders = ["", "Magaca", "Saxiixa", "Tariikh"];
+  //   const signatureHeaderRow = worksheet.addRow(["", "", "", ...signatureHeaders]);
+  //   signatureHeaders.style = styles.tableHeader;
+  //   worksheet.mergeCells(`D21:E21`); // Merge cells C21 and D21
+  //   const mergedCell = worksheet.getCell('D21'); // Get the starting cell of the merged range
+  //   mergedCell.value = "Magaca"; // Set the value for the merged cell
+  //   mergedCell.style = styles.tableHeader; // Apply the desired style
+  //   signatureHeaderRow.height = 25;
+
+
+    
+
+  //   const signatures = [
+  //     ["Baqaar Haye", "","","", ""],
+  //     ["Prog/Repair", "","","", ""],
+  //     ["Taliyaha Hogg. ICT", "S/G Salad Maxamed Gouled","","",  ""],
+  //     ["Qofka Qaatey", "","","", ""],
+  //     ["Qofka Siiyey", "","","", ""],
+  //   ];
+
+  //   signatures.forEach((rowData, index) => {
+  //     const row = worksheet.addRow(["", "", ...rowData]);
+  //     row.eachCell((cell, colNumber) => {
+  //       if (colNumber > 2) {
+  //         cell.style = styles.normalCell;
+  //         if (index % 2 === 1) {
+  //           cell.style = { ...styles.normalCell, ...styles.alternateRow };
+  //         }
+  //       }
+  //     });
+  //     row.height = 50;
+  //   });
+
+  //   worksheet.mergeCells(`D22:E22`); 
+  //   worksheet.mergeCells(`D23:E23`); 
+  //   worksheet.mergeCells(`D24:E24`); 
+  //   worksheet.mergeCells(`D25:E25`); 
+  //   worksheet.mergeCells(`D26:E26`); 
+
+  //   const mergedCell2 = worksheet.getCell('D22');
+  //   const mergedCell3 = worksheet.getCell('D23');
+  //   const mergedCell4 = worksheet.getCell('D24');
+  //   const mergedCell5 = worksheet.getCell('D25');
+  //   const mergedCell6 = worksheet.getCell('D26');
+
+  //   mergedCell2.value = "";
+  //   mergedCell3.value = "";
+  //   mergedCell4.value = "S/G Salad Maxamed Gouled";
+  //   mergedCell5.value = "";
+  //   mergedCell6.value = "";
+  //   worksheet.getCell('F21').style  = styles.tableHeader;
+  //   worksheet.getCell('G21').style  = styles.tableHeader;
+
+  //   // Add notes section
+  //   worksheet.addRow([]); // Spacing
+  //   const notesRow = worksheet.addRow(["", "", "Notes"]);
+  //   notesRow.getCell(3).style = styles.sectionHeader;
+
+  //   worksheet.mergeCells(`C28:G28`);
+  //   const mergedCellN = worksheet.getCell('C28');
+  //   mergedCellN.value = "Notes";
+  //   mergedCellN.style = styles.sectionHeader;
+
+  //   // Generate and save file
+  //   const buffer = await workbook.xlsx.writeBuffer();
+  //   const blob = new Blob([buffer], {
+  //     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  //   });
+  //   const link = document.createElement("a");
+  //   link.href = URL.createObjectURL(blob);
+  //   link.download = "app_report.xlsx";
+  //   link.click();
+  // };
+  const downloadExcel = () => {
+    const doc = new jsPDF();
+  
     // Add title
-    const titleRow = worksheet.addRow([
-      "",
-      "",
-      "MAAREYNTA GACANKA ISGAARSIINTA",
-    ]);
-    worksheet.mergeCells("C1:I1");
-    titleRow.getCell(3).style = styles.title;
-    worksheet.addRow([]); // Spacing
-
-    // Add header information
-    const headerData = [
-      [
-        "A.",
-        "Adeegga",
-        "",
-        "",
-        "",
-        "Date Received",
-        "Date Pickup",
-      ],
-      [
-        "B.",
-        "Codsi Ref No.",
-        "",
-        "",
-        "",
-        "",
-        "",
-      ],
-      ["C.", "Ka Yimid", ""],
-      ["D.", "Shaqo Gaar Ah", ""],
-      ["E.", "TRANSACTION REF NO", "", ""],
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor("#1F4E79");
+    doc.text("MAAREYNTA GACANKA ISGAARSIINTA", doc.internal.pageSize.getWidth() / 2, 10, {
+      align: "center",
+    });    doc.setDrawColor("#1F4E79");
+    doc.line(10, 12, 200, 12);
+  
+    // Header Information
+    const headers = [
+      ["A. Adeegga", "Date Received", "Date Pickup"],
+      ["B. Codsi Ref No.", "", ""],
+      ["C. Ka Yimid", ""],
+      ["D. Shaqo Gaar Ah", ""],
+      ["E. TRANSACTION REF NO", ""],
     ];
-
-    headerData.forEach((rowData, rowIndex) => {
-      const row = worksheet.addRow(["", "", ...rowData]);
-      row.getCell(3).style = styles.sectionHeader;
-    
-      if (rowIndex === 4) {
-        // Merge cells for "TRANSACTION REF NO"
-        worksheet.mergeCells(`D${row.number}:E${row.number}`);
-        row.getCell(3).value = rowData[2]; // Assign value to the merged cell
-        row.getCell(3).style = styles.sectionHeader; // Apply style to the merged cell
-      }
-    
-      row.height = 20;
+  
+    let y = 20;
+    headers.forEach(([label, col1, col2]) => {
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text(label, 10, y);
+      doc.setFont("helvetica", "normal");
+      if (col1) doc.text(`: ${col1}`, 60, y);
+      if (col2) doc.text(`: ${col2}`, 130, y);
+      y += 10;
     });
-    
-
-    worksheet.addRow([]); // Spacing
-
-    // Add table headers
+  
+    // Table Data
     const tableHeaders = [
       "NO",
       "Model",
@@ -215,136 +388,77 @@ const Completed = () => {
       "CodePlug",
       "CH",
     ];
-    const headerRow = worksheet.addRow(["", "", ...tableHeaders]);
-    headerRow.eachCell((cell, colNumber) => {
-      if (colNumber > 2) {
-        cell.style = styles.tableHeader;
-      }
-    });
-    headerRow.height = 25;
-
-    // Add table data
     const tableData = [
       [1, "Moto R7", "865EAQB494", "1139", "GORGOR 11", "R7-G-D-290125", "ch1"],
       [2, "Moto R7", "865EAQB877", "1044", "OB 1", "R7-G-DA-290125", "ch2"],
       [3, "Moto R7", "865EAQB311", "831", "DAYAX 4", "R7-G-A-290125", "Ch3"],
-      [4, "Moto R7", "865EAQB241", "", "", "MOTO-R7-L-290125", "ch4"],
+      [4, "Moto R7", "865EAQB241", "831", "831", "MOTO-R7-L-290125", "ch4"],
     ];
-
-    tableData.forEach((rowData, index) => {
-      const row = worksheet.addRow(["", "", ...rowData]);
-      row.eachCell((cell, colNumber) => {
-        if (colNumber > 2) {
-          cell.style = styles.normalCell;
-          if (index % 2 === 1) {
-            cell.style = { ...styles.normalCell, ...styles.alternateRow };
-          }
-        }
-      });
-      row.height = 20;
+  
+    // AutoTable for rendering table
+    doc.autoTable({
+      startY: y + 10,
+      head: [tableHeaders],
+      body: tableData,
+      styles: {
+        fontSize: 10,
+        cellPadding: 2,
+        fillColor: "#4472C4",
+        textColor: "#FFFFFF",
+        lineColor: "#000000",
+        lineWidth: 0.25,
+      },
+      alternateRowStyles: {
+        fillColor: "#F2F2F2",
+      },
+      headStyles: {
+        fillColor: "#4472C4",
+        textColor: "#FFFFFF",
+        fontStyle: "bold",
+      },
+      bodyStyles: {
+        fillColor: "#FFFFFF",
+        textColor: "#000000",
+      },
     });
-
-    // Add empty rows
-    for (let i = 0; i < 6; i++) {
-      const emptyRow = worksheet.addRow([
-        "",
-        "",
-        i + 5,
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-      ]);
-      emptyRow.eachCell((cell, colNumber) => {
-        if (colNumber > 2) {
-          cell.style = styles.normalCell;
-          if (i % 2 === 1) {
-            cell.style = { ...styles.normalCell, ...styles.alternateRow };
-          }
-        }
-      });
-      emptyRow.height = 20;
-    }
-
-    worksheet.addRow([]); // Spacing
-
-    // Add signature section
-    const signatureHeaders = ["", "Magaca", "Saxiixa", "Tariikh"];
-    const signatureHeaderRow = worksheet.addRow(["", "", "", ...signatureHeaders]);
-    signatureHeaders.style = styles.tableHeader;
-    worksheet.mergeCells(`D21:E21`); // Merge cells C21 and D21
-    const mergedCell = worksheet.getCell('D21'); // Get the starting cell of the merged range
-    mergedCell.value = "Magaca"; // Set the value for the merged cell
-    mergedCell.style = styles.tableHeader; // Apply the desired style
-    signatureHeaderRow.height = 25;
-
-
-    
-
-    const signatures = [
-      ["Baqaar Haye", "","","", ""],
-      ["Prog/Repair", "","","", ""],
-      ["Taliyaha Hogg. ICT", "S/G Salad Maxamed Gouled","","",  ""],
-      ["Qofka Qaatey", "","","", ""],
-      ["Qofka Siiyey", "","","", ""],
+  
+    // Signature Section
+    const signatureHeaders = ["Magaca", "Saxiixa", "Tariikh"];
+    const signatureData = [
+      ["Baqaar Haye", "", ""],
+      ["Prog/Repair", "", ""],
+      ["Taliyaha Hogg. ICT", "S/G Salad Maxamed Gouled", ""],
+      ["Qofka Qaatey", "", ""],
+      ["Qofka Siiyey", "", ""],
     ];
-
-    signatures.forEach((rowData, index) => {
-      const row = worksheet.addRow(["", "", ...rowData]);
-      row.eachCell((cell, colNumber) => {
-        if (colNumber > 2) {
-          cell.style = styles.normalCell;
-          if (index % 2 === 1) {
-            cell.style = { ...styles.normalCell, ...styles.alternateRow };
-          }
-        }
-      });
-      row.height = 50;
+  
+    doc.autoTable({
+      startY: doc.lastAutoTable.finalY + 10,
+      head: [signatureHeaders],
+      body: signatureData,
+      styles: {
+        fontSize: 10,
+        cellPadding: 2,
+        fillColor: "#4472C4",
+        textColor: "#FFFFFF",
+        lineColor: "#000000",
+        lineWidth: 0.25,
+      },
+      headStyles: {
+        fillColor: "#4472C4",
+        textColor: "#FFFFFF",
+        fontStyle: "bold",
+      },
+      bodyStyles: {
+        fillColor: "#FFFFFF",
+        textColor: "#000000",
+      },
     });
-
-    worksheet.mergeCells(`D22:E22`); 
-    worksheet.mergeCells(`D23:E23`); 
-    worksheet.mergeCells(`D24:E24`); 
-    worksheet.mergeCells(`D25:E25`); 
-    worksheet.mergeCells(`D26:E26`); 
-
-    const mergedCell2 = worksheet.getCell('D22');
-    const mergedCell3 = worksheet.getCell('D23');
-    const mergedCell4 = worksheet.getCell('D24');
-    const mergedCell5 = worksheet.getCell('D25');
-    const mergedCell6 = worksheet.getCell('D26');
-
-    mergedCell2.value = "";
-    mergedCell3.value = "";
-    mergedCell4.value = "S/G Salad Maxamed Gouled";
-    mergedCell5.value = "";
-    mergedCell6.value = "";
-    worksheet.getCell('F21').style  = styles.tableHeader;
-    worksheet.getCell('G21').style  = styles.tableHeader;
-
-    // Add notes section
-    worksheet.addRow([]); // Spacing
-    const notesRow = worksheet.addRow(["", "", "Notes"]);
-    notesRow.getCell(3).style = styles.sectionHeader;
-
-    worksheet.mergeCells(`C28:G28`);
-    const mergedCellN = worksheet.getCell('C28');
-    mergedCellN.value = "Notes";
-    mergedCellN.style = styles.sectionHeader;
-
-    // Generate and save file
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "app_report.xlsx";
-    link.click();
+  
+    // Save PDF
+    doc.save("Report.pdf");
   };
-
+  
   return (
     <div className="min-h-screen bg-white flex">
       <ToastContainer />

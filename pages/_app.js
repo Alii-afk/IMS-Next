@@ -14,7 +14,7 @@ export default function App({ Component, pageProps }) {
         autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
-        closeOnClick
+        closeOnClick={true}
         rtl={false}
         pauseOnFocusLoss
         draggable
