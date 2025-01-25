@@ -124,24 +124,28 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
                 ))}
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-2 justify-start">
-                    <button
-                      onClick={() => handleRoleAssignment(row)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200 w-full sm:w-auto"
-                    >
-                      Assign Role
-                    </button>
-                    <button
-                      onClick={() => handleEdit(row)}
-                      className="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 transition duration-200 w-full sm:w-auto"
-                    >
-                      <GrEdit className="inline-block mr-2" /> Edit
-                    </button>
-                    <button
-                      onClick={() => openDeleteModal(row)}
-                      className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600 transition duration-200 w-full sm:w-auto"
-                    >
-                      <GrTrash className="inline-block mr-2" /> Delete
-                    </button>
+                    {row.role !== "admin" && (
+                      <>
+                        <button
+                          onClick={() => handleRoleAssignment(row)}
+                          className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200 w-full sm:w-auto"
+                        >
+                          Assign Role
+                        </button>
+                        <button
+                          onClick={() => handleEdit(row)}
+                          className="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 transition duration-200 w-full sm:w-auto"
+                        >
+                          <GrEdit className="inline-block mr-2" /> Edit
+                        </button>
+                        <button
+                          onClick={() => openDeleteModal(row)}
+                          className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600 transition duration-200 w-full sm:w-auto"
+                        >
+                          <GrTrash className="inline-block mr-2" /> Delete
+                        </button>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
