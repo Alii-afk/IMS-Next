@@ -346,118 +346,8 @@ const Completed = () => {
   //   link.download = "app_report.xlsx";
   //   link.click();
   // };
-  const downloadExcel = () => {
-    const doc = new jsPDF();
+
   
-    // Add title
-    doc.setFontSize(16);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor("#1F4E79");
-    doc.text("MAAREYNTA GACANKA ISGAARSIINTA", doc.internal.pageSize.getWidth() / 2, 10, {
-      align: "center",
-    });    doc.setDrawColor("#1F4E79");
-    doc.line(10, 12, 200, 12);
-  
-    // Header Information
-    const headers = [
-      ["A. Adeegga", "Date Received", "Date Pickup"],
-      ["B. Codsi Ref No.", "", ""],
-      ["C. Ka Yimid", ""],
-      ["D. Shaqo Gaar Ah", ""],
-      ["E. TRANSACTION REF NO", ""],
-    ];
-  
-    let y = 20;
-    headers.forEach(([label, col1, col2]) => {
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "bold");
-      doc.text(label, 10, y);
-      doc.setFont("helvetica", "normal");
-      if (col1) doc.text(`: ${col1}`, 60, y);
-      if (col2) doc.text(`: ${col2}`, 130, y);
-      y += 10;
-    });
-  
-    // Table Data
-    const tableHeaders = [
-      "NO",
-      "Model",
-      "Serial NO",
-      "ID",
-      "Sign Code",
-      "CodePlug",
-      "CH",
-    ];
-    const tableData = [
-      [1, "Moto R7", "865EAQB494", "1139", "GORGOR 11", "R7-G-D-290125", "ch1"],
-      [2, "Moto R7", "865EAQB877", "1044", "OB 1", "R7-G-DA-290125", "ch2"],
-      [3, "Moto R7", "865EAQB311", "831", "DAYAX 4", "R7-G-A-290125", "Ch3"],
-      [4, "Moto R7", "865EAQB241", "831", "831", "MOTO-R7-L-290125", "ch4"],
-    ];
-  
-    // AutoTable for rendering table
-    doc.autoTable({
-      startY: y + 10,
-      head: [tableHeaders],
-      body: tableData,
-      styles: {
-        fontSize: 10,
-        cellPadding: 2,
-        fillColor: "#4472C4",
-        textColor: "#FFFFFF",
-        lineColor: "#000000",
-        lineWidth: 0.25,
-      },
-      alternateRowStyles: {
-        fillColor: "#F2F2F2",
-      },
-      headStyles: {
-        fillColor: "#4472C4",
-        textColor: "#FFFFFF",
-        fontStyle: "bold",
-      },
-      bodyStyles: {
-        fillColor: "#FFFFFF",
-        textColor: "#000000",
-      },
-    });
-  
-    // Signature Section
-    const signatureHeaders = ["Magaca", "Saxiixa", "Tariikh"];
-    const signatureData = [
-      ["Baqaar Haye", "", ""],
-      ["Prog/Repair", "", ""],
-      ["Taliyaha Hogg. ICT", "S/G Salad Maxamed Gouled", ""],
-      ["Qofka Qaatey", "", ""],
-      ["Qofka Siiyey", "", ""],
-    ];
-  
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 10,
-      head: [signatureHeaders],
-      body: signatureData,
-      styles: {
-        fontSize: 10,
-        cellPadding: 2,
-        fillColor: "#4472C4",
-        textColor: "#FFFFFF",
-        lineColor: "#000000",
-        lineWidth: 0.25,
-      },
-      headStyles: {
-        fillColor: "#4472C4",
-        textColor: "#FFFFFF",
-        fontStyle: "bold",
-      },
-      bodyStyles: {
-        fillColor: "#FFFFFF",
-        textColor: "#000000",
-      },
-    });
-  
-    // Save PDF
-    doc.save("Report.pdf");
-  };
   
   return (
     <div className="min-h-screen bg-white flex">
@@ -494,22 +384,6 @@ const Completed = () => {
                 Completed Requests
               </h1>
             </div>
-            {/* Download Button - Positioned Outside the Table */}
-            <div className="mb-8 flex flex-col items-end">
-              <h1 className="text-2xl font-semibold text-gray-800 mb-4">
-                Export Report
-              </h1>
-              <div className="flex items-center space-x-3">
-                <button
-                  onClick={downloadExcel}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center transition-transform transform hover:scale-105"
-                >
-                  <DownloadIcon className="h-5 w-5 mr-2" />
-                  <span className="font-medium">Download Excel</span>
-                </button>
-              </div>
-            </div>
-
             <div className="px-6">
               <Table
                 columns={columns}
