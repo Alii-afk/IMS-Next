@@ -149,7 +149,6 @@ const Table = ({
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
 
-  // downlaod pdf
   const handleDownload = () => {
     // Define columns to export
     let columnsToExport = [
@@ -159,50 +158,47 @@ const Table = ({
       "date_time",
       "request_status",
     ];
-
-    // Conditionally include "notes" column based on userRole
-    if (
-      userRole === "admin" ||
-      userRole === "backoffice" ||
-      userRole === "frontoffice"
-    ) {
-      columnsToExport.push("notes");
+  
+    // Conditionally include the appropriate notes based on the user role
+    if (userRole === "admin") {
+      columnsToExport.push("admin_notes");
+    } else if (userRole === "frontoffice") {
+      columnsToExport.push("front_office_notes");
+    } else if (userRole === "backoffice") {
+      columnsToExport.push("back_office_notes");
     }
-
+  
     const doc = new jsPDF();
-
+  
     // Add header
     const header = columnsToExport.map((col) => {
       const column = columns.find((colObj) => colObj.key === col);
-      return column ? column.name : col; // Get the name of the column (from columns array)
+      return column ? column.name : col; // Get the name of the column from the columns array
     });
-
-    // Map filtered data to ensure every column exists, even if the value is missing
+  
+    // Map filtered data and include the role-specific notes
     const body = filteredData.map((row) => {
       const rowData = columnsToExport.map((column) => {
-        // Check if the column exists and if the value is valid, fallback to empty string
         const value =
           row[column] !== undefined && row[column] !== null ? row[column] : "";
-
-        // If 'date_time' is a date, format it (if needed)
-        if (column === "date_time" && value instanceof Date) {
-          return value.toLocaleString(); // Format date if needed
-        }
-
-        return value;
+  
+        return column === "date_time" && value instanceof Date
+          ? value.toLocaleString() // Format the date if needed
+          : value;
       });
       return rowData;
     });
-
-    // Add table to PDF using autoTable
+  
+    // Generate the PDF table
     doc.autoTable({
       head: [header],
       body: body,
     });
-
+  
     // Save PDF with the name 'table_data.pdf'
     doc.save("table_data.pdf");
   };
+  
 
   const downloadExcel = async (id) => {
     console.log("id", id);
@@ -518,7 +514,7 @@ const Table = ({
                                   {row.request_status === "complete" && (
                                     <button
                                       className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
-                                      onClick={handleDownload}
+                                      onClick={() => handleDownload(row)}
                                     >
                                       <FaDownload className="w-5 h-5" />
                                     </button>
@@ -570,16 +566,18 @@ const Table = ({
                               {/* FrontOffice Role */}
                               {userRole === "frontoffice" && (
                                 <>
-                                  {row.request_status === "complete" && (
-                                    <div>
-                                      <button
-                                        className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all items-center"
-                                        onClick={() => frontpdfOpen(row)}
-                                      >
-                                        <FaEdit className="w-6 h-8" />
-                                      </button>
-                                    </div>
-                                  )}
+                                
+                                  {row.request_status === "complete" &&
+                                    !row.final_pdf && (
+                                      <div>
+                                        <button
+                                          className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all items-center"
+                                          onClick={() => frontpdfOpen(row)}
+                                        >
+                                          <FaEdit className="w-6 h-8" />
+                                        </button>
+                                      </div>
+                                    )}
 
                                   {row.request_status === "complete" && (
                                     <button
@@ -634,10 +632,17 @@ const Table = ({
                                     <>
                                       <button
                                         className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                        onClick={() => openViewCardModal(row)} // Function to open the view modal
+                                      >
+                                        <FaEye className="w-5 h-7" />{" "}
+                                        {/* View Icon */}
+                                      </button>
+                                      {/* <button
+                                        className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
                                         onClick={() => handleEditClick(row)}
                                       >
                                         <FaEdit className="w-5 h-5" />
-                                      </button>
+                                      </button> */}
                                       <button
                                         className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
                                         onClick={handleDownload}

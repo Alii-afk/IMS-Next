@@ -3,26 +3,20 @@ import { useForm, FormProvider, Controller, useWatch } from "react-hook-form";
 import Sidebar from "@/components/Sidebar";
 import InputField from "@/components/InputGroup/InputField";
 import {
-  HashtagIcon,
   HomeIcon,
   IdentificationIcon,
-  MdNumbers,
 } from "@heroicons/react/24/outline";
 import { MdLibraryAdd, MdOutlineNumbers } from "react-icons/md";
 import { yupResolver } from "@hookform/resolvers/yup";
 import SelectField from "@/components/SelectField";
-import {
-  stockmanagementdata,
-  stockNames,
-} from "@/components/dummyData/FormData";
+
 import axios from "axios";
 import validationSchema from "@/components/validation/validationSchema ";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify"; // Import toast
 import "react-toastify/dist/ReactToastify.css";
-import StockTable from "@/components/tables/stockTable";
-import { ClipLoader } from "react-spinners";
 import axiosInstance from "@/utils/axiosInstance";
+import { useRouter } from "next/router";
 const Addstock = () => {
   const [serialInputs, setSerialInputs] = useState([]);
   const [stockOptions, setStockOptions] = useState([]);
@@ -35,6 +29,8 @@ const Addstock = () => {
   const [serialOptions, setSerialOptions] = useState([]);
   const [selectedStockId, setSelectedStockId] = useState(null); // Track selected stock id
 
+    const router = useRouter()
+  
   // Fetch data from API
 
   const fetchStockData = async () => {
@@ -60,10 +56,17 @@ const Addstock = () => {
       setStockData(stockData); // Save the full stock data
     } catch (error) {
       // Check if the error is a 404
-      if (error.response && error.response.status === 404) {
-        toast.error("No stock data found matching the criteria.");
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized. Please log in again.");
+          router.push("/");
+        } else if (error.response?.status === 404) {
+          toast.error("Requests not found.");
+        } else {
+          toast.error("Failed to fetch pending requests.");
+        }
       } else {
-        console.error("Error fetching stock data:", error);
+        toast.error("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);

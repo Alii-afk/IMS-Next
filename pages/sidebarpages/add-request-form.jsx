@@ -7,12 +7,8 @@ import { GrOrganization } from "react-icons/gr";
 import { CiCalendarDate } from "react-icons/ci";
 import SelectField from "@/components/SelectField";
 import {
-  people,
-  peoples,
-  TypeOption,
   TypeOptions,
 } from "@/components/dummyData/FormData";
-import InputSearch from "@/components/InputGroup/InputSearch";
 import { FileType } from "lucide-react";
 import { MdNumbers } from "react-icons/md";
 import { TbFileDescription } from "react-icons/tb";
@@ -20,11 +16,12 @@ import { AiOutlineFilePdf } from "react-icons/ai";
 import FileUpload from "@/components/InputGroup/FileUpload";
 import { yupResolver } from "@hookform/resolvers/yup";
 import addValidationSchema from "@/components/validation/AddValidationSchema";
-import { toast } from "react-toastify";
 import axios from "axios";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import DateInputField from "@/components/InputGroup/DateInput";
+import { toast, ToastContainer } from "react-toastify"; // Import toast
+import "react-toastify/dist/ReactToastify.css";
 
 const AddRequestForm = () => {
   const [selectedValue, setSelectedValue] = useState("");
@@ -152,6 +149,7 @@ const AddRequestForm = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      <ToastContainer/>
       {/* Sidebar Component */}
       <Sidebar className="min-h-screen fixed bg-white shadow-md hidden md:block" />
 
