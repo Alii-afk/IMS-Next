@@ -50,53 +50,59 @@ const FrontOfficePdf = ({ currentRowData, fetchData, setFrontOfficePDF }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Upload Supporting Document
-        </h2>
-        <p className="text-sm text-gray-600 mb-6">
-          Please attach the required PDF document to proceed.
-        </p>
+   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-8 space-y-6">
+    <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
+      Upload Signature Document
+    </h2>
+    <p className="text-sm text-gray-600 mb-6 text-center">
+      Please attach the required PDF document to proceed.
+    </p>
 
-        <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-4">
-            <Controller
-              name="front_office_pdf"
-              control={methods.control}
-              render={({ field }) => (
-                <FileUpload
-                  label="Attach Front Office Supporting Document"
-                  icon={AiOutlineFilePdf}
-                  onFileChange={(file) => field.onChange(file)}
-                />
-              )}
-            />
-
-            <div className="flex items-center justify-end space-x-3 mt-6">
-              <button
-                type="button"
-                onClick={() => setFrontOfficePDF(false)}
-                className="py-2 px-4 text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md transition duration-150"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className={`py-2 px-6 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                  isSubmitting
-                    ? "bg-indigo-400 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-700"
-                }`}
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </button>
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-5">
+        
+        <Controller
+          name="front_office_pdf"
+          control={methods.control}
+          render={({ field }) => (
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Attach Front Office Signature Document</label>
+              <FileUpload
+                icon={AiOutlineFilePdf}
+                onFileChange={(file) => field.onChange(file)}
+                className="border border-gray-300 rounded-lg p-3 w-full"
+              />
             </div>
-          </form>
-        </FormProvider>
-      </div>
-    </div>
+          )}
+        />
+
+        <div className="flex justify-between space-x-4">
+          <button
+            type="button"
+            onClick={() => setFrontOfficePDF(false)}
+            className="py-2 px-6 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition duration-150"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`py-2 px-6 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150 ${
+              isSubmitting
+                ? "bg-indigo-400 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700"
+            }`}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </button>
+        </div>
+      </form>
+    </FormProvider>
+  </div>
+</div>
+
   );
 };
 
