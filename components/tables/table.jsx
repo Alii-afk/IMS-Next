@@ -36,7 +36,7 @@ const Table = ({
   const [frontOfficePDFs, setFrontOfficePDF] = useState(false);
   const [viewCard, setViewCard] = useState("");
 
-  console.log(viewCard.request);
+  console.log(data);
 
   const frontpdfOpen = (row) => {
     setCurrentRowData(row);
@@ -158,7 +158,7 @@ const Table = ({
       "date_time",
       "request_status",
     ];
-  
+
     // Conditionally include the appropriate notes based on the user role
     if (userRole === "admin") {
       columnsToExport.push("admin_notes");
@@ -167,39 +167,63 @@ const Table = ({
     } else if (userRole === "backoffice") {
       columnsToExport.push("back_office_notes");
     }
-  
+
     const doc = new jsPDF();
-  
+
     // Add header
     const header = columnsToExport.map((col) => {
       const column = columns.find((colObj) => colObj.key === col);
       return column ? column.name : col; // Get the name of the column from the columns array
     });
-  
+
     // Map filtered data and include the role-specific notes
     const body = filteredData.map((row) => {
       const rowData = columnsToExport.map((column) => {
         const value =
           row[column] !== undefined && row[column] !== null ? row[column] : "";
-  
+
         return column === "date_time" && value instanceof Date
           ? value.toLocaleString() // Format the date if needed
           : value;
       });
       return rowData;
     });
-  
+
     // Generate the PDF table
     doc.autoTable({
       head: [header],
       body: body,
     });
-  
+
     // Save PDF with the name 'table_data.pdf'
     doc.save("table_data.pdf");
   };
-  
 
+  const handleFinalPdfDownload = (filePath) => {
+    if (!filePath) {
+      alert("No file available for download.");
+      return;
+    }
+  
+    // Assuming your Laravel app is on localhost:8000
+    const fileUrl = `http://localhost:8000${filePath}`;
+    console.log(fileUrl);
+  
+    // Create an anchor element to trigger the download
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.target = "_blank"; // Open in a new tab if needed
+  
+    // Force file download (ensure download is triggered)
+    link.download = filePath.split("/").pop(); // Extract file name for download
+  
+    // Append the link to the document, simulate a click, and remove it afterward
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+  
   const downloadExcel = async (id) => {
     console.log("id", id);
     const doc = new jsPDF({
@@ -258,77 +282,96 @@ const Table = ({
 
     // Title section with dynamic values
     doc.setTextColor(0, 0, 0);
-    doc.text(`Adeegga: ${request.name}`, 20, y); // Display the "name" from request object
+    doc.text(`Adeegga:`, 20, y); // Display the "name" from request object
+
+    let type; // Define type variable outside the if-else block
+
+    if (request.type === "programming") {
+      type = "Programming/Repair";
+    } else {
+      type = "New";
+    }
 
     doc.setTextColor(39, 174, 96); // Green color for type
-    doc.text(`Type: ${request.type}`, 100, y);
+    doc.text(`${type}`, 100, y);
 
     doc.setTextColor(0, 0, 0);
-    doc.text(`Date Received: ${request.date_time}`, 230, y);
+    doc.text(`Date Received:`, 230, y);
 
-    doc.setTextColor(39, 174, 96); // Green color for Date Pickup
-    doc.text("Date Pickup", 350, y);
+    doc.setTextColor(0, 0, 0); // Green color for Date Pickup
+    doc.text("Date Pickup:", 350, y);
 
     y += 10;
 
     // Notes section (front office, back office)
     doc.setTextColor(0, 0, 0);
-    doc.text("Codsi Ka Yimid", 20, y);
+    doc.text("Codsi Ka Yimid:", 20, y);
 
     doc.setTextColor(39, 174, 96); // Green color
-    doc.text("Extracted From Name Of Request", 100, y);
+    doc.text(`${request.name}`, 100, y);
 
-    doc.text("Add Request form Date", 230, y);
+    const date = new Date(request.date_time);
+    const formattedDate = date.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true, // Enables 12-hour format
+    });
+
+    doc.text(`${formattedDate}`, 230, y);
 
     doc.setTextColor(231, 76, 60); // Red color for "Date of Transaction Closing"
-    doc.text("Date of Transaction Closing", 350, y);
+    doc.text("", 350, y);
 
     y += 10;
 
     // More dynamic content for Hogg/Qeybta/Fadhiga/Saldhigga
     doc.setTextColor(0, 0, 0);
-    doc.text("Hogg/Qeybta/Fadhiga/Saldhigga", 20, y);
+    doc.text("Hogg/Qeybta/Fadhiga/Saldhigga:", 20, y);
 
     doc.setTextColor(39, 174, 96); // Green color
-    doc.text("Extracted from Organization", 100, y);
+    doc.text(`${request.organization}`, 100, y);
 
-    doc.text("maybe stays empty and is filled manually", 550, y, {
-      align: "right",
-    });
+    // doc.text("maybe stays empty and is filled manually", 550, y, {
+    //   align: "right",
+    // });
 
     y += 10;
 
     // Transaction Reference Number
     doc.setTextColor(0, 0, 0);
-    doc.text("TRANSACTION REF NO", 20, y);
+    doc.text("TRANSACTION REF NO:", 20, y);
 
     doc.setTextColor(39, 174, 96); // Green color
-    doc.text("(Auto-generated: SPF-ICT-1234)", 100, y);
+    const formattedId = String(request.id).padStart(4, "0");
+    doc.text(`SPF-ICT-${formattedId}`, 100, y);
 
     // Equipment Table
     const equipmentHeaders = [
-      [
-        "Model",
-        "Manufacturer",
-        "Serial No",
-        "Sign Code",
-        "Codeplug",
-        "Channels",
-        "Unit",
-        "Status",
-      ],
+      ["Model", "Serial No", "Unit Id", "Code Sign", "Codeplug", "CH"],
     ];
 
-    const equipmentData = warehouseStocks.map((item) => [
-      item.model_name,
-      item.manufacturer,
-      item.serial_no,
-      item.sign_code,
-      item.codeplug,
-      item.channels,
-      item.unit,
-      item.status,
-    ]);
+    // Check the request type and assign the correct dataset
+    const selectedStocks =
+      request.type === "programming"
+        ? request.programming_stocks
+        : warehouseStocks;
+
+    // Ensure selectedStocks is an array before mapping
+    const equipmentData = Array.isArray(selectedStocks)
+      ? selectedStocks.map((item) => [
+          item.product_name || item.model_name, // Adjust field based on dataset
+          item.serial_no,
+          item.unit,
+          item.sign_code,
+          item.codeplug,
+          item.channels,
+        ])
+      : [];
+
+    console.log(equipmentData);
 
     doc.autoTable({
       startY: y + 15,
@@ -353,45 +396,52 @@ const Table = ({
 
     // Signature Table with Dynamic Data
     const signatureHeaders = [["Title", "Magaca", "Saxiixa", "Tarikh"]];
+    // console.log(request);
+    let backofficename;
+    if (request.type === "programming") {
+      backofficename = request.programming_stocks[0].user.name;
+    } else {
+      backofficename = request.warehouse_stocks[0].user.name;
+    }
 
     const signatureData = [
       {
         name: "Baqaar Haye",
-        magaca: `${user.name}`,
+        magaca: `${backofficename}`,
         saxiixa: "",
-        tarikh: request.date_time,
+        tarikh: "",
       },
       {
         name: "Prog/Repair",
-        magaca: `${user.name}`,
+        magaca: `${backofficename}`,
         saxiixa: "",
-        tarikh: request.date_time,
+        tarikh: "",
       },
       {
         name: "Taliyaha Hogg. ICT",
         magaca: adminUser.name,
         saxiixa: "",
-        tarikh: request.date_time,
+        tarikh: "",
       },
       {
         name: "Qofka Qaatey",
-        magaca: `${user.name}`,
+        magaca: "",
         saxiixa: "",
-        tarikh: request.date_time,
+        tarikh: "",
       },
       {
         name: "Qofka Siiyey",
         magaca: user.name, // Dynamic front office user name
         saxiixa: "",
-        tarikh: request.date_time,
+        tarikh: "",
       },
     ];
 
     const signatureTableData = signatureData.map((item) => [
-      item.name || "Stays Empty",
-      item.magaca || "Stays Empty",
-      item.saxiixa || "Stays Empty",
-      item.tarikh || "Stays Empty",
+      item.name || "",
+      item.magaca || "",
+      item.saxiixa || "",
+      item.tarikh || "",
     ]);
 
     doc.autoTable({
@@ -451,7 +501,7 @@ const Table = ({
     });
 
     // Save the PDF
-    doc.save("MAAREYNTA_GACANKA_ISGAARSIINTA.pdf");
+    doc.save(`SPF-ICT-${formattedId}`);
   };
 
   return (
@@ -511,14 +561,25 @@ const Table = ({
                               {/* Admin Role */}
                               {userRole === "admin" && (
                                 <>
-                                  {row.request_status === "complete" && (
+                                  {/* {row.request_status === "complete" && (
                                     <button
                                       className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
                                       onClick={() => handleDownload(row)}
                                     >
                                       <FaDownload className="w-5 h-5" />
                                     </button>
-                                  )}
+                                  )} */}
+                                   {row.request_status === "complete" &&
+                                    row.final_pdf && (
+                                      <button
+                                        className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
+                                        onClick={() =>
+                                          handleFinalPdfDownload(row.final_pdf)
+                                        }
+                                      >
+                                        <MdPictureAsPdf className="w-6 h-6 flex items-center text-green-500" />
+                                      </button>
+                                    )}
                                   {row.request_status === "approved" && (
                                     <button
                                       className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
@@ -566,7 +627,7 @@ const Table = ({
                               {/* FrontOffice Role */}
                               {userRole === "frontoffice" && (
                                 <>
-                                
+                                 
                                   {row.request_status === "complete" &&
                                     !row.final_pdf && (
                                       <div>
@@ -574,19 +635,30 @@ const Table = ({
                                           className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all items-center"
                                           onClick={() => frontpdfOpen(row)}
                                         >
-                                          <FaEdit className="w-6 h-8" />
+                                          <FaEdit className="w-6 h-6 text-green-500" />
                                         </button>
                                       </div>
                                     )}
 
-                                  {row.request_status === "complete" && (
+                                  {row.request_status === "complete" &&
+                                    row.final_pdf && (
+                                      <button
+                                        className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
+                                        onClick={() =>
+                                          handleFinalPdfDownload(row.final_pdf)
+                                        }
+                                      >
+                                        <MdPictureAsPdf className="w-6 h-6 flex items-center text-green-500" />
+                                      </button>
+                                    )}
+                                  {/* {row.request_status === "complete" && (
                                     <button
                                       className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
                                       onClick={handleDownload}
                                     >
                                       <FaDownload className="w-5 h-5" />
                                     </button>
-                                  )}
+                                  )} */}
                                   {row.request_status === "approved" && (
                                     <button
                                       className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
@@ -630,25 +702,27 @@ const Table = ({
                                 <>
                                   {row.request_status === "complete" && (
                                     <>
-                                      <button
+                                      {/* <button
                                         className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
                                         onClick={() => openViewCardModal(row)} // Function to open the view modal
                                       >
                                         <FaEye className="w-5 h-7" />{" "}
-                                        {/* View Icon */}
-                                      </button>
-                                      {/* <button
-                                        className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
-                                        onClick={() => handleEditClick(row)}
-                                      >
-                                        <FaEdit className="w-5 h-5" />
+                                     
                                       </button> */}
-                                      <button
+                                      {!row.final_pdf && ( // Hide Edit button if final_pdf exists
+                                        <button
+                                          className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                          onClick={() => handleEditClick(row)}
+                                        >
+                                          <FaEdit className="w-5 h-5" />
+                                        </button>
+                                      )}
+                                      {/* <button
                                         className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
                                         onClick={handleDownload}
                                       >
                                         <FaDownload className="w-5 h-5" />
-                                      </button>
+                                      </button> */}
                                     </>
                                   )}
                                   {row.request_status === "approved" && (
@@ -668,10 +742,23 @@ const Table = ({
                                     className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all items-center"
                                     onClick={() => downloadExcel(row.id)} // Pass row.id directly to downloadExcel
                                   >
-                                    <MdPictureAsPdf className="w-6 h-8 flex items-center" />
+                                    <MdPictureAsPdf className="w-6 h-8 flex items-center text-red-500" />
                                   </button>
                                 </div>
                               )}
+                              {row.request_status === "complete" && (
+                                      <div>
+                                          <button
+                                            className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                            onClick={() =>
+                                              openViewCardModal(row)
+                                            } // Function to open the view modal
+                                          >
+                                            <FaEye className="w-5 h-7" />{" "}
+                                            {/* View Icon */}
+                                          </button>
+                                        </div>
+                                    )}
                             </div>
                           ) : column.key === "notes" ? (
                             <span>
@@ -682,14 +769,13 @@ const Table = ({
                                 : truncate(row?.back_office_notes, 30)}
                             </span>
                           ) : column.key === "date_time" ? (
-                            new Date(row[column.key]).toLocaleString("en-US", {
-                              year: "numeric",
-                              month: "2-digit",
+                            new Date(row[column.key]).toLocaleString("en-GB", {
                               day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
                               hour: "2-digit",
                               minute: "2-digit",
-                              second: "2-digit",
-                              hour12: false, // 24-hour format
+                              hour12: true, // Enables 12-hour format
                             })
                           ) : row[column.key] !== undefined &&
                             row[column.key] !== null ? (

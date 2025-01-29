@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/router";
 const ApexCharts = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-const StockBarChart = ({ data }) => {
+const ProgStockChart = ({ data }) => {
   const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
 
@@ -17,13 +17,14 @@ const StockBarChart = ({ data }) => {
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
   
     try {
-      const response = await axios.get(`${apiUrl}/api/warehouse-stock/ratios`, {
+      const response = await axios.get(`${apiUrl}/api/requests`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       // Assuming the response structure includes status_counts
-      setStatusData(response.data.status_counts);
+      setStatusData(response);
+      console.log(response);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Handle known Axios errors
@@ -49,13 +50,12 @@ const StockBarChart = ({ data }) => {
     fetchStatusData();
   }, []);
   const totalStock =
-  (statusData?.in_house || 0) + (statusData?.on_field || 0);
-
+  (statusData?.data?.programming?.count_inhouse || 0) + (statusData?.data?.programming?.count_on_field || 0);
   // Prepare data for the chart
   const chartData = [
-    statusData?.in_house || 0, // In Warehouse
-    statusData?.on_field || 0,  // On Field
-    totalStock || data?.total_stock || 0,
+    statusData?.data?.programming?.count_inhouse || 0, // In Warehouse
+    statusData?.data?.programming?.count_on_field || 0,  // On Field
+    totalStock || statusData?.data?.programming?.total || 0,
   ];
 
   const chartOptions = {
@@ -87,7 +87,7 @@ const StockBarChart = ({ data }) => {
       }
     },
     xaxis: {
-      categories: ["In Warehouse", "On Field", "Total Stock"],
+      categories: ["In Programming", "On Field", "Total Stock"],
       labels: {
         style: {
           fontSize: '12px',
@@ -97,7 +97,7 @@ const StockBarChart = ({ data }) => {
     },
     yaxis: {
       title: {
-        text: 'Stock Count',
+        text: 'Programming Stock Count',
         style: {
           fontSize: '14px',
           fontWeight: 600
@@ -142,7 +142,7 @@ const StockBarChart = ({ data }) => {
             <ToastContainer />
 
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-800">Warehouse Stock Overview</h3>
+        <h3 className="text-2xl font-bold text-gray-800">Programming Stock Overview</h3>
         <p className="text-gray-600 mt-1">Current Inventory Status</p>
       </div>
 
@@ -162,7 +162,7 @@ const StockBarChart = ({ data }) => {
       <div className="flex justify-center items-center space-x-6 mt-4">
         <div className="flex items-center">
           <div className="w-4 h-4 rounded bg-red-500 mr-2"></div>
-          <span className="text-sm text-gray-600">In Warehouse</span>
+          <span className="text-sm text-gray-600">In Programming</span>
         </div>
         <div className="flex items-center">
           <div className="w-4 h-4 rounded bg-green-500 mr-2"></div>
@@ -177,4 +177,4 @@ const StockBarChart = ({ data }) => {
   );
 };
 
-export default StockBarChart;
+export default ProgStockChart;

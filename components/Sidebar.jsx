@@ -94,6 +94,12 @@ const Sidebar = () => {
       current: false,
     },
     {
+      name: "Programming Stocks",
+      href: "/sidebarpages/programming-stock",
+      icon: MdOutlineWarehouse,
+      current: false,
+    },
+    {
       name: "Admin Profile",
       href: "/sidebarpages/profile",
       icon: GrUserManager,

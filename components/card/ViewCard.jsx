@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const NotesCard = ({ title, notes, maxLength = 15 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const truncatedNotes = notes && notes.length > maxLength 
-    ? `${notes.substring(0, maxLength)}...` 
-    : notes || `No ${title.toLowerCase()} notes available`;
+  const truncatedNotes =
+    notes && notes.length > maxLength
+      ? `${notes.substring(0, maxLength)}...`
+      : notes || `No ${title.toLowerCase()} notes available`;
 
   return (
     <div className="bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
@@ -13,20 +14,25 @@ const NotesCard = ({ title, notes, maxLength = 15 }) => {
         <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
       </div>
       <p className="text-sm text-gray-600 leading-relaxed">{truncatedNotes}</p>
-      
+
       {notes && notes.length > maxLength && (
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 group"
         >
           See More
-          <svg 
-            className="w-4 h-4 group-hover:translate-x-1 transition-transform" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 5l7 7-7 7"
+            />
           </svg>
         </button>
       )}
@@ -39,17 +45,29 @@ const NotesCard = ({ title, notes, maxLength = 15 }) => {
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                 {title}
               </h3>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
             <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-              <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">{notes}</p>
+              <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">
+                {notes}
+              </p>
             </div>
           </div>
         </div>
@@ -105,13 +123,17 @@ const ViewCard = ({
             <div className="grid md:grid-cols-2 gap-6 bg-white rounded-xl p-6 shadow-sm border border-gray-100">
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Name</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Name
+                  </label>
                   <p className="text-base font-medium text-gray-900 mt-1">
                     {currentRowData.name || "N/A"}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Organization</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Organization
+                  </label>
                   <p className="text-base font-medium text-gray-900 mt-1">
                     {currentRowData.organization || "N/A"}
                   </p>
@@ -119,7 +141,9 @@ const ViewCard = ({
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Date & Time</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Date & Time
+                  </label>
                   <p className="text-base font-medium text-gray-900 mt-1">
                     {currentRowData.date_time
                       ? new Date(currentRowData.date_time).toLocaleString()
@@ -127,7 +151,9 @@ const ViewCard = ({
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500">Type</label>
+                  <label className="text-sm font-medium text-gray-500">
+                    Type
+                  </label>
                   <p className="text-base font-medium text-gray-900 mt-1">
                     {currentRowData.type || "N/A"}
                   </p>
@@ -137,74 +163,202 @@ const ViewCard = ({
 
             {/* Notes Section */}
             <div className="grid md:grid-cols-3 gap-4">
-              <NotesCard 
-                title="Front Office Notes" 
+              <NotesCard
+                title="Front Office Notes"
                 notes={currentRowData.front_office_notes}
               />
-              <NotesCard 
-                title="Admin Notes" 
+              <NotesCard
+                title="Admin Notes"
                 notes={currentRowData.admin_notes}
               />
-              <NotesCard 
-                title="Back Office Notes" 
+              <NotesCard
+                title="Back Office Notes"
                 notes={currentRowData.back_office_notes}
               />
             </div>
-
             {/* Warehouse Stocks */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-                <h3 className="text-lg font-semibold text-gray-800">Warehouse Stocks</h3>
-              </div>
-              <div className="grid gap-4">
-                {currentRowData.warehouse_stocks?.map((stock) => (
-                  <div 
-                    key={stock.id} 
-                    className="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:shadow-md transition-shadow"
-                  >
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <p className="text-sm">
-                          <span className="font-medium text-gray-700">Name:</span>
-                          <span className="text-gray-600 ml-2">{stock.name}</span>
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium text-gray-700">Manufacturer:</span>
-                          <span className="text-gray-600 ml-2">{stock.manufacturer}</span>
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium text-gray-700">Model:</span>
-                          <span className="text-gray-600 ml-2">{stock.model_name}</span>
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium text-gray-700">Serial No:</span>
-                          <span className="text-gray-600 ml-2">{stock.serial_no}</span>
-                        </p>
-                      </div>
-                      <div className="space-y-3">
-                        <p className="text-sm">
-                          <span className="font-medium text-gray-700">Sign Code:</span>
-                          <span className="text-gray-600 ml-2">{stock.sign_code}</span>
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium text-gray-700">Codeplug:</span>
-                          <span className="text-gray-600 ml-2">{stock.codeplug}</span>
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium text-gray-700">Unit:</span>
-                          <span className="text-gray-600 ml-2">{stock.unit}</span>
-                        </p>
-                        <p className="text-sm">
-                          <span className="font-medium text-gray-700">Status:</span>
-                          <span className="text-gray-600 ml-2">{stock.status}</span>
-                        </p>
-                      </div>
-                    </div>
+            {currentRowData.type === "new" &&
+              currentRowData.warehouse_stocks?.length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Warehouse Stocks
+                    </h3>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className="grid gap-4">
+                    {currentRowData.warehouse_stocks.map((stock) => (
+                      <div
+                        key={stock.id}
+                        className="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:shadow-md transition-shadow"
+                      >
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Name:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.name}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Manufacturer:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.manufacturer}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Model:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.model_name}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Serial No:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.serial_no}
+                              </span>
+                            </p>
+                          </div>
+                          <div className="space-y-3">
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Sign Code:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.sign_code}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Codeplug:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.codeplug}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Unit:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.unit}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Status:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.status}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            {/* Programming Stocks */}
+            {currentRowData.type === "programming" &&
+              currentRowData.programming_stocks?.length > 0 && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Programming Stocks
+                    </h3>
+                  </div>
+                  <div className="grid gap-4">
+                    {currentRowData.programming_stocks.map((stock) => (
+                      <div
+                        key={stock.id}
+                        className="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:shadow-md transition-shadow"
+                      >
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div className="space-y-3">
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Name:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.name}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Manufacturer:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.manufacturer}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Model:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.model_name}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Serial No:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.serial_no}
+                              </span>
+                            </p>
+                          </div>
+                          <div className="space-y-3">
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Sign Code:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.sign_code}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Codeplug:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.codeplug}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Unit:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.unit}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Status:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.status}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
           </div>
         </div>
 
@@ -215,8 +369,18 @@ const ViewCard = ({
             className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
           >
             Close
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>

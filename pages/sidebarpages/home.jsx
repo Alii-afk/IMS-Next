@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import dynamic from "next/dynamic";
 const StockPieChart = dynamic(() => import("@/components/charts/StatusPieChart"), { ssr: false });
 const StockBarChart = dynamic(() => import("@/components/charts/StockBarChart"), { ssr: false });
+const ProgStockChart = dynamic(() => import("@/components/charts/ProgStockChart"), { ssr: false });
 
 const Home = () => {
   const [role, setRole] = useState(null);
@@ -34,6 +35,7 @@ const Home = () => {
         <div className="px-4 md:px-12 lg:px-20 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 justify-center">
           <StockPieChart data={barData} />
           <StockBarChart data={pieData} />
+          <ProgStockChart data={pieData} />
           {/* {role !== "backoffice" && (
             <>
               <LineChart data={lineData} />

@@ -166,6 +166,14 @@ export const stockmanagementdata = [
   { key: 'action', name: 'Actions' },
 ];
 
+
+export const programmingstockdata = [
+  { key: "product_name", name: "Product Name" },
+  { key: "product_id", name: "ID" },
+  { key: "description", name: "Description" },
+  { key: "serial_no", name: "Serial Number" },
+];
+
 export const stockmanagement = [
   { key: 'name', name: 'Name' },
   { key: 'model_name', name: 'Model Number' },
