@@ -1,4 +1,4 @@
-import { columns, peoples } from "@/components/dummyData/FormData";
+import { columns } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -8,23 +8,25 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-const Table = dynamic(() => import("@/components/tables/table"), { 
-  ssr: false 
+import Pagination from "@/components/pagination";
+const Table = dynamic(() => import("@/components/tables/table"), {
+  ssr: false,
 });
 
 const RejectedRequest = () => {
   const [rejectedRequests, setRejectedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter()
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(10);
+  const router = useRouter();
 
-
-  const fetchData = async () => {
+  const fetchData = async (page) => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
     try {
       const response = await axios.get(`${apiUrl}/api/requests`, {
-        params: { request_status: "rejected" },
+        params: { request_status: "rejected", per_page: perPage, page: page },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -48,8 +50,8 @@ const RejectedRequest = () => {
     }
   };
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage);
+  }, [currentPage]);
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -77,7 +79,7 @@ const RejectedRequest = () => {
                   Reject
                 </h3>
                 <p className="text-4xl font-bold text-red-600">
-                  {rejectedRequests?.total_requests}
+                  {rejectedRequests?.total}
                 </p>
               </div>
             </div>
@@ -86,12 +88,34 @@ const RejectedRequest = () => {
                 Rejected Requests
               </h1>
             </div>
-            <div className="px-6">
-              <Table
-                columns={columns}
-                data={rejectedRequests?.data}
-                fetchData={fetchData}
-              />
+            <div className="px-6 py-8 flex flex-col">
+              {/* Other Components */}
+
+              {rejectedRequests?.data && rejectedRequests.data.length > 0 ? (
+                <>
+                  <div className="px-6">
+                    <Table
+                      columns={columns}
+                      data={rejectedRequests?.data}
+                      searchEnabled={true}
+                      fetchData={fetchData}
+                    />
+                  </div>
+                  {rejectedRequests?.data.length > 10 && (
+                    <div className="bg-white shadow-sm">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(
+                          rejectedRequests?.total / perPage
+                        )}
+                        onPageChange={(page) => setCurrentPage(page)}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div>No data available</div>
+              )}
             </div>
           </div>
         </div>

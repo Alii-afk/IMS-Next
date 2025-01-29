@@ -1,31 +1,33 @@
-import { columns, peoples } from "@/components/dummyData/FormData";
+import { columns } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
 import axios from "axios";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-const Table = dynamic(() => import("@/components/tables/table"), { 
-  ssr: false 
+import Pagination from "@/components/pagination";
+const Table = dynamic(() => import("@/components/tables/table"), {
+  ssr: false,
 });
 
 const PendingRequest = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(10);
 
-  const router = useRouter()
+  const router = useRouter();
 
-
-  const fetchData = async () => {
+  const fetchData = async (page) => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-   
+
     try {
       const response = await axios.get(`${apiUrl}/api/requests`, {
-        params: { request_status: "pending" },
+        params: { request_status: "pending", per_page: perPage, page: page },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -47,13 +49,13 @@ const PendingRequest = () => {
     } finally {
       setLoading(false);
     }
-   };
+  };
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage);
+  }, [currentPage]);
   return (
     <div className="m w-full bg-white flex ">
-            <ToastContainer />
+      <ToastContainer />
 
       {/* Sidebar Component */}
       <Sidebar className="w-64 min-h-screen fixed top-0 left-0 bg-white shadow-md hidden md:block" />
@@ -72,12 +74,12 @@ const PendingRequest = () => {
         <div className="px-6 py-8">
           <div className="flex-1 bg-white shadow-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gradient-to-r from-orange-100 to-orange-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
+              <div className="bg-gradient-to-r from-orange-100 to-orange-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
                 <h3 className="text-lg font-semibold text-orange-900 mb-2 capitalize">
                   Total Pending
                 </h3>
                 <p className="text-4xl font-bold text-orange-600">
-                  {pendingRequests.total_requests}
+                  {pendingRequests.total}
                 </p>
               </div>
             </div>
@@ -86,12 +88,34 @@ const PendingRequest = () => {
                 Pending Requests
               </h1>
             </div>
-            <div className="px-6">
-              <Table
-                columns={columns}
-                data={pendingRequests?.data}
-                fetchData={fetchData}
-              />
+            {/* Page Content */}
+            <div className="px-6 py-8 flex flex-col">
+              {/* Other Components */}
+
+              {pendingRequests?.data && pendingRequests.data.length > 0 ? (
+                <>
+                  <div className="px-6">
+                    <Table
+                      columns={columns}
+                      data={pendingRequests?.data}
+                      searchEnabled={true}
+                      fetchData={fetchData}
+                    />
+                  </div>
+
+                  {pendingRequests?.data.length > 10 && (
+                    <div className="bg-white shadow-sm">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(pendingRequests?.total / perPage)}
+                        onPageChange={(page) => setCurrentPage(page)}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div>No data available</div>
+              )}
             </div>
           </div>
         </div>

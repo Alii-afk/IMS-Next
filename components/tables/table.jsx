@@ -399,9 +399,9 @@ const Table = ({
     // console.log(request);
     let backofficename;
     if (request.type === "programming") {
-      backofficename = request.programming_stocks[0].user.name;
+      backofficename = request.programming_stocks[0]?.user.name;
     } else {
-      backofficename = request.warehouse_stocks[0].user.name;
+      backofficename = request.warehouse_stocks[0]?.user.name;
     }
 
     const signatureData = [
@@ -419,7 +419,7 @@ const Table = ({
       },
       {
         name: "Taliyaha Hogg. ICT",
-        magaca: adminUser.name,
+        magaca: adminUser?.name,
         saxiixa: "",
         tarikh: "",
       },
@@ -431,7 +431,7 @@ const Table = ({
       },
       {
         name: "Qofka Siiyey",
-        magaca: user.name, // Dynamic front office user name
+        magaca: user?.name, // Dynamic front office user name
         saxiixa: "",
         tarikh: "",
       },

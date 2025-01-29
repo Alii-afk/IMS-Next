@@ -1,10 +1,7 @@
 import {
-  filteredData,
   stockmanagementdata,
 } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
-// import StockTable from "@/components/tables/stockTable";
-import Table from "@/components/tables/table";
 import axios from "axios";
 import Cookies from "js-cookie";
 import React, { useEffect, useState } from "react";

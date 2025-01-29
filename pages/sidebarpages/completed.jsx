@@ -1,4 +1,4 @@
-import { columns, peoples } from "@/components/dummyData/FormData";
+import { columns } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -6,51 +6,38 @@ import React, { useEffect, useState } from "react";
 import { ClipLoader } from "react-spinners";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import ExcelJS from "exceljs";
-import { DownloadIcon } from "lucide-react";
-import jsPDF from "jspdf";
 import "jspdf-autotable";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-const Table = dynamic(() => import("@/components/tables/table"), { 
-  ssr: false 
+import Pagination from "@/components/pagination";
+const Table = dynamic(() => import("@/components/tables/table"), {
+  ssr: false,
 });
-
 
 const userRole = Cookies.get("role");
 
-const updatedColumns = columns.map((column) => {
-  if (column.key === "notes") {
-    if (userRole === "admin") {
-      return { ...column, name: "Admin Notes" };
-    } else if (userRole === "backoffice") {
-      return { ...column, name: "Backoffice Notes" };
-    } else if (userRole === "frontoffice") {
-      return { ...column, name: "Front Office Notes" };
-    }
-  }
-  return column;
-});
 const Completed = () => {
   const [completedRequests, setCompletedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [datas, setDatas] = useState([]);
-  const router = useRouter()
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(10);
 
-  const fetchData = async () => {
+  const router = useRouter();
+
+  const fetchData = async (page) => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
     try {
       const response = await axios.get(`${apiUrl}/api/requests`, {
-        params: { request_status: "complete" },
+        params: { request_status: "complete", per_page: perPage, page: page },
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       setCompletedRequests(response.data);
-    }  catch (error) {
+    } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           toast.error("Unauthorized. Please log in again.");
@@ -66,11 +53,11 @@ const Completed = () => {
     } finally {
       setLoading(false);
     }
-   };
+  };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage);
+  }, [currentPage]);
 
   // const downloadExcel = async () => {
   //   const workbook = new ExcelJS.Workbook();
@@ -193,17 +180,16 @@ const Completed = () => {
   //   headerData.forEach((rowData, rowIndex) => {
   //     const row = worksheet.addRow(["", "", ...rowData]);
   //     row.getCell(3).style = styles.sectionHeader;
-    
+
   //     if (rowIndex === 4) {
   //       // Merge cells for "TRANSACTION REF NO"
   //       worksheet.mergeCells(`D${row.number}:E${row.number}`);
   //       row.getCell(3).value = rowData[2]; // Assign value to the merged cell
   //       row.getCell(3).style = styles.sectionHeader; // Apply style to the merged cell
   //     }
-    
+
   //     row.height = 20;
   //   });
-    
 
   //   worksheet.addRow([]); // Spacing
 
@@ -282,9 +268,6 @@ const Completed = () => {
   //   mergedCell.style = styles.tableHeader; // Apply the desired style
   //   signatureHeaderRow.height = 25;
 
-
-    
-
   //   const signatures = [
   //     ["Baqaar Haye", "","","", ""],
   //     ["Prog/Repair", "","","", ""],
@@ -306,11 +289,11 @@ const Completed = () => {
   //     row.height = 50;
   //   });
 
-  //   worksheet.mergeCells(`D22:E22`); 
-  //   worksheet.mergeCells(`D23:E23`); 
-  //   worksheet.mergeCells(`D24:E24`); 
-  //   worksheet.mergeCells(`D25:E25`); 
-  //   worksheet.mergeCells(`D26:E26`); 
+  //   worksheet.mergeCells(`D22:E22`);
+  //   worksheet.mergeCells(`D23:E23`);
+  //   worksheet.mergeCells(`D24:E24`);
+  //   worksheet.mergeCells(`D25:E25`);
+  //   worksheet.mergeCells(`D26:E26`);
 
   //   const mergedCell2 = worksheet.getCell('D22');
   //   const mergedCell3 = worksheet.getCell('D23');
@@ -347,8 +330,6 @@ const Completed = () => {
   //   link.click();
   // };
 
-  
-  
   return (
     <div className="min-h-screen bg-white flex">
       <ToastContainer />
@@ -375,7 +356,7 @@ const Completed = () => {
                   Completed
                 </h3>
                 <p className="text-4xl font-bold text-blue-600">
-                  {completedRequests?.total_requests}
+                  {completedRequests?.total}
                 </p>
               </div>
             </div>
@@ -384,13 +365,37 @@ const Completed = () => {
                 Completed Requests
               </h1>
             </div>
-            <div className="px-6">
-              <Table
-                columns={columns}
-                data={completedRequests?.data}
-                showDownload={true}
-                fetchData={fetchData}
-              />
+            {/* Page Content */}
+            <div className="px-6 py-8 flex flex-col">
+              {/* Other Components */}
+
+              {completedRequests?.data &&
+              completedRequests?.data?.length > 0 ? (
+                <>
+                  <div className="px-6">
+                    <Table
+                      columns={columns}
+                      data={completedRequests?.data}
+                      searchEnabled={true}
+                      fetchData={fetchData}
+                    />
+                  </div>
+
+                  {completedRequests?.data.length > 10 && (
+                    <div className="bg-white shadow-sm">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(
+                          completedRequests?.total / perPage
+                        )}
+                        onPageChange={(page) => setCurrentPage(page)}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div>No data available</div>
+              )}
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import { columns, peoples } from "@/components/dummyData/FormData";
+import { columns } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -8,22 +8,26 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-const Table = dynamic(() => import("@/components/tables/table"), { 
-  ssr: false 
+import Pagination from "@/components/pagination";
+const Table = dynamic(() => import("@/components/tables/table"), {
+  ssr: false,
 });
 
 const AcceptedRequest = () => {
   const [InprogressRequests, setInprogressRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter()
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(10);
 
-  const fetchData = async () => {
+  const router = useRouter();
+
+  const fetchData = async (page) => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
     try {
       const response = await axios.get(`${apiUrl}/api/requests`, {
-        params: { request_status: "approved" },
+        params: { request_status: "approved", per_page: perPage, page: page },
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -48,8 +52,8 @@ const AcceptedRequest = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(currentPage);
+  }, [currentPage]);
   return (
     <div className="min-h-screen  bg-white flex">
       <ToastContainer />
@@ -76,7 +80,7 @@ const AcceptedRequest = () => {
                   Approved
                 </h3>
                 <p className="text-4xl font-bold text-green-600">
-                  {InprogressRequests?.total_requests}
+                  {InprogressRequests?.total}
                 </p>
               </div>
             </div>
@@ -85,12 +89,36 @@ const AcceptedRequest = () => {
                 Approved Requests
               </h1>
             </div>
-            <div className="px-6">
-              <Table
-                columns={columns}
-                data={InprogressRequests?.data}
-                fetchData={fetchData}
-              />
+            {/* Page Content */}
+            <div className="px-6 py-8 flex flex-col">
+              {/* Other Components */}
+
+              {InprogressRequests?.data &&
+              InprogressRequests.data.length > 0 ? (
+                <>
+                  <div className="px-6">
+                    <Table
+                      columns={columns}
+                      data={InprogressRequests?.data}
+                      searchEnabled={true}
+                      fetchData={fetchData}
+                    />
+                  </div>
+                  {InprogressRequests?.data.length > 10 && (
+                    <div className="bg-white shadow-sm">
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(
+                          InprogressRequests?.total / perPage
+                        )}
+                        onPageChange={(page) => setCurrentPage(page)}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div>No data available</div>
+              )}
             </div>
           </div>
         </div>
