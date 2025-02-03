@@ -538,7 +538,7 @@ const EditDetailsModal = ({
                       onChange={(e) => setEditedNotes(e.target.value)}
                       className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       rows={4}
-                      maxLength={255}
+                      maxLength={245}
                       placeholder="Enter front office notes..."
                     />
                   ) : (
@@ -589,7 +589,7 @@ const EditDetailsModal = ({
                       onChange={(e) => setEditedNotes(e.target.value)}
                       className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       rows={4}
-                      maxLength={255}
+                      maxLength={245}
                       placeholder="Enter admin notes..."
                     />
                   ) : (
@@ -640,7 +640,7 @@ const EditDetailsModal = ({
                       onChange={(e) => setEditedNotes(e.target.value)}
                       className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       rows={4}
-                      maxLength={255}
+                      maxLength={245}
                       placeholder="Enter back office notes..."
                     />
                   ) : (
