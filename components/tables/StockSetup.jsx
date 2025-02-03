@@ -18,6 +18,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "@/utils/axiosInstance";
 import { MdLibraryAdd, MdOutlineNumbers } from "react-icons/md";
+import ImageUpload from "../InputGroup/ImageUplaod";
 
 // Utility function to join class names conditionally
 function classNames(...classes) {
@@ -29,19 +30,22 @@ const StockSetup = ({
   data,
   searchEnabled = false,
   fetchStockData,
-  hideSerialNumberInput = false,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentRowData, setCurrentRowData] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [isModalOpens, setIsModalOpens] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const methods = useForm({
     defaultValues: {
       stockName: currentRowData?.name || "",
       model_name: currentRowData?.model_name || "",
       manufacturer: currentRowData?.manufacturer || "",
-      serialNumber: currentRowData?.serial_no || "",
+      // serialNumber: currentRowData?.serial_no || "",
+      stock_image: currentRowData?.stock_image || "",
     },
   });
 
@@ -86,6 +90,7 @@ const StockSetup = ({
       if (selectedStock) {
         methods.setValue("model_name", selectedStock.model_name || "");
         methods.setValue("manufacturer", selectedStock.manufacturer || "");
+        setValue("stock_image_url", selectedStock.stock_image || "");
       }
     }
   }, [stockName, stockOptions, methods]);
@@ -126,18 +131,25 @@ const StockSetup = ({
     setValue("name", rowData.name);
     setValue("model_name", rowData.model_name);
     setValue("manufacturer", rowData.manufacturer);
-    setValue("serialNumber", rowData.serial_no);
+    // setValue("serialNumber", rowData.serial_no);
     // setValue("status", rowData.status);
+    setValue("stock_image_url", rowData.stock_image_url);
   };
 
+  // stock_image_url
   const handleFormSubmit = (data) => {
     // Extract only the required fields from the form data
-    const payload = {
-      manufacturer: data.manufacturer,
-      model_name: data.model_name,
-      name: data.name,
-      serial_no: data.serialNumber,
-    };
+    // const payload = {
+    //   manufacturer: data.manufacturer,
+    //   model_name: data.model_name,
+    //   name: data.name,
+    //   // serial_no: data.serialNumber,
+    // };
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("model_name", data.model_name);
+    formData.append("manufacturer", data.manufacturer);
+    if (imageFile) formData.append("stock_image", imageFile);
 
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
@@ -145,10 +157,9 @@ const StockSetup = ({
     fetch(`${apiUrl}/api/stock-products/${currentRowData.id}`, {
       method: "PUT",
       headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Do NOT include 'Content-Type' here
       },
-      body: JSON.stringify(payload),
+      body: formData,
     })
       .then((response) => response.json())
       .then((data) => {
@@ -194,7 +205,6 @@ const StockSetup = ({
             </div>
           )}
 
-          {/* Table */}
           {/* Table */}
           <div className="max-h-[600px] overflow-y-auto hide-scrollbar border">
             <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
@@ -243,13 +253,17 @@ const StockSetup = ({
                               <FaTrash className="w-5 h-5" />
                             </div>
                           </div>
-                        ) : column.key === "stock_image" ? (
+                        ) : column.key === "stock_image_url" ? (
                           <img
-                            src={`${process.env.NEXT_PUBLIC_MAP_KEY}/${
-                              row[column.key]
-                            }`}
+                            src={`http://localhost:8000${row[column.key]}`}
                             alt={row.name || "Stock Image"}
-                            className="w-20 h-20 object-cover rounded-md"
+                            className="w-6 h-6 object-cover rounded-md"
+                            onClick={() => {
+                              setSelectedImage(
+                                `http://localhost:8000${row[column.key]}`
+                              );
+                              setIsModalOpens(true);
+                            }}
                           />
                         ) : (
                           row[column.key]
@@ -263,6 +277,33 @@ const StockSetup = ({
           </div>
         </div>
       </div>
+
+      {isModalOpens && (
+        <div
+          className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50"
+          style={{
+            animation: isModalOpens
+              ? "scaleUp 0.3s ease-out"
+              : "scaleDown 0.3s ease-in",
+          }}
+        >
+          <div className="bg-white p-4 rounded-lg max-w-2xl">
+            <div className="flex justify-end">
+              <button
+                onClick={() => setIsModalOpens(false)}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Close
+              </button>
+            </div>
+            <img
+              src={selectedImage}
+              alt="Full-size Product Image"
+              className="w-full h-auto rounded-md"
+            />
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div
@@ -330,6 +371,26 @@ const StockSetup = ({
                   error={methods.formState.errors.model_name?.message}
                 />
 
+                {/* Show current image if available */}
+                {methods.getValues("stock_image_url") && !imageFile && (
+                  <div className="flex justify-center mb-4">
+                    <img
+                      src={`http://localhost:8000${methods.getValues(
+                        "stock_image_url"
+                      )}`}
+                      alt="Current Product Image"
+                      className="w-full h-40 object-cover rounded-md"
+                    />
+                  </div>
+                )}
+
+                {/* Image Upload and Display */}
+                <ImageUpload
+                  label="Upload Product Image"
+                  name="stock_image"
+                  tableClass="max-w-lg" 
+                  onImageChange={(file) => setImageFile(file)}
+                />
                 <div className="flex gap-4 justify-end">
                   <button
                     type="button"

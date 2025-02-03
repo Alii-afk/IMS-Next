@@ -169,7 +169,7 @@ export const programmingstockdata = [
 ];
 
 export const stockmanagement = [
-  { key: "stock_image", name: "Product Image" },
+  { key: "stock_image_url", name: "Product Image" },
   { key: "name", name: "Name" },
   { key: "model_name", name: "Model Number" },
   { key: "manufacturer", name: "Manufacturer" },

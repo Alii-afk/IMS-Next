@@ -350,7 +350,7 @@ const StockTable = ({
         <div className="inline-block min-w-full py-2 align-middle px-4">
           {/* Search Input */}
           {searchEnabled && (
-            <div className="relative flex rounded-md shadow-lg bg-white outline-1 outline-gray-300 max-w-sm mb-6">
+            <div className="relative  flex rounded-md shadow-lg bg-white outline-1 outline-gray-300 max-w-sm mb-6">
               <input
                 type="text"
                 className="block w-full border-2 rounded-md pl-10 pr-4 py-2 text-gray-800 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none text-base"

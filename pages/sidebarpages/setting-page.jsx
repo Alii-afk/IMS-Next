@@ -10,6 +10,7 @@ import { ClipLoader } from "react-spinners";
 import { stockmanagement } from "@/components/dummyData/FormData";
 import dynamic from "next/dynamic";
 import ImageUpload from "@/components/InputGroup/ImageUplaod";
+import { useRouter } from "next/router";
 const StockSetup = dynamic(() => import("@/components/tables/StockSetup"), {
   ssr: false,
 });
@@ -19,6 +20,8 @@ const Setting = () => {
   const [loading, setLoading] = useState(true);
   const [imageFile, setImageFile] = useState(null);
 
+    const router = useRouter();
+  
   const fetchStockData = async () => {
     setLoading(true); // Show loader
     const token = Cookies.get("authToken");
@@ -35,9 +38,20 @@ const Setting = () => {
       const data = await response.json();
       setStockOptions(data);
     } catch (error) {
-      console.error("Error fetching stock data:", error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          toast.error("Unauthorized. Please log in again.");
+          router.push("/");
+        } else if (error.response?.status === 404) {
+          toast.error("Requests not found.");
+        } else {
+          toast.error("Failed to fetch pending requests.");
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
     } finally {
-      setLoading(false); // Hide loader after data is fetched
+      setLoading(false);
     }
   };
 
@@ -158,7 +172,7 @@ const Setting = () => {
                   label="Upload Product Image"
                   name="stock_image"
                   onImageChange={(file) => setImageFile(file)}
-                  error={imageFile ? "" : "Please upload an image"}
+                  // error={imageFile ? "" : "Please upload an image"}
                 />
 
                 <button
@@ -179,7 +193,7 @@ const Setting = () => {
               <StockSetup
                 columns={stockmanagement}
                 data={stockOptions}
-                searchEnabled={true}
+                searchEnabled={false}
                 fetchStockData={fetchStockData}
                 hideSerialNumberInput={true}
               />
