@@ -389,12 +389,15 @@ const StockTable = ({
                   >
                     {columns.map((column) => (
                       <td
-                        key={column.key}
-                        className={classNames(
-                          "border-b border-gray-200",
-                          "py-4 px-6  text-base font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
-                        )}
-                      >
+                      key={column.key}
+                      className={classNames(
+                        "border-b border-gray-200",
+                        "py-4 px-6 text-base font-medium text-gray-800 whitespace-nowrap sm:text-base text-start",
+                        row?.status === "in_house" ? "border-green-500" : 
+                        row?.status === "on_field" ? "border-red-500" : "" // default case if status is neither "in_house" nor "in_field"
+                      )}
+                    >
+                    
                         {column.key === "action" ? (
                           <div className="flex items-center space-x-2 justify-start">
                             <div
