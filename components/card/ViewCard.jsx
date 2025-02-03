@@ -194,6 +194,14 @@ const ViewCard = ({
                       >
                         <div className="grid md:grid-cols-2 gap-6">
                           <div className="space-y-3">
+                          <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Serial No:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.serial_no}
+                              </span>
+                            </p>
                             <p className="text-sm">
                               <span className="font-medium text-gray-700">
                                 Name:
@@ -218,14 +226,7 @@ const ViewCard = ({
                                 {stock.model_name}
                               </span>
                             </p>
-                            <p className="text-sm">
-                              <span className="font-medium text-gray-700">
-                                Serial No:
-                              </span>
-                              <span className="text-gray-600 ml-2">
-                                {stock.serial_no}
-                              </span>
-                            </p>
+                           
                           </div>
                           <div className="space-y-3">
                             <p className="text-sm">
@@ -246,7 +247,7 @@ const ViewCard = ({
                             </p>
                             <p className="text-sm">
                               <span className="font-medium text-gray-700">
-                                Unit:
+                                Unit Id:
                               </span>
                               <span className="text-gray-600 ml-2">
                                 {stock.unit}
@@ -254,10 +255,10 @@ const ViewCard = ({
                             </p>
                             <p className="text-sm">
                               <span className="font-medium text-gray-700">
-                                Status:
+                                Channels:
                               </span>
                               <span className="text-gray-600 ml-2">
-                                {stock.status}
+                                {stock.channels}
                               </span>
                             </p>
                           </div>
@@ -286,31 +287,7 @@ const ViewCard = ({
                       >
                         <div className="grid md:grid-cols-2 gap-6">
                           <div className="space-y-3">
-                            <p className="text-sm">
-                              <span className="font-medium text-gray-700">
-                                Name:
-                              </span>
-                              <span className="text-gray-600 ml-2">
-                                {stock.name}
-                              </span>
-                            </p>
-                            <p className="text-sm">
-                              <span className="font-medium text-gray-700">
-                                Manufacturer:
-                              </span>
-                              <span className="text-gray-600 ml-2">
-                                {stock.manufacturer}
-                              </span>
-                            </p>
-                            <p className="text-sm">
-                              <span className="font-medium text-gray-700">
-                                Model:
-                              </span>
-                              <span className="text-gray-600 ml-2">
-                                {stock.model_name}
-                              </span>
-                            </p>
-                            <p className="text-sm">
+                          <p className="text-sm">
                               <span className="font-medium text-gray-700">
                                 Serial No:
                               </span>
@@ -318,6 +295,31 @@ const ViewCard = ({
                                 {stock.serial_no}
                               </span>
                             </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Product Name:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.product_name}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Product Id:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.product_id}
+                              </span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="font-medium text-gray-700">
+                                Description:
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                {stock.description}
+                              </span>
+                            </p>
+                            
                           </div>
                           <div className="space-y-3">
                             <p className="text-sm">
@@ -338,7 +340,7 @@ const ViewCard = ({
                             </p>
                             <p className="text-sm">
                               <span className="font-medium text-gray-700">
-                                Unit:
+                                Unit Id:
                               </span>
                               <span className="text-gray-600 ml-2">
                                 {stock.unit}
@@ -346,10 +348,10 @@ const ViewCard = ({
                             </p>
                             <p className="text-sm">
                               <span className="font-medium text-gray-700">
-                                Status:
+                              Channels:
                               </span>
                               <span className="text-gray-600 ml-2">
-                                {stock.status}
+                                {stock.channels}
                               </span>
                             </p>
                           </div>

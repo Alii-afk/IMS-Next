@@ -37,18 +37,28 @@ const UserManagement = () => {
   ];
 
   const fetchUsers = async () => {
-    const apiUrl = `${process.env.NEXT_PUBLIC_MAP_KEY}/api/users`; // Use your correct API URL here
+    const apiUrl = `${process.env.NEXT_PUBLIC_MAP_KEY}/api/users`;
+    let token = Cookies.get("authToken");
+    console.log(token);
     try {
-      const response = await axios.get(apiUrl);
-      setUsers(response.data); // Assuming response.data is an array
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+      setUsers(response.data);
     } catch (error) {
+      console.error("Error fetching users:", error.response?.data || error.message);
       toast.error("Failed to fetch users.");
     }
   };
-
+  
   useEffect(() => {
     fetchUsers();
   }, []);
+  
 
   const handleAddUser = async (data) => {
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;

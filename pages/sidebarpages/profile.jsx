@@ -73,10 +73,10 @@ const Profile = () => {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
-              Profile
+              User Profile
             </h1>
             <p className="mt-2 text-gray-600 text-lg">
-              Manage and update your profile details
+              Your profile details
             </p>
           </div>
 

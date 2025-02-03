@@ -34,14 +34,13 @@ const Home = () => {
 
         <div className="px-4 md:px-12 lg:px-20 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 justify-center">
           <StockPieChart data={barData} />
-          <StockBarChart data={pieData} />
-          <ProgStockChart data={pieData} />
-          {/* {role !== "backoffice" && (
+          
+          {role !== "frontoffice" && (
             <>
-              <LineChart data={lineData} />
-              <RejectedChart data={rejectedData} />
+              <StockBarChart data={pieData} />
+              <ProgStockChart data={pieData} />
             </>
-          )} */}
+          )}
         </div>
       </div>
     </div>

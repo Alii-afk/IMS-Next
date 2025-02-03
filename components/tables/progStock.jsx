@@ -9,18 +9,14 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-const ProgramingTable = ({
-  columns,
-  data,
-  searchEnabled = false,
-}) => {
+const ProgramingTable = ({ columns, data, searchEnabled = false }) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Make sure `data` is an array, and get the programming stocks
-  const requests = Array.isArray(data) ? data : [];
+  // Make sure data is an array, and get the programming stocks
+  const requests = Array.isArray(data?.data) ? data?.data : [];
 
   const filteredData = requests
-    .flatMap(request => request.programming_stocks || []) // Ensure it's an array
+    .flatMap((request) => request.programming_stocks || []) // Ensure it's an array
     .map(({ product_name, serial_no, product_id, description }) => ({
       product_name,
       serial_no,
@@ -30,14 +26,12 @@ const ProgramingTable = ({
 
   // Apply search term filtering
   const searchedData = searchTerm
-    ? filteredData.filter(row =>
-        Object.values(row)
-          .some(value =>
-            value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-          )
+    ? filteredData.filter((row) =>
+        Object.values(row).some((value) =>
+          value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        )
       )
     : filteredData;
-
 
   return (
     <div className="mt-8 flow-root z-10">
@@ -79,18 +73,39 @@ const ProgramingTable = ({
               </thead>
               <tbody>
                 {searchedData.length > 0 ? (
-                  searchedData.map((row, index) => (
-                    <tr key={index} className="hover:bg-indigo-50 transition-all duration-200 ease-in-out">
-                      {programmingstockdata.map((column) => (
-                        <td key={column.key} className="border-b border-gray-200 py-4 px-6 text-base font-medium text-gray-800 whitespace-nowrap sm:text-base text-start">
-                          {row[column.key] || "N/A"}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
+                  searchedData.map((row, index) => {
+                    // Find the original request object that contains this row
+                    const request = requests.find((req) =>
+                      req.programming_stocks?.some(
+                        (stock) => stock.product_id === row.product_id
+                      )
+                    );
+
+                    return (
+                      <tr
+                        key={index}
+                        className="hover:bg-indigo-50 transition-all duration-200 ease-in-out text-white"
+                      >
+                        {programmingstockdata.map((column) => (
+                          <td
+                            key={column.key}
+                            className={classNames(
+                          " py-4 px-6 text-base font-medium text-gray-800 whitespace-nowrap sm:text-base text-start border-b-2",
+                          request?.final_pdf ? "border-red-500" : "border-green-500"
+                        )}
+                          >
+                            {row[column.key] || "N/A"}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })
                 ) : (
                   <tr>
-                    <td colSpan={programmingstockdata.length} className="text-center py-4 text-gray-500">
+                    <td
+                      colSpan={programmingstockdata.length}
+                      className="text-center py-4 text-gray-500"
+                    >
                       No programming stock data available.
                     </td>
                   </tr>

@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
-import { GrEdit, GrTrash } from "react-icons/gr";
+import { GrEdit, GrTrash, GrUnlink } from "react-icons/gr";
 import EditUserModal from "../models/EditUserModel";
 import RoleAssignmentModal from "../models/RoleAssignmentModel";
 import { toast } from "react-toastify";
 import DeleteConfirmation from "../card/DeleteConfirmation";
+import DisableUser from "../card/DisableUser";
+import Cookies from "js-cookie";
 
 const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,24 +39,31 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
   };
 
   const handleDelete = async (userId) => {
+    let token = Cookies.get("authToken"); // ✅ Get token from cookies
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/users/${userId}`,
         {
-          method: "DELETE",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ Attach token
+            Accept: "application/json",
           },
+          body: JSON.stringify({ disable: true }), // ✅ Send "disable: true" in the request body
         }
       );
 
       if (response.ok) {
-        // If deletion is successful
-        toast.success("User deleted successfully!");
+        toast.success("User disabled successfully!");
         setIsDeleteModalOpen(false);
         fetchUsers();
       } else {
-        toast.error("Failed to delete user.");
+        const errorData = await response.json();
+        toast.error(
+          `Failed to disable user: ${errorData.error || "Unknown error"}`
+        );
       }
     } catch (err) {
       toast.error(`Error: ${err.message}`);
@@ -138,12 +147,14 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
                         >
                           <GrEdit className="inline-block mr-2" /> Edit
                         </button>
-                        <button
-                          onClick={() => openDeleteModal(row)}
-                          className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600 transition duration-200 w-full sm:w-auto"
-                        >
-                          <GrTrash className="inline-block mr-2" /> Delete
-                        </button>
+                        {row.role !== "user" && (
+                          <button
+                            onClick={() => openDeleteModal(row)}
+                            className="bg-red-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-red-600 transition duration-200 w-full sm:w-auto"
+                          >
+                            <GrUnlink className="inline-block mr-2" /> Disable
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
@@ -165,7 +176,7 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && selectedUser && (
-        <DeleteConfirmation
+        <DisableUser
           handleDelete={() => handleDelete(selectedUser.id)}
           closeModal={handleCloseModal}
         />

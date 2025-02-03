@@ -204,26 +204,25 @@ const Table = ({
       alert("No file available for download.");
       return;
     }
-  
+
     // Assuming your Laravel app is on localhost:8000
     const fileUrl = `http://localhost:8000${filePath}`;
     console.log(fileUrl);
-  
+
     // Create an anchor element to trigger the download
     const link = document.createElement("a");
     link.href = fileUrl;
     link.target = "_blank"; // Open in a new tab if needed
-  
+
     // Force file download (ensure download is triggered)
     link.download = filePath.split("/").pop(); // Extract file name for download
-  
+
     // Append the link to the document, simulate a click, and remove it afterward
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-  
-  
+
   const downloadExcel = async (id) => {
     console.log("id", id);
     const doc = new jsPDF({
@@ -263,245 +262,270 @@ const Table = ({
     const user = request.user;
     const adminUser = data.admin_user;
     const warehouseStocks = request.warehouse_stocks;
-    // Title bar with navy blue background
-    doc.setFillColor(31, 78, 121); // Dark blue color
-    doc.rect(0, 0, 420, 15, "F");
 
-    // Title text
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor(255, 255, 255);
-    doc.text("MAAREYNTA GACANKA ISGAARSIINTA", 200, 10, { align: "center" });
+    const wallpaper = new Image();
+    wallpaper.src = "http://localhost:3000/images/wallpaper.jpeg"; // Ensure the image is in the correct directory
 
-    // Reset text color and font for content
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
+    wallpaper.onload = () => {
+      // Set opacity (using Graphics State)
+      const gState = doc.internal.write("q"); // Save state
+      doc.setGState(new doc.GState({ opacity: 0.09 })); // Adjust opacity (0 to 1)
 
-    let y = 25;
+      // Add wallpaper image (covering the full page)
+      doc.addImage(wallpaper, "JPEG", 0, 0, 420, 297, "", "NONE"); // Adjust position & size
 
-    // Title section with dynamic values
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Adeegga:`, 20, y); // Display the "name" from request object
+      doc.internal.write("Q"); // Restore state
+      // Title bar with navy blue background
+      doc.setFillColor(31, 78, 121); // Dark blue color
+      doc.rect(0, 0, 420, 15, "F");
 
-    let type; // Define type variable outside the if-else block
+      const img = new Image();
+      img.src = "http://localhost:3000/images/logo.jpg"; // Ensure the image is in the correct directory
 
-    if (request.type === "programming") {
-      type = "Programming/Repair";
-    } else {
-      type = "New";
-    }
+      // Title text
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.setTextColor(255, 255, 255);
+      doc.text(
+        "HOGGAANKA ICT              MAAREYNTA GACANKA ISGAARSIINTA",
+        214,
+        10,
+        { align: "center" }
+      );
+      doc.addImage(img, "PNG", 177, 0, 15, 15); // x=190, y=15, width=40, height=20
 
-    doc.setTextColor(39, 174, 96); // Green color for type
-    doc.text(`${type}`, 100, y);
+      // Reset text color and font for content
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
 
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Date Received:`, 230, y);
+      let y = 25;
 
-    doc.setTextColor(0, 0, 0); // Green color for Date Pickup
-    doc.text("Date Pickup:", 350, y);
+      // Title section with dynamic values
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Adeegga:`, 20, y); // Display the "name" from request object
 
-    y += 10;
+      let type; // Define type variable outside the if-else block
 
-    // Notes section (front office, back office)
-    doc.setTextColor(0, 0, 0);
-    doc.text("Codsi Ka Yimid:", 20, y);
+      if (request.type === "programming") {
+        type = "Programming/Repair";
+      } else {
+        type = "New";
+      }
 
-    doc.setTextColor(39, 174, 96); // Green color
-    doc.text(`${request.name}`, 100, y);
+      doc.setTextColor(31, 78, 121); // Green color for type
+      doc.text(`${type}`, 55, y);
 
-    const date = new Date(request.date_time);
-    const formattedDate = date.toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true, // Enables 12-hour format
-    });
+      // More dynamic content for Hogg/Qeybta/Fadhiga/Saldhigga
+      doc.setTextColor(0, 0, 0);
+      doc.text("Hogg/Qeybta/Fadhiga/Saldhigga:", 140, 25);
 
-    doc.text(`${formattedDate}`, 230, y);
+      doc.setTextColor(31, 78, 121); // Green color
+      doc.text(`${request.organization}`, 220, 25);
 
-    doc.setTextColor(231, 76, 60); // Red color for "Date of Transaction Closing"
-    doc.text("", 350, y);
+      y += 8;
 
-    y += 10;
+      // Transaction Reference Number
+      doc.setTextColor(0, 0, 0);
+      doc.text("TRANSACTION REF NO:", 140, 33);
 
-    // More dynamic content for Hogg/Qeybta/Fadhiga/Saldhigga
-    doc.setTextColor(0, 0, 0);
-    doc.text("Hogg/Qeybta/Fadhiga/Saldhigga:", 20, y);
+      doc.setTextColor(31, 78, 121); // Green color
+      const formattedId = String(request.id).padStart(4, "0");
+      doc.text(`SPF-ICT-${formattedId}`, 220, 33);
 
-    doc.setTextColor(39, 174, 96); // Green color
-    doc.text(`${request.organization}`, 100, y);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Date Received:`, 300, 25);
 
-    // doc.text("maybe stays empty and is filled manually", 550, y, {
-    //   align: "right",
-    // });
+      doc.setTextColor(0, 0, 0); // Green color for Date Pickup
+      doc.text("Date Pickup:", 350, 25);
 
-    y += 10;
+      // Notes section (front office, back office)
+      doc.setTextColor(0, 0, 0);
+      doc.text("Codsi Ka Yimid:", 20, y);
 
-    // Transaction Reference Number
-    doc.setTextColor(0, 0, 0);
-    doc.text("TRANSACTION REF NO:", 20, y);
+      doc.setTextColor(31, 78, 121); // Green color
+      doc.text(`${request.name}`, 55, y);
 
-    doc.setTextColor(39, 174, 96); // Green color
-    const formattedId = String(request.id).padStart(4, "0");
-    doc.text(`SPF-ICT-${formattedId}`, 100, y);
+      const date = new Date(request.date_time);
+      const formattedDate = date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true, // Enables 12-hour format
+      });
 
-    // Equipment Table
-    const equipmentHeaders = [
-      ["Model", "Serial No", "Unit Id", "Code Sign", "Codeplug", "CH"],
-    ];
+      doc.text(`${formattedDate}`, 300, y);
 
-    // Check the request type and assign the correct dataset
-    const selectedStocks =
-      request.type === "programming"
-        ? request.programming_stocks
-        : warehouseStocks;
+      doc.setTextColor(31, 78, 121); // Red color for "Date of Transaction Closing"
+      doc.text("", 350, y);
 
-    // Ensure selectedStocks is an array before mapping
-    const equipmentData = Array.isArray(selectedStocks)
-      ? selectedStocks.map((item) => [
-          item.product_name || item.model_name, // Adjust field based on dataset
-          item.serial_no,
-          item.unit,
-          item.sign_code,
-          item.codeplug,
-          item.channels,
-        ])
-      : [];
+      // Equipment Table
+      const equipmentHeaders = [
+        ["Serial No", "Model", "Unit Id", "Code Sign", "Codeplug", "CH"],
+      ];
 
-    console.log(equipmentData);
+      // Check the request type and assign the correct dataset
+      const selectedStocks =
+        request.type === "programming"
+          ? request.programming_stocks
+          : warehouseStocks;
 
-    doc.autoTable({
-      startY: y + 15,
-      head: equipmentHeaders,
-      body: equipmentData,
-      theme: "grid",
-      headStyles: {
-        fillColor: [65, 105, 225], // Royal blue
-        textColor: [255, 255, 255],
-        fontSize: 12,
-        halign: "center",
-      },
-      styles: {
-        cellPadding: 4,
-        fontSize: 10,
-        lineColor: [0, 0, 0],
-        lineWidth: 0.1,
-        halign: "center",
-      },
-      margin: { left: 20, right: 20 },
-    });
+      // Ensure selectedStocks is an array before mapping
+      const equipmentData = Array.isArray(selectedStocks)
+        ? selectedStocks.map((item) => [
+            item.serial_no,
+            item.product_name || item.model_name, // Adjust field based on dataset
+            item.unit,
+            item.sign_code,
+            item.codeplug,
+            item.channels,
+          ])
+        : [];
 
-    // Signature Table with Dynamic Data
-    const signatureHeaders = [["Title", "Magaca", "Saxiixa", "Tarikh"]];
-    // console.log(request);
-    let backofficename;
-    if (request.type === "programming") {
-      backofficename = request.programming_stocks[0]?.user.name;
-    } else {
-      backofficename = request.warehouse_stocks[0]?.user.name;
-    }
+      console.log(equipmentData);
 
-    const signatureData = [
-      {
-        name: "Baqaar Haye",
-        magaca: `${backofficename}`,
-        saxiixa: "",
-        tarikh: "",
-      },
-      {
-        name: "Prog/Repair",
-        magaca: `${backofficename}`,
-        saxiixa: "",
-        tarikh: "",
-      },
-      {
-        name: "Taliyaha Hogg. ICT",
-        magaca: adminUser?.name,
-        saxiixa: "",
-        tarikh: "",
-      },
-      {
-        name: "Qofka Qaatey",
-        magaca: "",
-        saxiixa: "",
-        tarikh: "",
-      },
-      {
-        name: "Qofka Siiyey",
-        magaca: user?.name, // Dynamic front office user name
-        saxiixa: "",
-        tarikh: "",
-      },
-    ];
+      doc.autoTable({
+        startY: y + 7,
+        head: equipmentHeaders,
+        body: equipmentData,
+        theme: "grid",
+        headStyles: {
+          fillColor: [65, 105, 225], // Royal blue
+          textColor: [255, 255, 255],
+          fontSize: 12,
+          halign: "center",
+        },
+        styles: {
+          cellPadding: 2, // Controls line height (padding inside cells)
+          fontSize: 10,
+          lineColor: [0, 0, 0],
+          lineWidth: 0.1,
+          halign: "center",
+          fillColor: false, // Ensures transparency (no background color)
+        },
+        columnStyles: {
+          1: { cellWidth: 40 }, // Set width for column index 1 (Serial No)
+          2: { cellWidth: 40 }, // Set width for column index 3 (Code Sign)
+        },
+        margin: { left: 12, right: 12 },
+      });
 
-    const signatureTableData = signatureData.map((item) => [
-      item.name || "",
-      item.magaca || "",
-      item.saxiixa || "",
-      item.tarikh || "",
-    ]);
+      // Signature Table with Dynamic Data
+      const signatureHeaders = [["Title", "Magaca", "Saxiixa", "Tarikh"]];
+      // console.log(request);
+      let backofficename;
+      if (request.type === "programming") {
+        backofficename = request.programming_stocks[0]?.user.name;
+      } else {
+        backofficename = request.warehouse_stocks[0]?.user.name;
+      }
 
-    doc.autoTable({
-      startY: doc.lastAutoTable.finalY + 15,
-      head: signatureHeaders,
-      body: signatureTableData,
-      theme: "grid",
-      headStyles: {
-        fillColor: [65, 105, 225],
-        textColor: [255, 255, 255],
-        fontSize: 12,
-        halign: "center",
-      },
-      styles: {
-        cellPadding: 4,
-        fontSize: 10,
-        lineColor: [0, 0, 0],
-        lineWidth: 0.1,
-        halign: "center",
-      },
-      margin: { left: 20, right: 20 },
-    });
+      const signatureData = [
+        {
+          name: "Baqaar Haye",
+          magaca: `${backofficename}`,
+          saxiixa: "",
+          tarikh: "",
+        },
+        {
+          name: "Prog/Repair",
+          magaca: `${backofficename}`,
+          saxiixa: "",
+          tarikh: "",
+        },
+        {
+          name: "Taliyaha Hogg. ICT",
+          magaca: adminUser?.name,
+          saxiixa: "",
+          tarikh: "",
+        },
+        {
+          name: "Qofka Qaatey",
+          magaca: "",
+          saxiixa: "",
+          tarikh: "",
+        },
+        {
+          name: "Qofka Siiyey",
+          magaca: user?.name, // Dynamic front office user name
+          saxiixa: "",
+          tarikh: "",
+        },
+      ];
 
-    // Notes Section
-    let notesY = doc.lastAutoTable.finalY + 15;
+      const signatureTableData = signatureData.map((item) => [
+        item.name || "",
+        item.magaca || "",
+        item.saxiixa || "",
+        item.tarikh || "",
+      ]);
 
-    const noteHeaders = [["Notes", "Content"]];
-    const noteTableData = [
-      ["Front Office", request.front_office_notes],
-      ["Back Office", request.back_office_notes],
-      ["Admin", request.admin_notes || "No notes"],
-    ];
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 3,
+        head: signatureHeaders,
+        body: signatureTableData,
+        theme: "grid",
+        headStyles: {
+          fillColor: [65, 105, 225],
+          textColor: [255, 255, 255],
+          fontSize: 12,
+          halign: "center",
+        },
+        styles: {
+          cellPadding: 5,
+          fontSize: 10,
+          lineColor: [0, 0, 0],
+          lineWidth: 0.1,
+          halign: "center",
+          fillColor: false, // Ensures transparency (no background color)
+        },
+        margin: { left: 12, right: 12 },
+      });
 
-    doc.autoTable({
-      startY: notesY,
-      head: noteHeaders,
-      body: noteTableData,
-      theme: "grid",
-      headStyles: {
-        fillColor: [65, 105, 225],
-        textColor: [255, 255, 255],
-        fontSize: 12,
-        halign: "center",
-      },
-      styles: {
-        cellPadding: 5,
-        fontSize: 10,
-        lineColor: [0, 0, 0],
-        lineWidth: 0.1,
-        halign: "left",
-      },
-      columnStyles: {
-        0: { halign: "center" },
-        1: { halign: "left" },
-      },
-      margin: { left: 20, right: 20 },
-    });
+      // Notes Section
+      let notesY = doc.lastAutoTable.finalY + 3;
 
-    // Save the PDF
-    doc.save(`SPF-ICT-${formattedId}`);
+      const noteHeaders = [["Notes", "Content"]];
+      const noteTableData = [
+        ["Front Office", request.front_office_notes],
+        ["Back Office", request.back_office_notes],
+        ["Admin", request.admin_notes || "No notes"],
+      ];
+
+      doc.autoTable({
+        startY: notesY,
+        head: noteHeaders,
+        body: noteTableData,
+        theme: "grid",
+        headStyles: {
+          fillColor: [65, 105, 225],
+          textColor: [255, 255, 255],
+          fontSize: 12,
+          halign: "center",
+        },
+        styles: {
+          cellPadding: 5,
+          fontSize: 10,
+          lineColor: [0, 0, 0],
+          lineWidth: 0.1,
+          halign: "left",
+          fillColor: false, // Ensures transparency (no background color)
+        },
+        columnStyles: {
+          0: { halign: "center" },
+          1: { halign: "left" },
+        },
+        columnStyles: {
+          0: { cellWidth: 40 }, // Set width for column index 1 (Serial No)
+        },
+        margin: { left: 12, right: 12 },
+      });
+
+      // Save the final PDF
+      doc.save(`SPF-ICT-${formattedId}`);
+    };
   };
 
   return (
@@ -569,7 +593,7 @@ const Table = ({
                                       <FaDownload className="w-5 h-5" />
                                     </button>
                                   )} */}
-                                   {row.request_status === "complete" &&
+                                  {row.request_status === "complete" &&
                                     row.final_pdf && (
                                       <button
                                         className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
@@ -627,7 +651,6 @@ const Table = ({
                               {/* FrontOffice Role */}
                               {userRole === "frontoffice" && (
                                 <>
-                                 
                                   {row.request_status === "complete" &&
                                     !row.final_pdf && (
                                       <div>
@@ -747,18 +770,16 @@ const Table = ({
                                 </div>
                               )}
                               {row.request_status === "complete" && (
-                                      <div>
-                                          <button
-                                            className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
-                                            onClick={() =>
-                                              openViewCardModal(row)
-                                            } // Function to open the view modal
-                                          >
-                                            <FaEye className="w-5 h-7" />{" "}
-                                            {/* View Icon */}
-                                          </button>
-                                        </div>
-                                    )}
+                                <div>
+                                  <button
+                                    className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                    onClick={() => openViewCardModal(row)} // Function to open the view modal
+                                  >
+                                    <FaEye className="w-5 h-7" />{" "}
+                                    {/* View Icon */}
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           ) : column.key === "notes" ? (
                             <span>

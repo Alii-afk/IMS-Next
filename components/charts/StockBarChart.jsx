@@ -53,9 +53,9 @@ const StockBarChart = ({ data }) => {
 
   // Prepare data for the chart
   const chartData = [
-    statusData?.in_house || 0, // In Warehouse
-    statusData?.on_field || 0,  // On Field
     totalStock || data?.total_stock || 0,
+    statusData?.on_field || 0,  // On Field
+    statusData?.in_house || 0, // In Warehouse
   ];
 
   const chartOptions = {
@@ -87,7 +87,7 @@ const StockBarChart = ({ data }) => {
       }
     },
     xaxis: {
-      categories: ["In Warehouse", "On Field", "Total Stock"],
+      categories: [ "Total Stock", "On Field" , "In Warehouse"],
       labels: {
         style: {
           fontSize: '12px',
@@ -97,7 +97,7 @@ const StockBarChart = ({ data }) => {
     },
     yaxis: {
       title: {
-        text: 'Stock Count',
+        text: 'Warehouse Stock Count',
         style: {
           fontSize: '14px',
           fontWeight: 600
@@ -128,9 +128,10 @@ const StockBarChart = ({ data }) => {
       }
     },
     colors: [
+      '#F59E0B',
       '#EF4444', 
       '#10B981', 
-      '#F59E0B', 
+       
     ],
     theme: {
       mode: 'light'
@@ -143,7 +144,7 @@ const StockBarChart = ({ data }) => {
 
       <div className="mb-6">
         <h3 className="text-2xl font-bold text-gray-800">Warehouse Stock Overview</h3>
-        <p className="text-gray-600 mt-1">Current Inventory Status</p>
+        <p className="text-gray-600 mt-1">Warehouse Inventory Status</p>
       </div>
 
       <div className="mt-4">
@@ -160,18 +161,19 @@ const StockBarChart = ({ data }) => {
 
       {/* Legend */}
       <div className="flex justify-center items-center space-x-6 mt-4">
-        <div className="flex items-center">
-          <div className="w-4 h-4 rounded bg-red-500 mr-2"></div>
-          <span className="text-sm text-gray-600">In Warehouse</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 rounded bg-green-500 mr-2"></div>
-          <span className="text-sm text-gray-600">On Field</span>
-        </div>
-        <div className="flex items-center">
+      <div className="flex items-center">
           <div className="w-4 h-4 rounded bg-amber-500 mr-2"></div>
           <span className="text-sm text-gray-600">Total Stock</span>
         </div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 rounded bg-red-500 mr-2"></div>
+          <span className="text-sm text-gray-600">On Field</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 rounded bg-green-500 mr-2"></div>
+          <span className="text-sm text-gray-600">In Warehouse</span>
+        </div>
+        
       </div>
     </div>
   );

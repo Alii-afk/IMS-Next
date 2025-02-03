@@ -134,7 +134,7 @@ const Stockmanagement = () => {
               {/* In House Card */}
               <div className="bg-green-50 rounded-xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out transform hover:scale-105">
                 <h3 className="text-xl font-semibold text-green-900 mb-3">
-                  In House
+                  In Warehouse
                 </h3>
                 <p className="text-5xl font-bold text-green-600">
                   {statusData?.status_counts?.in_house}

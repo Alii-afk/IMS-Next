@@ -95,7 +95,7 @@ const StatusPieChart = () => {
 
       <div className="mb-6">
         <h3 className="text-2xl font-bold text-gray-800">Requests Overview</h3>
-        <p className="text-gray-600 mt-1">Current Status</p>
+        <p className="text-gray-600 mt-1">Requests Current Status</p>
       </div>
       {loading ? (
         <p>Loading...</p>
