@@ -9,13 +9,15 @@ import "react-toastify/dist/ReactToastify.css";
 import { ClipLoader } from "react-spinners";
 import { stockmanagement } from "@/components/dummyData/FormData";
 import dynamic from "next/dynamic";
-const StockSetup = dynamic(() => import("@/components/tables/StockSetup"), { 
-  ssr: false 
+import ImageUpload from "@/components/InputGroup/ImageUplaod";
+const StockSetup = dynamic(() => import("@/components/tables/StockSetup"), {
+  ssr: false,
 });
 
 const Setting = () => {
   const [stockOptions, setStockOptions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [imageFile, setImageFile] = useState(null);
 
   const fetchStockData = async () => {
     setLoading(true); // Show loader
@@ -47,43 +49,46 @@ const Setting = () => {
 
   const onSubmit = async (data) => {
     let token = Cookies.get("authToken");
-
+  
     if (!token) {
       toast.error("You are not authorized. Please log in.");
       return;
     }
-
-    const submissionData = {
-      name: data.name,
-      model_name: data.model_name,
-      manufacturer: data.manufacturer,
-    };
-
+  
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("model_name", data.model_name);
+    formData.append("manufacturer", data.manufacturer);
+    
+    // Ensure that imageFile is correctly handled
+    if (imageFile) formData.append("stock_image", imageFile); 
+  
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // Do NOT include 'Content-Type' here
           },
-          body: JSON.stringify(submissionData),
+          body: formData,
         }
       );
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Something went wrong");
       }
-
+  
       toast.success("Stock added successfully!");
       fetchStockData();
       methods.reset();
+      setImageFile(null);
     } catch (error) {
       toast.error(error.message || "Failed to add stock. Please try again.");
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -91,7 +96,7 @@ const Setting = () => {
 
       <div className="flex-1 md:ml-72">
         <div className="bg-white shadow-sm">
-          <div className="flex max-w-7xl mx-auto px-6 md:items-start items-center py-4">
+          <div className="flex  px-6 md:items-start items-center py-4">
             <h1 className="text-2xl font-bold text-gray-900">Add Stock Name</h1>
           </div>
         </div>
@@ -118,7 +123,6 @@ const Setting = () => {
                     />
                   )}
                 />
-
                 {/* Model Name Field */}
                 <Controller
                   name="model_name"
@@ -134,7 +138,6 @@ const Setting = () => {
                     />
                   )}
                 />
-
                 {/* Manufacturer Field */}
                 <Controller
                   name="manufacturer"
@@ -149,6 +152,13 @@ const Setting = () => {
                       type="text"
                     />
                   )}
+                />
+                {/* Image Upload */}
+                <ImageUpload
+                  label="Upload Product Image"
+                  name="stock_image"
+                  onImageChange={(file) => setImageFile(file)}
+                  error={imageFile ? "" : "Please upload an image"}
                 />
 
                 <button

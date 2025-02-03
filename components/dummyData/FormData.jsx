@@ -136,7 +136,6 @@ export const peoples = [
   },
 ];
 
-
 export const columns = [
   { name: "Name", key: "name" },
   { name: "Organization", key: "organization" },
@@ -147,9 +146,6 @@ export const columns = [
   { name: "Action", key: "action" },
 ];
 
-
-
-
 export const StatusOption = [
   { label: "Pending", value: "pending" },
   { label: "Rejected", value: "rejected" },
@@ -157,15 +153,13 @@ export const StatusOption = [
   { label: "Completed", value: "completed" },
 ];
 
-
 export const stockmanagementdata = [
-  { key: 'name', name: 'Name' },
-  { key: 'model_name', name: 'Model Number' },
-  { key: 'manufacturer', name: 'Manufacturer' },
-  { key: 'serial_no', name: 'Serial Number' },
-  { key: 'action', name: 'Actions' },
+  { key: "name", name: "Name" },
+  { key: "model_name", name: "Model Number" },
+  { key: "manufacturer", name: "Manufacturer" },
+  { key: "serial_no", name: "Serial Number" },
+  { key: "action", name: "Actions" },
 ];
-
 
 export const programmingstockdata = [
   { key: "product_name", name: "Product Name" },
@@ -175,50 +169,50 @@ export const programmingstockdata = [
 ];
 
 export const stockmanagement = [
-  { key: 'name', name: 'Name' },
-  { key: 'model_name', name: 'Model Number' },
-  { key: 'manufacturer', name: 'Manufacturer' },
-  { key: 'action', name: 'Actions' },
+  { key: "stock_image", name: "Product Image" },
+  { key: "name", name: "Name" },
+  { key: "model_name", name: "Model Number" },
+  { key: "manufacturer", name: "Manufacturer" },
+  { key: "action", name: "Actions" },
 ];
 
 export const filteredData = [
   {
     id: 1,
-    stockName: 'Laptop XYZ',
-    modelNumber: 'LPT-1001',
-    manufacturer: 'TechCorp',
-    serialNumber: '123ABC456',
+    stockName: "Laptop XYZ",
+    modelNumber: "LPT-1001",
+    manufacturer: "TechCorp",
+    serialNumber: "123ABC456",
   },
   {
     id: 2,
-    stockName: 'Smartphone ABC',
-    modelNumber: 'SP-2002',
-    manufacturer: 'PhoneCo',
-    serialNumber: '789DEF012',
+    stockName: "Smartphone ABC",
+    modelNumber: "SP-2002",
+    manufacturer: "PhoneCo",
+    serialNumber: "789DEF012",
   },
   {
     id: 3,
-    stockName: 'Tablet Pro',
-    modelNumber: 'TAB-3003',
-    manufacturer: 'TabMaster',
-    serialNumber: '345GHI678',
+    stockName: "Tablet Pro",
+    modelNumber: "TAB-3003",
+    manufacturer: "TabMaster",
+    serialNumber: "345GHI678",
   },
   {
     id: 4,
-    stockName: 'Smartwatch ZX',
-    modelNumber: 'SW-4004',
-    manufacturer: 'Wearables Inc.',
-    serialNumber: '901JKL234',
+    stockName: "Smartwatch ZX",
+    modelNumber: "SW-4004",
+    manufacturer: "Wearables Inc.",
+    serialNumber: "901JKL234",
   },
   {
     id: 5,
     stockName: 'Monitor 24"',
-    modelNumber: 'MON-5005',
-    manufacturer: 'ViewVision',
-    serialNumber: '567MNO890',
+    modelNumber: "MON-5005",
+    manufacturer: "ViewVision",
+    serialNumber: "567MNO890",
   },
 ];
-
 
 export const stockNames = [
   { label: "Apple iPhone 13", value: "apple-iphone-13" },
@@ -232,7 +226,6 @@ export const stockNames = [
   { label: "HP Spectre x360", value: "hp-spectre-x360" },
   { label: "Apple MacBook Pro", value: "apple-macbook-pro" },
 ];
-
 
 export const roles = [
   { value: "user", label: "User" },

@@ -48,8 +48,6 @@ const StockSetup = ({
   const { register, handleSubmit, setValue, control } = methods;
 
   const [stockOptions, setStockOptions] = useState([]);
- 
-
 
   const stockName = useWatch({
     control: methods.control,
@@ -98,7 +96,7 @@ const StockSetup = ({
 
   const handleDelete = () => {
     if (!currentRowData?.id) {
-      toast.error("Failed to delete item!"); 
+      toast.error("Failed to delete item!");
       return;
     }
 
@@ -141,27 +139,26 @@ const StockSetup = ({
       serial_no: data.serialNumber,
     };
 
-
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
     fetch(`${apiUrl}/api/stock-products/${currentRowData.id}`, {
-      method: "PUT", 
+      method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json", 
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload), 
+      body: JSON.stringify(payload),
     })
       .then((response) => response.json())
       .then((data) => {
-        toast.success("Data successfully updated!"); 
+        toast.success("Data successfully updated!");
         setModalOpen(false);
-        fetchStockData(); 
+        fetchStockData();
       })
       .catch((error) => {
-        console.error("Error:", error); 
-        toast.error("Failed to update data!"); 
+        console.error("Error:", error);
+        toast.error("Failed to update data!");
       });
   };
 
@@ -198,7 +195,8 @@ const StockSetup = ({
           )}
 
           {/* Table */}
-          <div className=" max-h-[600px] overflow-y-auto hide-scrollbar border">
+          {/* Table */}
+          <div className="max-h-[600px] overflow-y-auto hide-scrollbar border">
             <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
               <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
                 <tr className="text-center">
@@ -224,7 +222,7 @@ const StockSetup = ({
                         key={column.key}
                         className={classNames(
                           "border-b border-gray-200",
-                          "py-4 px-6  text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
+                          "py-4 px-6 text-sm font-medium text-gray-800 whitespace-nowrap sm:text-base text-start"
                         )}
                       >
                         {column.key === "action" ? (
@@ -237,14 +235,22 @@ const StockSetup = ({
                             </div>
                             <div
                               onClick={() => {
-                                setCurrentRowData(row); // Set the row data before opening the modal
-                                openModal(); // Open the delete confirmation modal
+                                setCurrentRowData(row);
+                                openModal();
                               }}
                               className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
                             >
                               <FaTrash className="w-5 h-5" />
                             </div>
                           </div>
+                        ) : column.key === "stock_image" ? (
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_MAP_KEY}/${
+                              row[column.key]
+                            }`}
+                            alt={row.name || "Stock Image"}
+                            className="w-20 h-20 object-cover rounded-md"
+                          />
                         ) : (
                           row[column.key]
                         )}
@@ -301,7 +307,6 @@ const StockSetup = ({
                   icon={MdLibraryAdd}
                   placeholder="Enter Stock Name"
                   {...methods.register("name")}
-                 
                   error={methods.formState.errors.name?.message}
                 />
 
@@ -312,7 +317,6 @@ const StockSetup = ({
                   icon={HomeIcon}
                   placeholder="Enter Manufacturer"
                   {...methods.register("manufacturer")}
-                  
                   error={methods.formState.errors.manufacturer?.message}
                 />
 
@@ -323,7 +327,6 @@ const StockSetup = ({
                   icon={IdentificationIcon}
                   placeholder="Enter Model Name"
                   {...methods.register("model_name")}
-                  
                   error={methods.formState.errors.model_name?.message}
                 />
 
