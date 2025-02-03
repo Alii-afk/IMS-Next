@@ -138,40 +138,41 @@ const StockSetup = ({
 
   // stock_image_url
   const handleFormSubmit = (data) => {
-    // Extract only the required fields from the form data
-    // const payload = {
-    //   manufacturer: data.manufacturer,
-    //   model_name: data.model_name,
-    //   name: data.name,
-    //   // serial_no: data.serialNumber,
-    // };
+    let token = Cookies.get("authToken");
+    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("model_name", data.model_name);
     formData.append("manufacturer", data.manufacturer);
-    if (imageFile) formData.append("stock_image", imageFile);
+    formData.append("id", currentRowData.id);
 
-    let token = Cookies.get("authToken");
-    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+    // Only append the image if a new file is selected
+    if (imageFile) {
+        formData.append("stock_image", imageFile);
+    }
 
-    fetch(`${apiUrl}/api/stock-products/${currentRowData.id}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`, // Do NOT include 'Content-Type' here
-      },
-      body: formData,
+    fetch(`${apiUrl}/api/stock-products/update`, {
+        method: "POST", // Laravel file uploads usually work with POST/PATCH, not PUT
+        headers: {
+            "Authorization": `Bearer ${token}`, 
+            // DO NOT set Content-Type manually; the browser will set it automatically for FormData
+        },
+        body: formData,
     })
-      .then((response) => response.json())
-      .then((data) => {
+    .then(response => response.json())
+    .then(data => {
         toast.success("Data successfully updated!");
         setModalOpen(false);
         fetchStockData();
-      })
-      .catch((error) => {
+    })
+    .catch(error => {
         console.error("Error:", error);
         toast.error("Failed to update data!");
-      });
-  };
+    });
+};
+
+
 
   const filteredData = data.filter((row) =>
     columns.some((column) =>
