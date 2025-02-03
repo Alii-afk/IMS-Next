@@ -306,7 +306,7 @@ const AddRequestForm = () => {
                     icon={TbFileDescription}
                     placeholder="Enter Notes "
                     type="text"
-                    maxLength={255}
+                    maxLength={245}
                     {...field}
                   />
                 )}

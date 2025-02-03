@@ -226,9 +226,9 @@ const Table = ({
   const downloadExcel = async (id) => {
     console.log("id", id);
     const doc = new jsPDF({
-      orientation: "landscape",
+      orientation: "portrait", // Change orientation to portrait
       unit: "mm",
-      format: "a3",
+      format: "a4", // A4 size in portrait
     });
 
     const getPdfData = async (id) => {
@@ -272,38 +272,38 @@ const Table = ({
       doc.setGState(new doc.GState({ opacity: 0.09 })); // Adjust opacity (0 to 1)
 
       // Add wallpaper image (covering the full page)
-      doc.addImage(wallpaper, "JPEG", 0, 0, 420, 297, "", "NONE"); // Adjust position & size
+      doc.addImage(wallpaper, "JPEG", 0, 40, 210, 210, "", "NONE"); // Adjust for portrait size
 
       doc.internal.write("Q"); // Restore state
       // Title bar with navy blue background
       doc.setFillColor(31, 78, 121); // Dark blue color
-      doc.rect(0, 0, 420, 15, "F");
+      doc.rect(0, 0, 210, 15, "F"); // Adjust width for portrait
 
       const img = new Image();
       img.src = "http://localhost:3000/images/logo.jpg"; // Ensure the image is in the correct directory
 
       // Title text
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
+      doc.setFontSize(12);
       doc.setTextColor(255, 255, 255);
       doc.text(
-        "HOGGAANKA ICT              MAAREYNTA GACANKA ISGAARSIINTA",
-        214,
+        "HOGGAANKA ICT                 MAAREYNTA GACANKA ISGAARSIINTA",
+        105, // Center the title for portrait layout
         10,
         { align: "center" }
       );
-      doc.addImage(img, "PNG", 177, 0, 15, 15); // x=190, y=15, width=40, height=20
+      doc.addImage(img, "PNG", 75, 0, 15, 15); // Adjust x and y for portrait
 
       // Reset text color and font for content
       doc.setTextColor(0, 0, 0);
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
+      doc.setFontSize(10);
 
       let y = 25;
 
       // Title section with dynamic values
       doc.setTextColor(0, 0, 0);
-      doc.text(`Adeegga:`, 20, y); // Display the "name" from request object
+      doc.text(`Adeegga:`, 10, y); // Display the "name" from request object
 
       let type; // Define type variable outside the if-else block
 
@@ -314,37 +314,25 @@ const Table = ({
       }
 
       doc.setTextColor(31, 78, 121); // Green color for type
-      doc.text(`${type}`, 55, y);
+      doc.text(`${type}`, 26, y);
 
-      // More dynamic content for Hogg/Qeybta/Fadhiga/Saldhigga
       doc.setTextColor(0, 0, 0);
-      doc.text("Hogg/Qeybta/Fadhiga/Saldhigga:", 140, 25);
-
-      doc.setTextColor(31, 78, 121); // Green color
-      doc.text(`${request.organization}`, 220, 25);
-
-      y += 8;
-
-      // Transaction Reference Number
-      doc.setTextColor(0, 0, 0);
-      doc.text("TRANSACTION REF NO:", 140, 33);
+      doc.text("TRANSACTION REF NO:", 120, y);
 
       doc.setTextColor(31, 78, 121); // Green color
       const formattedId = String(request.id).padStart(4, "0");
-      doc.text(`SPF-ICT-${formattedId}`, 220, 33);
+      doc.text(`SPF-ICT-${formattedId}`, 162, y);
 
-      doc.setTextColor(0, 0, 0);
-      doc.text(`Date Received:`, 300, 25);
-
-      doc.setTextColor(0, 0, 0); // Green color for Date Pickup
-      doc.text("Date Pickup:", 350, 25);
-
+      y += 7;
       // Notes section (front office, back office)
       doc.setTextColor(0, 0, 0);
-      doc.text("Codsi Ka Yimid:", 20, y);
+      doc.text("Codsi Ka Yimid:", 10, y);
 
       doc.setTextColor(31, 78, 121); // Green color
-      doc.text(`${request.name}`, 55, y);
+      doc.text(`${request.name}`, 36, y);
+
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Date Received:`, 120, y);
 
       const date = new Date(request.date_time);
       const formattedDate = date.toLocaleString("en-GB", {
@@ -355,8 +343,21 @@ const Table = ({
         minute: "2-digit",
         hour12: true, // Enables 12-hour format
       });
+      doc.setTextColor(31, 78, 121); // Green color
+      doc.text(`${formattedDate}`, 146, y); // Adjust position for portrait
 
-      doc.text(`${formattedDate}`, 300, y);
+      y += 7;
+
+      // Transaction Reference Number
+      // More dynamic content for Hogg/Qeybta/Fadhiga/Saldhigga
+      doc.setTextColor(0, 0, 0);
+      doc.text("Hogg/Qeybta/Fadhiga/Saldhigga:", 10, y);
+
+      doc.setTextColor(31, 78, 121); // Green color
+      doc.text(`${request.organization}`, 63, y); // Adjust position
+
+      doc.setTextColor(0, 0, 0); // Green color for Date Pickup
+      doc.text("Date Pickup:", 120, y);
 
       doc.setTextColor(31, 78, 121); // Red color for "Date of Transaction Closing"
       doc.text("", 350, y);
@@ -366,25 +367,21 @@ const Table = ({
         ["Serial No", "Model", "Unit Id", "Code Sign", "Codeplug", "CH"],
       ];
 
-      // Check the request type and assign the correct dataset
       const selectedStocks =
         request.type === "programming"
           ? request.programming_stocks
           : warehouseStocks;
 
-      // Ensure selectedStocks is an array before mapping
       const equipmentData = Array.isArray(selectedStocks)
         ? selectedStocks.map((item) => [
             item.serial_no,
-            item.product_name || item.model_name, // Adjust field based on dataset
+            item.product_name || item.model_name,
             item.unit,
             item.sign_code,
             item.codeplug,
             item.channels,
           ])
         : [];
-
-      console.log(equipmentData);
 
       doc.autoTable({
         startY: y + 7,
@@ -394,27 +391,26 @@ const Table = ({
         headStyles: {
           fillColor: [65, 105, 225], // Royal blue
           textColor: [255, 255, 255],
-          fontSize: 12,
+          fontSize: 10,
           halign: "center",
         },
         styles: {
-          cellPadding: 2, // Controls line height (padding inside cells)
-          fontSize: 10,
+          cellPadding: 2,
+          fontSize: 9, // Adjust font size for portrait
           lineColor: [0, 0, 0],
           lineWidth: 0.1,
           halign: "center",
-          fillColor: false, // Ensures transparency (no background color)
+          fillColor: false,
         },
-        columnStyles: {
-          1: { cellWidth: 40 }, // Set width for column index 1 (Serial No)
-          2: { cellWidth: 40 }, // Set width for column index 3 (Code Sign)
-        },
-        margin: { left: 12, right: 12 },
+        // columnStyles: {
+        //   1: { cellWidth: 20 }, // Adjust column width
+        //   2: { cellWidth: 20 },
+        // },
+        margin: { left: 5, right: 5 },
       });
 
       // Signature Table with Dynamic Data
       const signatureHeaders = [["Title", "Magaca", "Saxiixa", "Tarikh"]];
-      // console.log(request);
       let backofficename;
       if (request.type === "programming") {
         backofficename = request.programming_stocks[0]?.user.name;
@@ -449,7 +445,7 @@ const Table = ({
         },
         {
           name: "Qofka Siiyey",
-          magaca: user?.name, // Dynamic front office user name
+          magaca: user?.name,
           saxiixa: "",
           tarikh: "",
         },
@@ -470,18 +466,18 @@ const Table = ({
         headStyles: {
           fillColor: [65, 105, 225],
           textColor: [255, 255, 255],
-          fontSize: 12,
+          fontSize: 10,
           halign: "center",
         },
         styles: {
-          cellPadding: 5,
-          fontSize: 10,
+          cellPadding: 4.5,
+          fontSize: 9, // Adjust font size
           lineColor: [0, 0, 0],
           lineWidth: 0.1,
           halign: "center",
-          fillColor: false, // Ensures transparency (no background color)
+          fillColor: false,
         },
-        margin: { left: 12, right: 12 },
+        margin: { left: 5, right: 5 },
       });
 
       // Notes Section
@@ -502,29 +498,21 @@ const Table = ({
         headStyles: {
           fillColor: [65, 105, 225],
           textColor: [255, 255, 255],
-          fontSize: 12,
+          fontSize: 10,
           halign: "center",
         },
         styles: {
-          cellPadding: 5,
-          fontSize: 10,
+          cellPadding: 3.5,
+          fontSize: 9, // Adjust font size
           lineColor: [0, 0, 0],
           lineWidth: 0.1,
-          halign: "left",
-          fillColor: false, // Ensures transparency (no background color)
+          halign: "center",
+          fillColor: false,
         },
-        columnStyles: {
-          0: { halign: "center" },
-          1: { halign: "left" },
-        },
-        columnStyles: {
-          0: { cellWidth: 40 }, // Set width for column index 1 (Serial No)
-        },
-        margin: { left: 12, right: 12 },
+        margin: { left: 5, right: 5 },
       });
-
-      // Save the final PDF
-      doc.save(`SPF-ICT-${formattedId}`);
+      
+      doc.save(`SPF-ICT-${formattedId}.pdf`);
     };
   };
 
