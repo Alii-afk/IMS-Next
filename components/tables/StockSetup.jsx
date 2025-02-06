@@ -45,7 +45,7 @@ const StockSetup = ({
       model_name: currentRowData?.model_name || "",
       manufacturer: currentRowData?.manufacturer || "",
       // serialNumber: currentRowData?.serial_no || "",
-      stock_image: currentRowData?.stock_image || "",
+      stock_image_url: currentRowData?.stock_image_url || "",
     },
   });
 
@@ -88,9 +88,10 @@ const StockSetup = ({
         (stock) => stock.name === stockName
       );
       if (selectedStock) {
+        methods.setValue("name", selectedStock.name);
         methods.setValue("model_name", selectedStock.model_name || "");
         methods.setValue("manufacturer", selectedStock.manufacturer || "");
-        setValue("stock_image_url", selectedStock.stock_image || "");
+        setValue("stock_image_url", selectedStock.stock_image_url || "");
       }
     }
   }, [stockName, stockOptions, methods]);
@@ -409,25 +410,14 @@ const StockSetup = ({
                     error={methods.formState.errors.model_name?.message}
                   />
 
-                  {/* Show current image if available */}
-                  {methods.getValues("stock_image_url") && !imageFile && (
-                    <div className="flex justify-center mb-4">
-                      <img
-                        src={`http://localhost:8000${methods.getValues(
-                          "stock_image_url"
-                        )}`}
-                        alt="Current Product Image"
-                        className="w-full h-40 object-cover rounded-md"
-                      />
-                    </div>
-                  )}
-
                   {/* Image Upload and Display */}
                   <ImageUpload
                     label="Upload Product Image"
                     name="stock_image"
                     tableClass="max-w-lg"
                     onImageChange={(file) => setImageFile(file)}
+                    currentImageUrl={methods.getValues("stock_image_url")}  // Pass current image URL if available
+
                   />
                   <div className="flex gap-4 justify-end">
                     <button

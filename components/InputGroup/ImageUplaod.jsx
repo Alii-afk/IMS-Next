@@ -1,9 +1,15 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaTrash } from "react-icons/fa";
 
-const ImageUpload = ({ label, icon: Icon, name, onImageChange, error, tableClass }) => {
+const ImageUpload = ({ label, icon: Icon, name, onImageChange, error, tableClass, currentImageUrl }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null); // Create a reference to the file input
+
+  useEffect(() => {
+    if (currentImageUrl) {
+      setImagePreview(`http://localhost:8000${currentImageUrl}`); // Set the current image URL for preview
+    }
+  }, [currentImageUrl]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
