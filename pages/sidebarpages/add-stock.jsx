@@ -28,61 +28,145 @@ const Addstock = () => {
 
   const router = useRouter();
 
+  console.log(stockData);
+
   // Fetch data from API
 
+  // const fetchStockData = async () => {
+  //   setLoading(true);
+  //   const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+
+  //   try {
+  //     const response = await axios.get(
+  //       `${apiUrl}/api/stock-products/fetchStockNameData`,
+  //       {
+  //       headers: {
+  //         Authorization: `Bearer ${Cookies.get("authToken")}`,
+  //       },
+  //     }
+
+  //     );
+
+  //     const stockData = Array.isArray(response.data)
+  //       ? response.data
+  //       : response.data.data;
+
+  //       if (stockData.length === 0) {
+  //         toast.error("No Default Stock Name Found. Setup Stock First.");
+  //         setStockOptions([]); // Clear any previous options if no data found
+  //         setStockData([]); // Reset stock data
+  //       } else {
+  //         const options = stockData.map((stock) => ({
+  //           label: stock.name,
+  //           value: stock.name,
+  //         }));
+  //       }
+  //     setStockOptions(options);
+  //     setStockData(stockData); // Save the full stock data
+  //   } catch (error) {
+  //     // Check if the error is a 404
+  //     if (axios.isAxiosError(error)) {
+  //       if (error.response?.status === 401) {
+  //         toast.error("Unauthorized. Please log in again.");
+  //         router.push("/");
+  //       } else if (error.response?.status === 404) {
+  //         toast.error("Requests not found.");
+  //       } else {
+  //         toast.error("Failed to fetch pending requests.");
+  //       }
+  //     } else {
+  //       toast.error("No Default Stock Name Found. Setup Stock First.");
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const fetchStockData = async () => {
     setLoading(true);
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+    let token = Cookies.get("authToken");
 
     try {
-      const response = await axiosInstance.get(
-        `${apiUrl}/api/stock-products/fetchStockNameData`
+      const response = await axios.get(
+        `${apiUrl}/api/stock-products/fetchStockNameData`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       const stockData = Array.isArray(response.data)
         ? response.data
         : response.data.data;
 
-      const options = stockData.map((stock) => ({
-        label: stock.name,
-        value: stock.name,
-      }));
+      console.log(stockData);
 
-      setStockOptions(options);
-      setStockData(stockData); // Save the full stock data
+      if (stockData.length === 0) {
+        toast.error("No Default Stock Name Found. Setup Stock First.");
+        setStockOptions([]);
+        setStockData([]);
+      } else {
+        const options = stockData.map((stock) => ({
+          label: stock.name,
+          value: stock.name,
+        }));
+
+        setStockOptions(options);
+        setStockData(stockData);
+        toast.success("Stock data retrieved successfully.");
+      }
     } catch (error) {
-      // Check if the error is a 404
+      // Handle errors (401, 404, etc.)
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           toast.error("Unauthorized. Please log in again.");
-          router.push("/");
+          router.push("/"); // Redirect to login page
         } else if (error.response?.status === 404) {
           toast.error("Requests not found.");
         } else {
           toast.error("Failed to fetch pending requests.");
         }
       } else {
-        toast.error("No Default Stock Name Found. Setup Stock First.");
+        toast.error("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    fetchStockData();
+  }, []);
 
   const handleStockChange = async (stockName, manufacturer = "") => {
     setSelectedStockName(stockName);
     setSelectedManufacturer(manufacturer);
+    let token = Cookies.get("authToken");
 
     try {
       setLoading(true);
 
       // Fetch manufacturers based on stock name
-      const response = await axiosInstance.get(
+      const response = await axios.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
-        { params: { name: stockName } }
+
+        {
+          params: { name: stockName },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       const stockData = response.data.data || [];
+
+      // if (stockData.length === 0) {
+      //   toast.error("No Default Stock Name Found. Setup Stock First.");
+      //   setAdditionalData([]);
+      //   setModelOptions([]);
+      //   setSerialOptions([]);
+      //   return;
+      // }
 
       // Map stock data to extract manufacturer
       const manufacturers = stockData.map((stock) => ({
@@ -96,9 +180,12 @@ const Addstock = () => {
 
       // If manufacturer is selected, fetch model data
       if (manufacturer) {
-        const modelsResponse = await axiosInstance.get(
+        const modelsResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
-          { params: { name: stockName, manufacturer: manufacturer } }
+          { params: { name: stockName, manufacturer: manufacturer } , headers: {
+            Authorization: `Bearer ${token}`,
+          },},
+         
         );
 
         const modelsData = modelsResponse.data.data || [];
@@ -112,7 +199,7 @@ const Addstock = () => {
 
         // If model name is selected, fetch serial number
         if (models.length > 0) {
-          const serialResponse = await axiosInstance.get(
+          const serialResponse = await axios.get(
             `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
             {
               params: {
@@ -120,7 +207,11 @@ const Addstock = () => {
                 manufacturer: manufacturer,
                 model_name: models[0].value,
               },
-            }
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            },
+           
           );
           const serialData = serialResponse.data.data || [];
           const serialNumbers = serialData.map((serial) => ({
@@ -142,7 +233,7 @@ const Addstock = () => {
           console.error("Error fetching data:", error);
         }
       } else {
-        toast.error("No Default Stock Name Found. Setup Stock First.");
+        toast.error("An unexpected error occurred.");
       }
     } finally {
       setLoading(false);

@@ -197,11 +197,7 @@ const StockTable = ({
     handleStockChange();
   }, []);
 
-  const quantityNumber = useWatch({
-    control: methods.control,
-    name: "quantityNumber",
-    defaultValue: 1,
-  });
+  
 
   const stockName = useWatch({
     control: methods.control,
@@ -251,34 +247,44 @@ const StockTable = ({
   // Function to close the modal
   const closeModal = () => setIsModalOpen(false);
 
-  const handleDelete = () => {
-
-    // Ensure that currentRowData and its id are defined before making the API request
-    if (!currentRowData?.id) {
-      console.error("No ID found for deletion.");
-      toast.error("Failed to delete item!"); // Show error if no valid ID
-      return;
-    }
-
-    let token = Cookies.get("authToken");
-    const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-    fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        toast.success("Item successfully deleted!");
-        fetchStockData();
-        closeModal();
-      })
-      .catch((error) => {
-        toast.error("Failed to delete item!");
+  const handleDelete = async () => {
+    const deleteToastId = "delete-toast"; 
+  
+    try {
+      if (!currentRowData?.id) {
+        console.error("No ID found for deletion.");
+        toast.error("Failed to delete item!", { toastId: deleteToastId }); // Show error if no valid ID
+        return;
+      }
+  
+      let token = Cookies.get("authToken");
+      const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+  
+      const response = await fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete item");
+      }
+  
+      // Show success notification with unique toastId to prevent duplicate
+      toast.success("Item successfully deleted!", { toastId: deleteToastId });
+  
+      // Fetch stock data and close modal after deletion
+      fetchStockData();
+      closeModal();
+    } catch (error) {
+      console.error(error);
+      // Show error notification with unique toastId to prevent duplicate
+      toast.error("Failed to delete item!", { toastId: deleteToastId });
+    }
   };
+  
+  
 
   const handleEditClick = (rowData) => {
     setCurrentRowData(rowData);
@@ -346,7 +352,6 @@ const StockTable = ({
 
   return (
     <div className="mt-8 flow-root z-10">
-      <ToastContainer />
 
       <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle px-4">

@@ -55,10 +55,16 @@ const StockModel = ({
   const fetchStockData = async () => {
     setLoading(true);
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
+    let token = Cookies.get("authToken");
 
     try {
-      const response = await axiosInstance.get(
-        `${apiUrl}/api/warehouse-stock/fetch`
+      const response = await axios.get(
+        `${apiUrl}/api/warehouse-stock/fetch`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       const stockData = Array.isArray(response.data)
@@ -86,12 +92,16 @@ const StockModel = ({
   ) => {
     try {
       setLoading(true);
+      let token = Cookies.get("authToken");
 
-      const response = await axiosInstance.get(
+      const response = await axios.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/warehouse-stock/fetch`,
         {
           params: {
             serial_no: serialNo,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         }
       );

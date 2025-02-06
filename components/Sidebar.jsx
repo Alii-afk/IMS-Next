@@ -14,8 +14,17 @@ import {
   UserIcon,
 } from "@heroicons/react/24/outline";
 import { FaBatteryFull, FaWarehouse } from "react-icons/fa";
-import { MdOutlineCancelScheduleSend, MdOutlineManageAccounts, MdOutlineWarehouse, MdPendingActions, MdWifiProtectedSetup } from "react-icons/md";
+import {
+  MdOutlineCancelScheduleSend,
+  MdOutlineManageAccounts,
+  MdOutlineWarehouse,
+  MdPendingActions,
+  MdWifiProtectedSetup,
+} from "react-icons/md";
 import { GrUserManager } from "react-icons/gr";
+import axios from "axios";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Sidebar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -28,12 +37,48 @@ const Sidebar = () => {
     setName(Cookies.get("name"));
   }, []);
 
-  const handleLogout = () => {
-    Cookies.remove("authToken");
-    Cookies.remove("role");
-    Cookies.remove("name");
+  const handleLogout = async () => {
+    const apiUrl = `${process.env.NEXT_PUBLIC_MAP_KEY}/api/logout`;
 
-    router.push("http://localhost:3000");
+    try {
+      // Call the API to handle logout
+      await axios.post(
+        apiUrl,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("authToken")}`,
+          },
+        }
+      );
+      Cookies.remove("authToken");
+      Cookies.remove("role");
+      Cookies.remove("name");
+
+      toast.success("Logout successful!");
+
+      // Redirect to the home page
+      router.push("http://localhost:3000");
+    } catch (error) {
+      if (error.response) {
+        const { status, data } = error.response;
+
+        if (status === 401) {
+          toast.warn("Session expired. Redirecting to login...");
+          Cookies.remove("authToken");
+          Cookies.remove("role");
+          Cookies.remove("name");
+          router.push("/login");
+        } else {
+          toast.error(
+            `Error: ${data.message || "Unexpected error during logout."}`
+          );
+        }
+      } else {
+        toast.error("Network error. Please try again.");
+        console.error("Error during logout:", error);
+      }
+    }
   };
 
   // Full navigation for admin
@@ -54,7 +99,7 @@ const Sidebar = () => {
     {
       name: "Pending Request",
       href: "/sidebarpages/pending-request",
-      icon: MdPendingActions ,
+      icon: MdPendingActions,
       current: false,
     },
     {
@@ -167,7 +212,7 @@ const Sidebar = () => {
     {
       name: "Pending Request",
       href: "/sidebarpages/pending-request",
-      icon: MdPendingActions ,
+      icon: MdPendingActions,
       current: false,
     },
     {
@@ -185,13 +230,13 @@ const Sidebar = () => {
     {
       name: "Rejected",
       href: "/sidebarpages/rejected-request",
-      icon: MdOutlineCancelScheduleSend ,
+      icon: MdOutlineCancelScheduleSend,
       current: false,
     },
     {
       name: "Profile",
       href: "/sidebarpages/profile",
-      icon: GrUserManager ,
+      icon: GrUserManager,
       current: false,
     },
     // {
@@ -235,29 +280,29 @@ const Sidebar = () => {
   }
   return (
     <div className="bg-gradient-to-br from-gray-50 to-gray-100">
-    {/* Backdrop */}
-    {sidebarOpen && (
-      <div
-        className="fixed inset-0 bg-black/50 lg:hidden z-30"
-        onClick={() => setSidebarOpen(false)}
-      />
-    )}
-
-    {/* Mobile Toggle */}
-    <button
-      onClick={() => setSidebarOpen(!sidebarOpen)}
-      className="lg:hidden fixed top-4 md:left-4 right-4 z-40 p-2 rounded-lg bg-white shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-    >
-      {sidebarOpen ? (
-        <XMarkIcon className="w-6 h-6" />
-      ) : (
-        <Bars3Icon className="w-6 h-6" />
+      {/* Backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 lg:hidden z-30"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
-    </button>
 
-    {/* Sidebar */}
-    <div
-      className={`sidebar 
+      {/* Mobile Toggle */}
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="lg:hidden fixed top-4 md:left-4 right-4 z-40 p-2 rounded-lg bg-white shadow-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        {sidebarOpen ? (
+          <XMarkIcon className="w-6 h-6" />
+        ) : (
+          <Bars3Icon className="w-6 h-6" />
+        )}
+      </button>
+
+      {/* Sidebar */}
+      <div
+        className={`sidebar 
       fixed 
       top-0 
       left-0 
@@ -275,77 +320,79 @@ const Sidebar = () => {
       w-72 
       overflow-y-auto
     `}
-    >
-      {/* Logo Section */}
-      <div className="p-6 border-b border-gray-200 flex items-center justify-center">
-        <img
-          src={"/images/logo.jpg"}
-          alt="Logo"
-          className="w-32 h-auto object-contain"
-        />
-      </div>
+      >
+        {/* Logo Section */}
+        <div className="p-6 border-b border-gray-200 flex items-center justify-center">
+          <img
+            src={"/images/logo.jpg"}
+            alt="Logo"
+            className="w-32 h-auto object-contain"
+          />
+        </div>
 
-      {/* Profile Section */}
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-4">
-          <div className="relative">
-            <img
-              src={logoSrc}
-              alt="Profile"
-              className="w-12 h-12 rounded-full object-cover border-2 border-indigo-500"
-            />
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-800">{name}</h2>
-            <p className="text-base text-gray-500">
-              {role === "admin" ? "Admin" : role}
-            </p>
+        {/* Profile Section */}
+        <div className="p-6 border-b border-gray-200">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <img
+                src={logoSrc}
+                alt="Profile"
+                className="w-12 h-12 rounded-full object-cover border-2 border-indigo-500"
+              />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800">{name}</h2>
+              <p className="text-base text-gray-500">
+                {role === "admin" ? "Admin" : role}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Navigation */}
-      <nav className="p-4 space-y-1 flex-grow overflow-y-auto hide-scrollbar">
-        {navigation?.map((item) => {
-          const isActive = router.pathname === item.href;
-          const IconComponent = item.icon;
+        {/* Navigation */}
+        <nav className="p-4 space-y-1 flex-grow overflow-y-auto hide-scrollbar">
+          {navigation?.map((item) => {
+            const isActive = router.pathname === item.href;
+            const IconComponent = item.icon;
 
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              passHref
-              onClick={() => setSidebarOpen(false)} // Close sidebar on click
-              className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors duration-200 ${
-                isActive
-                  ? "bg-indigo-50 text-indigo-600"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-              }`}
-            >
-              <IconComponent
-                className={`h-6 w-6 flex-shrink-0 ${isActive ? "text-indigo-600" : "text-gray-400"}`}
-              />
-              <span className="font-medium">{item.name}</span>
-              {isActive && (
-                <span className="ml-auto w-2 h-2 rounded-full bg-indigo-600" />
-              )}
-            </Link>
-          );
-        })}
-      </nav>
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                passHref
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-600"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <IconComponent
+                  className={`h-6 w-6 flex-shrink-0 ${
+                    isActive ? "text-indigo-600" : "text-gray-400"
+                  }`}
+                />
+                <span className="font-medium">{item.name}</span>
+                {isActive && (
+                  <span className="ml-auto w-2 h-2 rounded-full bg-indigo-600" />
+                )}
+              </Link>
+            );
+          })}
+        </nav>
 
-      {/* Footer */}
-      <div className="sticky bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
-        <button
-          onClick={handleLogout}
-          className="w-full text-base text-gray-500 hover:text-gray-700 bg-gray-100 py-2 rounded-lg transition-colors"
-        >
-          Logout
-        </button>
+        {/* Footer */}
+        <div className="sticky bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+          <button
+            onClick={handleLogout}
+            className="w-full text-base text-gray-500 hover:text-gray-700 bg-gray-100 py-2 rounded-lg transition-colors"
+          >
+            Logout
+          </button>
+        </div>
       </div>
     </div>
-  </div>
   );
 };
 
