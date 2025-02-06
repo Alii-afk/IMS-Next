@@ -70,7 +70,7 @@ const Stockmanagement = () => {
       setStockData(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        if (error.response?.status === 401) {
+                if (error.response?.status === 401) {
           toast.error("Unauthorized. Please log in again.");
           router.push("/");
         } else if (error.response?.status === 404) {
@@ -79,7 +79,7 @@ const Stockmanagement = () => {
           toast.error("Failed to fetch pending requests.");
         }
       } else {
-        toast.error("An unexpected error occurred.");
+        toast.error("No data Found");
       }
     } finally {
       setLoading(false);

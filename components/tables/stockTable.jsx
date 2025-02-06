@@ -82,11 +82,15 @@ const StockTable = ({
       setStockOptions(options);
       setStockData(stockData); // Save the full stock data
     } catch (error) {
+      if (axios.isAxiosError(error)) {
       if (error.response && error.response.status === 404) {
         toast.error("No stock data found matching the criteria.");
       } else {
         console.error("Error fetching stock data:", error);
       }
+    } else {
+      // toast.error("No data found");
+    }
     } finally {
       setLoading(false);
     }
@@ -170,7 +174,7 @@ const StockTable = ({
     } catch (error) {
       // Handle AxiosError
       if (axios.isAxiosError(error)) {
-        const statusCode = error.response?.status;
+                const statusCode = error.response?.status;
 
         // Custom handling for 404 errors
         if (statusCode === 404) {
@@ -181,9 +185,7 @@ const StockTable = ({
           );
         }
       } else {
-        toast.error(
-          "An unexpected error occurred. Please check your internet connection."
-        );
+        // toast.error("No data Found");
       }
     } finally {
       setLoading(false);
@@ -382,7 +384,8 @@ const StockTable = ({
                 </tr>
               </thead>
               <tbody>
-                {filteredData.map((row) => (
+              {filteredData.length > 0 ? (
+                filteredData.map((row) => (
                   <tr
                     key={row.id}
                     className="hover:bg-indigo-50 transition-all duration-200 ease-in-out"
@@ -422,7 +425,16 @@ const StockTable = ({
                       </td>
                     ))}
                   </tr>
-                ))}
+                ))) : (
+                                  <tr>
+                                    <td
+                                      colSpan="5"
+                                      className="text-center py-4 text-gray-500"
+                                    >
+                                      No Warehouse stock data available.
+                                    </td>
+                                  </tr>
+                                )}
               </tbody>
             </table>
           </div>

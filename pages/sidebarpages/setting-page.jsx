@@ -19,9 +19,7 @@ const Setting = () => {
   const [stockOptions, setStockOptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [imageFile, setImageFile] = useState(null);
-
-    const router = useRouter();
-  
+  const router = useRouter();
   const fetchStockData = async () => {
     setLoading(true); // Show loader
     const token = Cookies.get("authToken");
@@ -60,23 +58,32 @@ const Setting = () => {
   }, []);
 
   const methods = useForm();
-
+  const [imageKey, setImageKey] = useState(Date.now()); // Unique key to force re-render
   const onSubmit = async (data) => {
     let token = Cookies.get("authToken");
-  
+
     if (!token) {
       toast.error("You are not authorized. Please log in.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("model_name", data.model_name);
     formData.append("manufacturer", data.manufacturer);
-    
-    // Ensure that imageFile is correctly handled
-    if (imageFile) formData.append("stock_image", imageFile); 
-  
+
+    if (imageFile) {
+      if (imageFile.size > 2 * 1024 * 1024) {
+        // 2MB in bytes
+        const toastId = toast.error(
+          "The selected image exceeds the maximum size of 2MB."
+        );
+        setTimeout(() => toast.dismiss(toastId), 3000);
+        return; // Stop form submission
+      }
+      formData.append("stock_image", imageFile);
+    }
+
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products`,
@@ -88,21 +95,22 @@ const Setting = () => {
           body: formData,
         }
       );
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Something went wrong");
       }
-  
       toast.success("Stock added successfully!");
-      fetchStockData();
+      setTimeout(() => {
+        fetchStockData();
+      }, 1000);
       methods.reset();
       setImageFile(null);
+      setImageKey(Date.now()); // Update key to reset ImageUpload component
     } catch (error) {
       toast.error(error.message || "Failed to add stock. Please try again.");
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -169,6 +177,7 @@ const Setting = () => {
                 />
                 {/* Image Upload */}
                 <ImageUpload
+                  key={imageKey}
                   label="Upload Product Image"
                   name="stock_image"
                   onImageChange={(file) => setImageFile(file)}

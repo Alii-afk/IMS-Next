@@ -140,40 +140,58 @@ const StockSetup = ({
   const handleFormSubmit = (data) => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
+  
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("model_name", data.model_name);
     formData.append("manufacturer", data.manufacturer);
     formData.append("id", currentRowData.id);
-
-    // Only append the image if a new file is selected
+  
+    // Check if an image file is selected
     if (imageFile) {
-        formData.append("stock_image", imageFile);
+      if (imageFile.size > 2 * 1024 * 1024) { // 2MB in bytes
+        toast.error("The selected image exceeds the maximum size of 2MB.");
+        return; // Stop form submission
+      }
+      formData.append("stock_image", imageFile);
     }
-
+  
     fetch(`${apiUrl}/api/stock-products/update`, {
-        method: "POST", // Laravel file uploads usually work with POST/PATCH, not PUT
-        headers: {
-            "Authorization": `Bearer ${token}`, 
-            // DO NOT set Content-Type manually; the browser will set it automatically for FormData
-        },
-        body: formData,
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // DO NOT set Content-Type manually; the browser will set it automatically for FormData
+      },
+      body: formData,
     })
-    .then(response => response.json())
-    .then(data => {
+      .then(async (response) => {
+        const data = await response.json();
+  
+        if (!response.ok) {
+          if (response.status === 422) {
+            toast.error(data.message || "Validation failed.");
+            return Promise.reject(data);
+          }
+          if (response.status === 404) {
+            toast.error("Stock Product not found.");
+            return Promise.reject(data);
+          }
+          if (response.status === 500) {
+            toast.error("An error occurred while updating.");
+            return Promise.reject(data);
+          }
+        }
+  
         toast.success("Data successfully updated!");
         setModalOpen(false);
         fetchStockData();
-    })
-    .catch(error => {
+      })
+      .catch((error) => {
         console.error("Error:", error);
-        toast.error("Failed to update data!");
-    });
-};
-
-
-
+        toast.error(error.message || "Failed to update data!");
+      });
+  };
+  
   const filteredData = data.filter((row) =>
     columns.some((column) =>
       row[column.key]
@@ -300,7 +318,7 @@ const StockSetup = ({
             <img
               src={selectedImage}
               alt="Full-size Product Image"
-              className="w-full h-auto rounded-md"
+              className="w-full max-h-[75vh] rounded-md object-contain"
             />
           </div>
         </div>
@@ -380,7 +398,7 @@ const StockSetup = ({
                         "stock_image_url"
                       )}`}
                       alt="Current Product Image"
-                      className="w-full h-40 object-cover rounded-md"
+                      className="w-40 h-40 object-cover rounded-md"
                     />
                   </div>
                 )}
@@ -389,7 +407,7 @@ const StockSetup = ({
                 <ImageUpload
                   label="Upload Product Image"
                   name="stock_image"
-                  tableClass="max-w-lg" 
+                  tableClass="max-w-lg"
                   onImageChange={(file) => setImageFile(file)}
                 />
                 <div className="flex gap-4 justify-end">

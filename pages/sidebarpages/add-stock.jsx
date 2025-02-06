@@ -2,10 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm, FormProvider, Controller, useWatch } from "react-hook-form";
 import Sidebar from "@/components/Sidebar";
 import InputField from "@/components/InputGroup/InputField";
-import {
-  HomeIcon,
-  IdentificationIcon,
-} from "@heroicons/react/24/outline";
+import { HomeIcon, IdentificationIcon } from "@heroicons/react/24/outline";
 import { MdLibraryAdd, MdOutlineNumbers } from "react-icons/md";
 import { yupResolver } from "@hookform/resolvers/yup";
 import SelectField from "@/components/SelectField";
@@ -29,8 +26,8 @@ const Addstock = () => {
   const [serialOptions, setSerialOptions] = useState([]);
   const [selectedStockId, setSelectedStockId] = useState(null); // Track selected stock id
 
-    const router = useRouter()
-  
+  const router = useRouter();
+
   // Fetch data from API
 
   const fetchStockData = async () => {
@@ -45,7 +42,6 @@ const Addstock = () => {
       const stockData = Array.isArray(response.data)
         ? response.data
         : response.data.data;
-
 
       const options = stockData.map((stock) => ({
         label: stock.name,
@@ -66,7 +62,7 @@ const Addstock = () => {
           toast.error("Failed to fetch pending requests.");
         }
       } else {
-        toast.error("An unexpected error occurred.");
+        toast.error("No Default Stock Name Found. Setup Stock First.");
       }
     } finally {
       setLoading(false);
@@ -138,11 +134,15 @@ const Addstock = () => {
         }
       }
     } catch (error) {
-      // Check if the error is a 404
-      if (error.response && error.response.status === 404) {
-        toast.error("No stock data found matching the criteria.");
+      if (axios.isAxiosError(error)) {
+        // Check if the error is a 404
+        if (error.response && error.response.status === 404) {
+          toast.error("No stock data found matching the criteria.");
+        } else {
+          console.error("Error fetching data:", error);
+        }
       } else {
-        console.error("Error fetching data:", error);
+        toast.error("No Default Stock Name Found. Setup Stock First.");
       }
     } finally {
       setLoading(false);

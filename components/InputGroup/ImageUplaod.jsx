@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { FaTrash } from "react-icons/fa"; // Trash icon for removing the image
+import React, { useState, useRef } from "react";
+import { FaTrash } from "react-icons/fa";
 
-const ImageUpload = ({ label, icon: Icon, name, onImageChange, error ,tableClass}) => {
+const ImageUpload = ({ label, icon: Icon, name, onImageChange, error, tableClass }) => {
   const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null); // Create a reference to the file input
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -15,6 +16,11 @@ const ImageUpload = ({ label, icon: Icon, name, onImageChange, error ,tableClass
   const handleRemoveImage = () => {
     setImagePreview(null); // Remove the preview
     onImageChange(null); // Remove the file in the parent component
+
+    // Reset the file input field
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // This allows selecting the same file again
+    }
   };
 
   return (
@@ -22,7 +28,7 @@ const ImageUpload = ({ label, icon: Icon, name, onImageChange, error ,tableClass
       <label htmlFor={name} className="text-base font-medium text-gray-900">
         {label}
       </label>
-      <div className={`relative block w-full ${tableClass}  mx-auto rounded-lg border border-dashed border-gray-500 py-12 text-center hover:border-gray-400 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden`}>
+      <div className={`relative block w-full ${tableClass} mx-auto rounded-lg border border-dashed border-gray-500 py-12 text-center hover:border-gray-400 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-hidden`}>
         {Icon && (
           <Icon
             fill="none"
@@ -37,6 +43,7 @@ const ImageUpload = ({ label, icon: Icon, name, onImageChange, error ,tableClass
           id={name}
           name={name}
           accept="image/*"
+          ref={fileInputRef} // Attach the ref to the file input
           onChange={handleFileChange}
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
@@ -45,7 +52,7 @@ const ImageUpload = ({ label, icon: Icon, name, onImageChange, error ,tableClass
             <img
               src={imagePreview}
               alt="Uploaded Preview"
-              className="max-h-64 w-full object-cover mx-auto rounded-lg"
+              className="max-h-64 max-w-64 object-cover mx-auto rounded-lg"
             />
             <button
               onClick={handleRemoveImage}
