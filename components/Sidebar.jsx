@@ -68,7 +68,7 @@ const Sidebar = () => {
           Cookies.remove("authToken");
           Cookies.remove("role");
           Cookies.remove("name");
-          router.push("/login");
+          router.push("/");
         } else {
           toast.error(
             `Error: ${data.message || "Unexpected error during logout."}`

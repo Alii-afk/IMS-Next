@@ -36,12 +36,12 @@ const AutoLogin = () => {
       } else {
         // If token verification fails, redirect to login page
         toast.error("Session expired, please log in again.");
-        router.push("/login");
+        router.push("/");
       }
     } catch (error) {
       // Handle errors (e.g., network error, API failure, etc.)
       toast.error("Error authenticating. Please log in again.");
-      router.push("/login");
+      router.push("/");
     }
   };
 
