@@ -14,7 +14,6 @@ import "jspdf-autotable";
 import ViewCard from "../card/ViewCard";
 import { MdPictureAsPdf } from "react-icons/md";
 import FrontOfficePdf from "../models/FrontOfficePdf";
-import FrontOfficePdfModal from "../models/FrontOfficePdf";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
