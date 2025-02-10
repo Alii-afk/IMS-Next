@@ -23,7 +23,7 @@ const LoginForm = ({ onLoginSuccess }) => {
   // Handle Form Submission
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`${apiUrl}api/login`, {
+      const response = await axios.post(`${apiUrl}/api/login`, {
         email: data.email,
         password: data.password,
       });
