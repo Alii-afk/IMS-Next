@@ -16,7 +16,6 @@ import { TbFileDescription } from "react-icons/tb";
 import Cookies from "js-cookie";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axiosInstance from "@/utils/axiosInstance";
 import { MdLibraryAdd, MdOutlineNumbers } from "react-icons/md";
 import axios from "axios";
 
@@ -65,7 +64,7 @@ const StockTable = ({
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
     try {
-      const response = await axiosInstance.get(
+      const response = await axios.get(
         `${apiUrl}/api/stock-products/fetchStockNameData`
       );
 
@@ -112,7 +111,7 @@ const StockTable = ({
       }
 
       // Fetch manufacturers based on stock name
-      const response = await axiosInstance.get(
+      const response = await axios.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
         { params }
       );
@@ -135,7 +134,7 @@ const StockTable = ({
       setAdditionalData(manufacturers);
 
       // Fetch models if a manufacturer is selected
-      const modelsResponse = await axiosInstance.get(
+      const modelsResponse = await axios.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
         { params }
       );
@@ -151,7 +150,7 @@ const StockTable = ({
 
       // If model name is selected, fetch serial number
       if (models.length > 0) {
-        const serialResponse = await axiosInstance.get(
+        const serialResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
           {
             params: {
