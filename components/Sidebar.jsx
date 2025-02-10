@@ -58,7 +58,7 @@ const Sidebar = () => {
       toast.success("Logout successful!");
 
       // Redirect to the home page
-      router.push("http://localhost:3000");
+      router.push("/");
     } catch (error) {
       if (error.response) {
         const { status, data } = error.response;

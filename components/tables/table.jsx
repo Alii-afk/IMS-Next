@@ -205,7 +205,7 @@ const Table = ({
     }
 
     // Assuming your Laravel app is on localhost:8000
-    const fileUrl = `http://localhost:8000${filePath}`;
+    const fileUrl = `${process.env.NEXT_PUBLIC_MAP_KEY}${filePath}`;
     console.log(fileUrl);
 
     // Create an anchor element to trigger the download
@@ -261,9 +261,9 @@ const Table = ({
     const user = request.user;
     const adminUser = data.admin_user;
     const warehouseStocks = request.warehouse_stocks;
-
+    const path = process.env.NEXT_FRONT_MAP_KEY;
     const wallpaper = new Image();
-    wallpaper.src = "http://localhost:3000/images/wallpaper.jpeg"; // Ensure the image is in the correct directory
+    wallpaper.src = `${path}/images/wallpaper.jpeg`; // Ensure the image is in the correct directory
 
     wallpaper.onload = () => {
       // Set opacity (using Graphics State)
@@ -279,7 +279,7 @@ const Table = ({
       doc.rect(0, 0, 210, 15, "F"); // Adjust width for portrait
 
       const img = new Image();
-      img.src = "http://localhost:3000/images/logo.jpg"; // Ensure the image is in the correct directory
+      img.src = `${path}/images/logo.jpg`; // Ensure the image is in the correct directory
 
       // Title text
       doc.setFont("helvetica", "bold");

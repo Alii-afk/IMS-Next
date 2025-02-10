@@ -7,7 +7,7 @@ const ImageUpload = ({ label, icon: Icon, name, onImageChange, error, tableClass
 
   useEffect(() => {
     if (currentImageUrl) {
-      setImagePreview(`http://localhost:8000${currentImageUrl}`); // Set the current image URL for preview
+      setImagePreview(`${process.env.NEXT_PUBLIC_MAP_KEY}${currentImageUrl}`); // Set the current image URL for preview
     }
   }, [currentImageUrl]);
 

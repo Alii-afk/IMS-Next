@@ -293,12 +293,12 @@ const StockSetup = ({
                           </div>
                         ) : column.key === "stock_image_url" ? (
                           <img
-                            src={`http://localhost:8000${row[column.key]}`}
+                            src={`${process.env.NEXT_PUBLIC_MAP_KEY}${row[column.key]}`}
                             alt={row.name || "Stock Image"}
                             className="w-6 h-6 object-cover rounded-md"
                             onClick={() => {
                               setSelectedImage(
-                                `http://localhost:8000${row[column.key]}`
+                                `${process.env.NEXT_PUBLIC_MAP_KEY}${row[column.key]}`
                               );
                               setIsModalOpens(true);
                             }}

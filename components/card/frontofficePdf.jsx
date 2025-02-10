@@ -10,7 +10,7 @@ const FrontOfficeBackOfficePDF = ({ data }) => {
         <div>
           Front Office PDF:
           <a
-            href={`http://localhost:8000${front_office_pdf}`} // Assuming the PDF files are stored in the 'uploads' folder
+            href={`${process.env.NEXT_PUBLIC_MAP_KEY}${front_office_pdf}`} // Assuming the PDF files are stored in the 'uploads' folder
             download
             target="_blank"
             rel="noopener noreferrer"
@@ -26,7 +26,7 @@ const FrontOfficeBackOfficePDF = ({ data }) => {
         <div>
           Back Office PDF:
           <a
-            href={`http://localhost:8000${back_office_pdf}`}
+            href={`${process.env.NEXT_PUBLIC_MAP_KEY}${back_office_pdf}`}
             download
             target="_blank"
             rel="noopener noreferrer"

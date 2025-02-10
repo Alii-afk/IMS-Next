@@ -56,7 +56,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       <div className="bg-white p-8 rounded-lg border-2 shadow-xl w-96 max-w-sm space-y-6">
         <div className="flex justify-center">
           <img
-            src="https://sal-dashboard.demobykiranpal.in/main_logo2.jpg"
+            src="/images/logo.jpg"
             alt="Logo"
             className="w-32 h-auto object-contain"
           />
