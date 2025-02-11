@@ -264,10 +264,8 @@ const Table = ({
     const user = request.user;
     const adminUser = data.admin_user;
     const warehouseStocks = request.warehouse_stocks;
-    const path = process.env.NEXT_FRONT_MAP_KEY;
     const wallpaper = new Image();
-    wallpaper.src = `${path}/images/wallpaper.jpeg`; // Ensure the image is in the correct directory
-
+    wallpaper.src = `/images/wallpaper.jpeg`; // Ensure the image is in the correct directory
     wallpaper.onload = () => {
       // Set opacity (using Graphics State)
       const gState = doc.internal.write("q"); // Save state
@@ -282,7 +280,7 @@ const Table = ({
       doc.rect(0, 0, 210, 15, "F"); // Adjust width for portrait
 
       const img = new Image();
-      img.src = `${path}/images/logo.jpg`; // Ensure the image is in the correct directory
+      img.src = `/images/logo.jpg`; // Ensure the image is in the correct directory
 
       // Title text
       doc.setFont("helvetica", "bold");

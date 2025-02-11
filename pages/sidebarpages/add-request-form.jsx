@@ -137,7 +137,7 @@ const AddRequestForm = () => {
         }, 3000);
         methods.reset();
         setShowModal(false);
-        // router.push("/sidebarpages/request-management"); // Redirect to the desired page
+        router.push("/sidebarpages/request-management"); // Redirect to the desired page
       }
     } catch (error) {
       const errorMessage =
