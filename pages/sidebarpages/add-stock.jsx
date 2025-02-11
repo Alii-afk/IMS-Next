@@ -114,7 +114,7 @@ const Addstock = () => {
 
         setStockOptions(options);
         setStockData(stockData);
-        toast.success("Stock data retrieved successfully.");
+        // toast.success("Stock data retrieved successfully.");
       }
     } catch (error) {
       // Handle errors (401, 404, etc.)
@@ -349,12 +349,13 @@ const Addstock = () => {
       );
 
       toast.success("Stock successfully added!");
-
       methods.reset();
       setSerialInputs([]);
       setSerialOptions([]);
       setSelectedStockName([]);
       setSelectedManufacturer([]);
+      location.reload();
+
     } catch (error) {
       if (
         error.response &&

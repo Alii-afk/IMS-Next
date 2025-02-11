@@ -292,17 +292,22 @@ const StockSetup = ({
                             </div>
                           </div>
                         ) : column.key === "stock_image_url" ? (
-                          <img
-                            src={`${process.env.NEXT_PUBLIC_MAP_KEY}${row[column.key]}`}
-                            alt={row.name || "Stock Image"}
-                            className="w-6 h-6 object-cover rounded-md"
-                            onClick={() => {
-                              setSelectedImage(
-                                `${process.env.NEXT_PUBLIC_MAP_KEY}${row[column.key]}`
-                              );
-                              setIsModalOpens(true);
-                            }}
-                          />
+                          row[column.key] ? (
+                            <img
+                              src={`${process.env.NEXT_PUBLIC_MAP_KEY}${row[column.key]}`}
+                              alt={row.name || "Stock Image"}
+                              className="w-6 h-6 object-cover rounded-md"
+                              onClick={() => {
+                                setSelectedImage(
+                                  `${process.env.NEXT_PUBLIC_MAP_KEY}${row[column.key]}`
+                                );
+                                setIsModalOpens(true);
+                              }}
+                            />
+                          ) : (
+                            <span className="text-gray-800">No-Image</span>
+                          )
+                      
                         ) : (
                           row[column.key]
                         )}
