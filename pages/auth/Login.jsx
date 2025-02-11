@@ -36,7 +36,9 @@ const LoginForm = ({ onLoginSuccess }) => {
         Cookies.set("name", user.name, { expires: 7, path: "/" });
         Cookies.set("email", user.email, { expires: 7, path: "/" });
 
-        toast.success("Logged in successfully. Redirecting...");
+        setTimeout(() => {
+          toast.success("Logged in successfully. Redirecting...");
+                }, 3000); 
         onLoginSuccess();
       } else {
         toast.error("Invalid response structure. Token or role missing.");
