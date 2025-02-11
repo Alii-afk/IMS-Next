@@ -35,8 +35,6 @@ const Table = ({
   const [frontOfficePDFs, setFrontOfficePDF] = useState(false);
   const [viewCard, setViewCard] = useState("");
 
-  console.log(data);
-
   const frontpdfOpen = (row) => {
     setCurrentRowData(row);
     setFrontOfficePDF(true);
@@ -79,7 +77,9 @@ const Table = ({
   const handleDelete = async () => {
     try {
       if (!currentRowData) {
-        toast.error("No item selected for deletion");
+        setTimeout(() => {
+          toast.error("No item selected for deletion");
+        }, 3000);
         return;
       }
 
@@ -99,14 +99,20 @@ const Table = ({
 
       if (response.ok) {
         const result = await response.json();
-        toast.success("Item deleted successfully!");
+        setTimeout(() => {
+          toast.success("Item deleted successfully!");
+        }, 3000);
       } else {
         const errorData = await response.json();
         const errorMessage = errorData?.message || "Failed to delete the item.";
-        toast.error(`Error: ${errorMessage}`);
+        setTimeout(() => {
+          toast.error(`Error: ${errorMessage}`);
+        }, 3000);
       }
     } catch (error) {
-      toast.error("An unexpected error occurred. Please try again.");
+      setTimeout(() => {
+        toast.error("An unexpected error occurred. Please try again.");
+      }, 3000);
     }
 
     closeModal();
@@ -206,7 +212,6 @@ const Table = ({
 
     // Assuming your Laravel app is on localhost:8000
     const fileUrl = `${process.env.NEXT_PUBLIC_MAP_KEY}${filePath}`;
-    console.log(fileUrl);
 
     // Create an anchor element to trigger the download
     const link = document.createElement("a");
@@ -223,7 +228,6 @@ const Table = ({
   };
 
   const downloadExcel = async (id) => {
-    console.log("id", id);
     const doc = new jsPDF({
       orientation: "portrait", // Change orientation to portrait
       unit: "mm",
@@ -250,7 +254,6 @@ const Table = ({
 
         return await response.json();
       } catch (error) {
-        console.error("Error fetching PDF data:", error);
         throw error;
       }
     };
@@ -510,7 +513,7 @@ const Table = ({
         },
         margin: { left: 5, right: 5 },
       });
-      
+
       doc.save(`SPF-ICT-${formattedId}.pdf`);
     };
   };

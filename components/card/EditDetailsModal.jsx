@@ -167,12 +167,14 @@ const EditDetailsModal = ({
         }, 1000); 
       } else {
         const error = await response.json();
-        toast.error(
-          error.message || "Failed to delete stock. Please try again."
-        );
+        setTimeout(() => {
+          toast.error( error.message || "Failed to delete stock. Please try again.");
+        }, 3000); 
       }
     } catch (error) {
-      toast.error("An unexpected error occurred. Please try again.");
+      setTimeout(() => {
+        toast.error("An unexpected error occurred. Please try again.");
+      }, 3000); 
     }
   };
   
@@ -181,7 +183,9 @@ const EditDetailsModal = ({
   const handleSave = async () => {
     try {
       if (isComplete && !allowedRoles.includes(userRole)) {
-        toast.info("Cannot update a completed request.");
+        setTimeout(() => {
+          toast.info("Cannot update a completed request.");
+        }, 3000); 
         return;
       }
 
@@ -305,17 +309,23 @@ const EditDetailsModal = ({
 
         if (response.ok) {
           await response.json();
-          toast.success("Changes saved successfully!");
+          setTimeout(() => {
+            toast.success("Changes saved successfully!");
+          }, 3000); 
           setTimeout(() => {
             setModalOpen(false);
             fetchData();
           }, 1000);
         }
       } else {
-        toast.info("No changes to save.");
+        setTimeout(() => {
+          toast.info("No changes to save.");
+        }, 3000); 
       }
     } catch (error) {
-      toast.error("An unexpected error occurred. Please try again.");
+      setTimeout(() => {
+        toast.error("An unexpected error occurred. Please try again.");
+      }, 3000); 
     }
   };
 

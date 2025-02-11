@@ -10,12 +10,12 @@ const StatusPieChart = () => {
   const [statusData, setStatusData] = useState({});
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState(null);
-  const router = useRouter()
+  const router = useRouter();
 
   const fetchStatusData = async () => {
     const token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-  
+
     try {
       const response = await axios.get(`${apiUrl}/api/requests/ratios`, {
         headers: {
@@ -28,18 +28,25 @@ const StatusPieChart = () => {
       if (axios.isAxiosError(error)) {
         // Generic error messages without specific details
         if (error.response?.status === 401) {
-          toast.error("Authentication failed. Please log in again.");
+          setTimeout(() => {
+            toast.error("Authentication failed. Please log in again.");
+          }, 3000);
           router.push("/");
         } else if (error.response?.status >= 500) {
-          toast.error("Server error. Please try again later.");
+          setTimeout(() => {
+            toast.error("Server error. Please try again later.");
+          }, 3000);
         } else {
-          toast.error("Failed to fetch data. Please check your connection.");
+          setTimeout(() => {
+            toast.error("Failed to fetch data. Please check your connection.");
+          }, 3000);
         }
       } else {
-        toast.error("An unexpected error occurred. Please try again.");
+        setTimeout(() => {
+          toast.error("An unexpected error occurred. Please try again.");
+        }, 3000);
       }
       // Remove or comment out the detailed error logging
-      // console.error("Error fetching status data:", error);
     } finally {
       setLoading(false);
     }

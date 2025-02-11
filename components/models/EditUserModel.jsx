@@ -53,7 +53,9 @@ const EditUserModal = ({ userData, onSave, onClose, fetchUsers }) => {
     const token = Cookies.get("authToken");
 
     if (!token) {
-      toast.error("Authentication token is missing. Please log in again.");
+      setTimeout(() => {
+        toast.error("Authentication token is missing. Please log in again.");
+      }, 3000);
       return;
     }
     try {
@@ -78,12 +80,16 @@ const EditUserModal = ({ userData, onSave, onClose, fetchUsers }) => {
 
       const result = await response.json();
       onSave(result);
-      toast.success("User updated successfully!");
+      setTimeout(() => {
+        toast.success("User updated successfully!");
+      }, 3000);
       setError(null);
       onClose();
       fetchUsers();
     } catch (err) {
-      toast.error(`Error: ${err.message}`);
+      setTimeout(() => {
+        toast.error(`Error: ${err.message}`);
+      }, 3000);
       setError(err.message);
     } finally {
       setLoading(false);

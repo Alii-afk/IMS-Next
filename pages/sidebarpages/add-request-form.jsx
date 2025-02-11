@@ -6,9 +6,7 @@ import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import { GrOrganization } from "react-icons/gr";
 import { CiCalendarDate } from "react-icons/ci";
 import SelectField from "@/components/SelectField";
-import {
-  TypeOptions,
-} from "@/components/dummyData/FormData";
+import { TypeOptions } from "@/components/dummyData/FormData";
 import { FileType } from "lucide-react";
 import { MdNumbers } from "react-icons/md";
 import { TbFileDescription } from "react-icons/tb";
@@ -67,9 +65,7 @@ const AddRequestForm = () => {
         );
         const data = await response.json();
         setStockOptions(data); // Adjust based on the actual structure
-      } catch (error) {
-        console.error("Error fetching stock data:", error);
-      }
+      } catch (error) {}
     };
     fetchStockData();
   }, []);
@@ -84,14 +80,17 @@ const AddRequestForm = () => {
         .map((key) => data[key]);
 
       const duplicates = serialNumbers.filter(
-          (item, index) => serialNumbers.indexOf(item) !== index
-        );
-    
-        if (duplicates.length > 0) {
-          toast.error(`Duplicate serial numbers found: ${duplicates.join(", ")}`);
-          return; 
-        }
+        (item, index) => serialNumbers.indexOf(item) !== index
+      );
 
+      if (duplicates.length > 0) {
+        setTimeout(() => {
+          toast.error(
+            `Duplicate serial numbers found: ${duplicates.join(", ")}`
+          );
+        }, 3000);
+        return;
+      }
 
       // Prepare the request payload as raw JSON
       const requestPayload = {
@@ -133,7 +132,9 @@ const AddRequestForm = () => {
       });
 
       if (response.status === 201) {
-        toast.success("Request submitted successfully");
+        setTimeout(() => {
+          toast.success("Request submitted successfully");
+        }, 3000);
         methods.reset();
         setShowModal(false);
         // router.push("/sidebarpages/request-management"); // Redirect to the desired page
@@ -141,7 +142,9 @@ const AddRequestForm = () => {
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || "An error occurred. Please try again.";
-      toast.error(errorMessage);
+      setTimeout(() => {
+        toast.error(errorMessage);
+      }, 3000);
     } finally {
       setIsSubmitting(false); // Reset the submitting state after the request completes
     }
@@ -149,7 +152,7 @@ const AddRequestForm = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <ToastContainer/>
+      <ToastContainer />
       {/* Sidebar Component */}
       <Sidebar className="min-h-screen fixed bg-white shadow-md hidden md:block" />
 

@@ -39,7 +39,6 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     const apiUrl = `${process.env.NEXT_PUBLIC_MAP_KEY}/api/users`;
     let token = Cookies.get("authToken");
-    console.log(token);
     try {
       const response = await axios.get(apiUrl, {
         headers: {
@@ -50,15 +49,15 @@ const UserManagement = () => {
       });
       setUsers(response.data);
     } catch (error) {
-      console.error("Error fetching users:", error.response?.data || error.message);
-      toast.error("Failed to fetch users.");
+      setTimeout(() => {
+        toast.error("Failed to fetch users.");
+      }, 3000);
     }
   };
-  
+
   useEffect(() => {
     fetchUsers();
   }, []);
-  
 
   const handleAddUser = async (data) => {
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
@@ -72,7 +71,10 @@ const UserManagement = () => {
       });
 
       if (response.status === 201) {
-        toast.success("User registered successfully");
+        setTimeout(() => {
+          toast.success("User registered successfully");
+        }, 3000);
+
         methods.reset();
         setShowModal(false);
         fetchUsers();
@@ -80,7 +82,9 @@ const UserManagement = () => {
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || "Registration failed";
-      toast.error(errorMessage);
+      setTimeout(() => {
+        toast.error(errorMessage);
+      }, 3000);
     } finally {
       setLoading(false); // Stop loader
     }

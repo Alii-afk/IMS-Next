@@ -1,6 +1,4 @@
-import {
-  stockmanagementdata,
-} from "@/components/dummyData/FormData";
+import { stockmanagementdata } from "@/components/dummyData/FormData";
 import Sidebar from "@/components/Sidebar";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -19,8 +17,7 @@ const Stockmanagement = () => {
   const [loading, setLoading] = useState(true);
 
   const [statusData, setStatusData] = useState({});
-  const router = useRouter()
-
+  const router = useRouter();
 
   // Fetch the status data from your API
   const fetchStatusData = async () => {
@@ -37,14 +34,22 @@ const Stockmanagement = () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
-          toast.error("Unauthorized. Please log in again.");
+          setTimeout(() => {
+            toast.error("Unauthorized. Please log in again.");
+          }, 3000);
         } else if (error.response?.status === 404) {
-          toast.error("Requests not found.");
+          setTimeout(() => {
+            toast.error("Requests not found.");
+          }, 3000);
         } else {
-          toast.error("Failed to fetch pending requests.");
+          setTimeout(() => {
+            toast.error("Failed to fetch pending requests.");
+          }, 3000);
         }
       } else {
-        toast.error("An unexpected error occurred.");
+        setTimeout(() => {
+          toast.error("An unexpected error occurred.");
+        }, 3000);
       }
     } finally {
       setLoading(false);
@@ -70,16 +75,25 @@ const Stockmanagement = () => {
       setStockData(response.data);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-                if (error.response?.status === 401) {
-          toast.error("Unauthorized. Please log in again.");
+        if (error.response?.status === 401) {
+          setTimeout(() => {
+            toast.error("Unauthorized. Please log in again.");
+          }, 3000);
+
           router.push("/");
         } else if (error.response?.status === 404) {
-          toast.error("Requests not found.");
+          setTimeout(() => {
+            toast.error("Requests not found.");
+          }, 3000);
         } else {
-          toast.error("Failed to fetch pending requests.");
+          setTimeout(() => {
+            toast.error("Failed to fetch pending requests.");
+          }, 3000);
         }
       } else {
-        toast.error("No data Found");
+        setTimeout(() => {
+          toast.error("No data Found");
+        }, 3000);
       }
     } finally {
       setLoading(false);

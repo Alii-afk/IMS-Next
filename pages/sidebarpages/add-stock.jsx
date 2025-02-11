@@ -28,59 +28,6 @@ const Addstock = () => {
 
   const router = useRouter();
 
-  console.log(stockData);
-
-  // Fetch data from API
-
-  // const fetchStockData = async () => {
-  //   setLoading(true);
-  //   const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
-  //   try {
-  //     const response = await axios.get(
-  //       `${apiUrl}/api/stock-products/fetchStockNameData`,
-  //       {
-  //       headers: {
-  //         Authorization: `Bearer ${Cookies.get("authToken")}`,
-  //       },
-  //     }
-
-  //     );
-
-  //     const stockData = Array.isArray(response.data)
-  //       ? response.data
-  //       : response.data.data;
-
-  //       if (stockData.length === 0) {
-  //         toast.error("No Default Stock Name Found. Setup Stock First.");
-  //         setStockOptions([]); // Clear any previous options if no data found
-  //         setStockData([]); // Reset stock data
-  //       } else {
-  //         const options = stockData.map((stock) => ({
-  //           label: stock.name,
-  //           value: stock.name,
-  //         }));
-  //       }
-  //     setStockOptions(options);
-  //     setStockData(stockData); // Save the full stock data
-  //   } catch (error) {
-  //     // Check if the error is a 404
-  //     if (axios.isAxiosError(error)) {
-  //       if (error.response?.status === 401) {
-  //         toast.error("Unauthorized. Please log in again.");
-  //         router.push("/");
-  //       } else if (error.response?.status === 404) {
-  //         toast.error("Requests not found.");
-  //       } else {
-  //         toast.error("Failed to fetch pending requests.");
-  //       }
-  //     } else {
-  //       toast.error("No Default Stock Name Found. Setup Stock First.");
-  //     }
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const fetchStockData = async () => {
     setLoading(true);
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
@@ -100,10 +47,11 @@ const Addstock = () => {
         ? response.data
         : response.data.data;
 
-      console.log(stockData);
-
       if (stockData.length === 0) {
-        toast.error("No Default Stock Name Found. Setup Stock First.");
+        setTimeout(() => {
+          toast.error("No Default Stock Name Found. Setup Stock First.");
+        }, 3000);
+
         setStockOptions([]);
         setStockData([]);
       } else {
@@ -120,15 +68,23 @@ const Addstock = () => {
       // Handle errors (401, 404, etc.)
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
-          toast.error("Unauthorized. Please log in again.");
+          setTimeout(() => {
+            toast.error("Unauthorized. Please log in again.");
+          }, 3000);
           router.push("/"); // Redirect to login page
         } else if (error.response?.status === 404) {
-          toast.error("Requests not found.");
+          setTimeout(() => {
+            toast.error("Requests not found.");
+          }, 3000);
         } else {
-          toast.error("Failed to fetch pending requests.");
+          setTimeout(() => {
+            toast.error("Failed to fetch pending requests.");
+          }, 3000);
         }
       } else {
-        toast.error("An unexpected error occurred.");
+        setTimeout(() => {
+          toast.error("An unexpected error occurred.");
+        }, 3000);
       }
     } finally {
       setLoading(false);
@@ -182,10 +138,12 @@ const Addstock = () => {
       if (manufacturer) {
         const modelsResponse = await axios.get(
           `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
-          { params: { name: stockName, manufacturer: manufacturer } , headers: {
-            Authorization: `Bearer ${token}`,
-          },},
-         
+          {
+            params: { name: stockName, manufacturer: manufacturer },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         const modelsData = modelsResponse.data.data || [];
@@ -210,8 +168,7 @@ const Addstock = () => {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            },
-           
+            }
           );
           const serialData = serialResponse.data.data || [];
           const serialNumbers = serialData.map((serial) => ({
@@ -228,12 +185,15 @@ const Addstock = () => {
       if (axios.isAxiosError(error)) {
         // Check if the error is a 404
         if (error.response && error.response.status === 404) {
-          toast.error("No stock data found matching the criteria.");
+          setTimeout(() => {
+            toast.error("No stock data found matching the criteria.");
+          }, 3000);
         } else {
-          console.error("Error fetching data:", error);
         }
       } else {
-        toast.error("An unexpected error occurred.");
+        setTimeout(() => {
+          toast.error("An unexpected error occurred.");
+        }, 3000);
       }
     } finally {
       setLoading(false);
@@ -279,9 +239,7 @@ const Addstock = () => {
       );
       const data = await response.json();
       setStockOptions(data);
-    } catch (error) {
-      console.error("Error fetching stock data:", error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -322,7 +280,10 @@ const Addstock = () => {
     );
 
     if (duplicates.length > 0) {
-      toast.error(`Duplicate serial numbers found: ${duplicates.join(", ")}`);
+      setTimeout(() => {
+        toast.error(`Duplicate serial numbers found: ${duplicates.join(", ")}`);
+      }, 3000);
+
       return;
     }
 
@@ -347,15 +308,16 @@ const Addstock = () => {
           },
         }
       );
+      setTimeout(() => {
+        toast.success("Stock successfully added!");
+      }, 3000);
 
-      toast.success("Stock successfully added!");
       methods.reset();
       setSerialInputs([]);
       setSerialOptions([]);
       setSelectedStockName([]);
       setSelectedManufacturer([]);
       location.reload();
-
     } catch (error) {
       if (
         error.response &&
@@ -364,18 +326,21 @@ const Addstock = () => {
           "Some serial numbers already exist in the database."
       ) {
         const existingSerials = error.response.data.existing_serial_no || [];
-        toast.error(
-          `Error: Some serial numbers already exist in the database: ${existingSerials.join(
-            ", "
-          )}`
-        );
+        setTimeout(() => {
+          toast.error(
+            `Error: Some serial numbers already exist in the database: ${existingSerials.join(
+              ", "
+            )}`
+          );
+        }, 3000);
       } else {
         // Generic error handling
-        toast.error("Error submitting stock data.");
+        setTimeout(() => {
+          toast.error("Error submitting stock data.");
+        }, 3000);
       }
 
       // Optionally log the error for debugging purposes
-      console.error("Error details:", error.response?.data || error.message);
     }
   };
 

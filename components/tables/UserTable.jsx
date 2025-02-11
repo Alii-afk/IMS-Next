@@ -56,17 +56,23 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
       );
 
       if (response.ok) {
-        toast.success("User disabled successfully!");
+        setTimeout(() => {
+          toast.success("User disabled successfully!");
+        }, 3000);
         setIsDeleteModalOpen(false);
         fetchUsers();
       } else {
         const errorData = await response.json();
-        toast.error(
-          `Failed to disable user: ${errorData.error || "Unknown error"}`
-        );
+        setTimeout(() => {
+          toast.error(
+            `Failed to disable user: ${errorData.error || "Unknown error"}`
+          );
+        }, 3000);
       }
     } catch (err) {
-      toast.error(`Error: ${err.message}`);
+      setTimeout(() => {
+        toast.error(`Error: ${err.message}`);
+      }, 3000);
     }
   };
 

@@ -38,15 +38,24 @@ const Setting = () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
-          toast.error("Unauthorized. Please log in again.");
+          setTimeout(() => {
+            toast.error("Unauthorized. Please log in again.");
+          }, 3000);
+
           router.push("/");
         } else if (error.response?.status === 404) {
-          toast.error("Requests not found.");
+          setTimeout(() => {
+            toast.error("Requests not found.");
+          }, 3000);
         } else {
-          toast.error("Failed to fetch pending requests.");
+          setTimeout(() => {
+            toast.error("Failed to fetch pending requests.");
+          }, 3000);
         }
       } else {
-        toast.error("An unexpected error occurred.");
+        setTimeout(() => {
+          toast.error("An unexpected error occurred.");
+        }, 3000);
       }
     } finally {
       setLoading(false);
@@ -63,7 +72,10 @@ const Setting = () => {
     let token = Cookies.get("authToken");
 
     if (!token) {
-      toast.error("You are not authorized. Please log in.");
+      setTimeout(() => {
+        toast.error("You are not authorized. Please log in.");
+      }, 3000);
+
       return;
     }
 
@@ -100,7 +112,10 @@ const Setting = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || "Something went wrong");
       }
-      toast.success("Stock added successfully!");
+      setTimeout(() => {
+        toast.success("Stock added successfully!");
+      }, 3000);
+
       setTimeout(() => {
         fetchStockData();
       }, 1000);
@@ -108,7 +123,9 @@ const Setting = () => {
       setImageFile(null);
       setImageKey(Date.now()); // Update key to reset ImageUpload component
     } catch (error) {
-      toast.error(error.message || "Failed to add stock. Please try again.");
+      setTimeout(() => {
+        toast.error(error.message || "Failed to add stock. Please try again.");
+      }, 3000);
     }
   };
 

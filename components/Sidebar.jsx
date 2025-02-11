@@ -55,8 +55,9 @@ const Sidebar = () => {
       Cookies.remove("role");
       Cookies.remove("name");
 
-      toast.success("Logout successful!");
-
+      setTimeout(() => {
+        toast.success("Logout successful!");
+      }, 3000); 
       // Redirect to the home page
       router.push("/");
     } catch (error) {
@@ -64,19 +65,22 @@ const Sidebar = () => {
         const { status, data } = error.response;
 
         if (status === 401) {
-          toast.warn("Session expired. Redirecting to login...");
+          setTimeout(() => {
+            toast.warn("Session expired. Redirecting to login...");
+          }, 3000); 
           Cookies.remove("authToken");
           Cookies.remove("role");
           Cookies.remove("name");
           router.push("/");
         } else {
-          toast.error(
-            `Error: ${data.message || "Unexpected error during logout."}`
-          );
+          setTimeout(() => {
+            toast.error( `Error: ${data.message || "Unexpected error during logout."}`);
+          }, 3000); 
         }
       } else {
-        toast.error("Network error. Please try again.");
-        console.error("Error during logout:", error);
+        setTimeout(() => {
+          toast.error("Network error. Please try again.");
+        }, 3000); 
       }
     }
   };

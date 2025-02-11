@@ -24,22 +24,28 @@ const ProgStockChart = ({ data }) => {
       });
       // Assuming the response structure includes status_counts
       setStatusData(response);
-      console.log(response);
     } catch (error) {
       if (axios.isAxiosError(error)) {
         // Handle known Axios errors
         if (error.response?.status === 401) {
-          toast.error("Unauthorized: Please log in again.");
+          setTimeout(() => {
+            toast.error("Unauthorized: Please log in again.");
+          }, 3000);
           router.push("/");
         } else if (error.response?.status >= 500) {
-          toast.error("Server error. Please try again later.");
+          setTimeout(() => {
+            toast.error("Server error. Please try again later.");
+          }, 3000);
         } else {
-          toast.error("Failed to fetch data. Please check your connection.");
+          setTimeout(() => {
+            toast.error("Failed to fetch data. Please check your connection.");
+          }, 3000);
         }
       } else {
         // Handle unexpected errors
-        toast.error("An unexpected error occurred. Please try again.");
-        console.error("Unexpected Error:", error); // Log for debugging
+        setTimeout(() => {
+          toast.error("An unexpected error occurred. Please try again.");
+        }, 3000);
       }
     } finally {
       setLoading(false);

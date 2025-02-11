@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios"; 
+import axios from "axios";
 import Sidebar from "@/components/Sidebar";
 import { columns } from "@/components/dummyData/FormData";
 import Cookies from "js-cookie";
@@ -18,8 +18,8 @@ const RequestManagement = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1); 
-  const [perPage] = useState(10); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage] = useState(10);
 
   const router = useRouter();
 
@@ -48,12 +48,18 @@ const RequestManagement = () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
-          toast.error("Unauthorized. Please log in again.");
+          setTimeout(() => {
+            toast.error("Unauthorized. Please log in again.");
+          }, 3000);
           router.push("/");
         } else if (error.response?.status === 404) {
-          toast.error("Resource not found.");
+          setTimeout(() => {
+            toast.error("Resource not found.");
+          }, 3000);
         } else {
-          toast.error("An unexpected error occurred.");
+          setTimeout(() => {
+            toast.error("An unexpected error occurred.");
+          }, 3000);
         }
       }
     } finally {

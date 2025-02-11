@@ -21,9 +21,12 @@ const AutoLogin = () => {
   const authenticateUser = async (token) => {
     try {
       // Verify token by making an API request to your authentication endpoint
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/verify-token`, {
-        token,
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/verify-token`,
+        {
+          token,
+        }
+      );
 
       if (response.status === 200 && response.data && response.data.user) {
         // Store user data in cookies if needed
@@ -35,17 +38,21 @@ const AutoLogin = () => {
         router.push("/dashboard");
       } else {
         // If token verification fails, redirect to login page
-        toast.error("Session expired, please log in again.");
+        setTimeout(() => {
+          toast.error("Session expired, please log in again.");
+        }, 3000);
         router.push("/");
       }
     } catch (error) {
       // Handle errors (e.g., network error, API failure, etc.)
-      toast.error("Error authenticating. Please log in again.");
+      setTimeout(() => {
+        toast.error("Error authenticating. Please log in again.");
+      }, 3000);
       router.push("/");
     }
   };
 
-  return null; 
+  return null;
 };
 
 export default AutoLogin;

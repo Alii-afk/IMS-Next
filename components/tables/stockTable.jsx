@@ -36,7 +36,6 @@ const StockTable = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-
   const methods = useForm({
     defaultValues: {
       stockName: currentRowData?.name || "",
@@ -62,16 +61,19 @@ const StockTable = ({
   const fetchStockDatas = async () => {
     setLoading(true);
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
+    const token = Cookies.get("authToken");
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
     try {
       const response = await axios.get(
-        `${apiUrl}/api/stock-products/fetchStockNameData`
+        `${apiUrl}/api/stock-products/fetchStockNameData`,
+        { headers }
       );
 
       const stockData = Array.isArray(response.data)
         ? response.data
         : response.data.data;
-
 
       const options = stockData.map((stock) => ({
         label: stock.name,
@@ -82,14 +84,15 @@ const StockTable = ({
       setStockData(stockData); // Save the full stock data
     } catch (error) {
       if (axios.isAxiosError(error)) {
-      if (error.response && error.response.status === 404) {
-        toast.error("No stock data found matching the criteria.");
+        if (error.response && error.response.status === 404) {
+          setTimeout(() => {
+            toast.error("No stock data found matching the criteria.");
+          }, 3000);
+        } else {
+        }
       } else {
-        console.error("Error fetching stock data:", error);
+        // toast.error("No data found");
       }
-    } else {
-      // toast.error("No data found");
-    }
     } finally {
       setLoading(false);
     }
@@ -101,7 +104,10 @@ const StockTable = ({
 
     try {
       setLoading(true);
-
+      const token = Cookies.get("authToken");
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
       // Build the API request parameters
       let params = { name: stockName };
 
@@ -113,14 +119,16 @@ const StockTable = ({
       // Fetch manufacturers based on stock name
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
-        { params }
+        { params, headers }
       );
 
       const stockData = response.data.data || [];
 
       // Check if stock data is empty
       if (stockData.length === 0) {
-        toast.error("No stock data found matching the criteria.");
+        setTimeout(() => {
+          toast.error("No stock data found matching the criteria.");
+        }, 3000);
         return; // Exit early if no data is found
       }
 
@@ -136,7 +144,7 @@ const StockTable = ({
       // Fetch models if a manufacturer is selected
       const modelsResponse = await axios.get(
         `${process.env.NEXT_PUBLIC_MAP_KEY}/api/stock-products/fetchStockNameData`,
-        { params }
+        { params, headers }
       );
 
       const modelsData = modelsResponse.data.data || [];
@@ -158,6 +166,7 @@ const StockTable = ({
               manufacturer: manufacturer,
               model_name: models[0].value,
             },
+            headers,
           }
         );
 
@@ -173,15 +182,19 @@ const StockTable = ({
     } catch (error) {
       // Handle AxiosError
       if (axios.isAxiosError(error)) {
-                const statusCode = error.response?.status;
+        const statusCode = error.response?.status;
 
         // Custom handling for 404 errors
         if (statusCode === 404) {
-          toast.error("No data found for the selected stock or model.");
+          setTimeout(() => {
+            toast.error("No data found for the selected stock or model.");
+          }, 3000);
         } else {
-          toast.error(
-            "An error occurred while fetching data. Please try again later."
-          );
+          setTimeout(() => {
+            toast.error(
+              "An error occurred while fetching data. Please try again later."
+            );
+          }, 3000);
         }
       } else {
         // toast.error("No data Found");
@@ -195,8 +208,6 @@ const StockTable = ({
     fetchStockDatas();
     handleStockChange();
   }, []);
-
-  
 
   const stockName = useWatch({
     control: methods.control,
@@ -219,9 +230,7 @@ const StockTable = ({
       );
       const data = await response.json();
       setStockOptions(data);
-    } catch (error) {
-      console.error("Error fetching stock data:", error);
-    }
+    } catch (error) {}
   };
   useEffect(() => {
     fetchStatusData();
@@ -247,43 +256,48 @@ const StockTable = ({
   const closeModal = () => setIsModalOpen(false);
 
   const handleDelete = async () => {
-    const deleteToastId = "delete-toast"; 
-  
+    const deleteToastId = "delete-toast";
+
     try {
       if (!currentRowData?.id) {
-        console.error("No ID found for deletion.");
-        toast.error("Failed to delete item!", { toastId: deleteToastId }); // Show error if no valid ID
+        setTimeout(() => {
+          toast.error("Failed to delete item!", { toastId: deleteToastId }); // Show error if no valid ID
+        }, 3000);
         return;
       }
-  
+
       let token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-  
-      const response = await fetch(`${apiUrl}/api/warehouse-stock/${currentRowData.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
+
+      const response = await fetch(
+        `${apiUrl}/api/warehouse-stock/${currentRowData.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (!response.ok) {
         throw new Error("Failed to delete item");
       }
-  
+
       // Show success notification with unique toastId to prevent duplicate
-      toast.success("Item successfully deleted!", { toastId: deleteToastId });
-  
+      setTimeout(() => {
+        toast.success("Item successfully deleted!", { toastId: deleteToastId });
+      }, 3000);
+
       // Fetch stock data and close modal after deletion
       fetchStockData();
       closeModal();
     } catch (error) {
-      console.error(error);
       // Show error notification with unique toastId to prevent duplicate
-      toast.error("Failed to delete item!", { toastId: deleteToastId });
+      setTimeout(() => {
+        toast.error("Failed to delete item!", { toastId: deleteToastId });
+      }, 3000);
     }
   };
-  
-  
 
   const handleEditClick = (rowData) => {
     setCurrentRowData(rowData);
@@ -305,7 +319,6 @@ const StockTable = ({
       stock_id: currentRowData.stock_id,
     };
 
-
     const token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
@@ -326,17 +339,20 @@ const StockTable = ({
             errorData?.message || "An unknown error occurred during the update."
           );
         }
-        return response.json(); 
+        return response.json();
       })
       .then((data) => {
-        toast.success("Data successfully updated!"); 
+        setTimeout(() => {
+          toast.success("Data successfully updated!");
+        }, 3000);
         setModalOpen(false);
-        fetchStockData(); 
+        fetchStockData();
       })
       .catch((error) => {
         // Handle and display error
-        console.error("Error details:", error.message); 
-        toast.error(`Error: ${error.message}`); 
+        setTimeout(() => {
+          toast.error(`Error: ${error.message}`);
+        }, 3000);
       });
   };
 
@@ -351,7 +367,6 @@ const StockTable = ({
 
   return (
     <div className="mt-8 flow-root z-10">
-
       <div className="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle px-4">
           {/* Search Input */}
@@ -388,57 +403,57 @@ const StockTable = ({
                 </tr>
               </thead>
               <tbody>
-              {filteredData.length > 0 ? (
-                filteredData.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-indigo-50 transition-all duration-200 ease-in-out"
-                  >
-                    {columns.map((column) => (
-                      <td
-                      key={column.key}
-                      className={classNames(
-                        "border-b border-gray-200",
-                        "py-4 px-6 text-base font-medium text-gray-800 whitespace-nowrap sm:text-base text-start",
-                        row?.status === "in_house" ? "border-green-500" : 
-                        row?.status === "on_field" ? "border-red-500" : "" // default case if status is neither "in_house" nor "in_field"
-                      )}
+                {filteredData.length > 0 ? (
+                  filteredData.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="hover:bg-indigo-50 transition-all duration-200 ease-in-out"
                     >
-                    
-                        {column.key === "action" ? (
-                          <div className="flex items-center space-x-2 justify-start">
-                            <div
-                              onClick={() => handleEditClick(row)}
-                              className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
-                            >
-                              <FaEdit className="w-5 h-5" />
+                      {columns.map((column) => (
+                        <td
+                          key={column.key}
+                          className={classNames(
+                            "border-b border-gray-200",
+                            "py-4 px-6 text-base font-medium text-gray-800 whitespace-nowrap sm:text-base text-start",
+                            row?.status === "in_house"
+                              ? "border-green-500"
+                              : row?.status === "on_field"
+                              ? "border-red-500"
+                              : "" // default case if status is neither "in_house" nor "in_field"
+                          )}
+                        >
+                          {column.key === "action" ? (
+                            <div className="flex items-center space-x-2 justify-start">
+                              <div
+                                onClick={() => handleEditClick(row)}
+                                className="text-indigo-600 hover:text-indigo-800 cursor-pointer transition-colors duration-300"
+                              >
+                                <FaEdit className="w-5 h-5" />
+                              </div>
+                              <div
+                                onClick={() => {
+                                  setCurrentRowData(row); // Set the row data before opening the modal
+                                  openModal(); // Open the delete confirmation modal
+                                }}
+                                className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
+                              >
+                                <FaTrash className="w-5 h-5" />
+                              </div>
                             </div>
-                            <div
-                              onClick={() => {
-                                setCurrentRowData(row); // Set the row data before opening the modal
-                                openModal(); // Open the delete confirmation modal
-                              }}
-                              className="text-red-600 hover:text-red-800 cursor-pointer transition-colors duration-300"
-                            >
-                              <FaTrash className="w-5 h-5" />
-                            </div>
-                          </div>
-                        ) : (
-                          row[column.key]
-                        )}
-                      </td>
-                    ))}
+                          ) : (
+                            row[column.key]
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="text-center py-4 text-gray-500">
+                      No Warehouse stock data available.
+                    </td>
                   </tr>
-                ))) : (
-                                  <tr>
-                                    <td
-                                      colSpan="5"
-                                      className="text-center py-4 text-gray-500"
-                                    >
-                                      No Warehouse stock data available.
-                                    </td>
-                                  </tr>
-                                )}
+                )}
               </tbody>
             </table>
           </div>

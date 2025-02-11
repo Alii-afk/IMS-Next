@@ -19,7 +19,6 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
 
-
   // Handle Form Submission
   const onSubmit = async (data) => {
     try {
@@ -38,16 +37,20 @@ const LoginForm = ({ onLoginSuccess }) => {
 
         setTimeout(() => {
           toast.success("Logged in successfully. Redirecting...");
-                }, 3000); 
+        }, 3000);
         onLoginSuccess();
       } else {
-        toast.error("Invalid response structure. Token or role missing.");
+        setTimeout(() => {
+          toast.error("Invalid response structure. Token or role missing.");
+        }, 3000);
       }
     } catch (error) {
       if (error.response?.data?.error === "Token has expired") {
         onSubmit(data); // Retry login
       } else {
-        toast.error("Login failed. Please try again.");
+        setTimeout(() => {
+          toast.error("Login failed. Please try again.");
+        }, 3000);
         setLoginError(error.response?.data?.message || "Login failed");
       }
     }

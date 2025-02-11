@@ -57,17 +57,19 @@
 
 // export default axiosInstance;
 
-
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { toast } from 'react-toastify';
+import axios from "axios";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 // Function to refresh the auth token using the refresh token
 export const refreshAuthToken = async () => {
-  const refreshToken = Cookies.get('refreshToken'); // Get refresh token from cookies
-  
+  const refreshToken = Cookies.get("refreshToken"); // Get refresh token from cookies
+
   if (!refreshToken) {
-    toast.error("No refresh token found. Please log in again.");
+    setTimeout(() => {
+      toast.error("No refresh token found. Please log in again.");
+    }, 3000);
+
     return null;
   }
 
@@ -79,21 +81,26 @@ export const refreshAuthToken = async () => {
 
     // If successful, save the new tokens to cookies
     const { auth_token, refresh_token } = response.data; // Assuming the response has the tokens
-    Cookies.set('authToken', auth_token, { expires: 1 }); // Set the new auth token
-    Cookies.set('refreshToken', refresh_token, { expires: 7 }); // Set the new refresh token (optional expiration time)
+    Cookies.set("authToken", auth_token, { expires: 1 }); // Set the new auth token
+    Cookies.set("refreshToken", refresh_token, { expires: 7 }); // Set the new refresh token (optional expiration time)
 
     return auth_token; // Return the new auth token to be used in your request headers
-
   } catch (error) {
     if (axios.isAxiosError(error)) {
       // Handle error cases
       if (error.response?.status === 401) {
-        toast.error('Session expired. Please log in again.');
+        setTimeout(() => {
+          toast.error("Session expired. Please log in again.");
+        }, 3000);
       } else {
-        toast.error('Failed to refresh token. Please try again later.');
+        setTimeout(() => {
+          toast.error("Failed to refresh token. Please try again later.");
+        }, 3000);
       }
     } else {
-      toast.error('An error occurred while refreshing the token.');
+      setTimeout(() => {
+        toast.error("An error occurred while refreshing the token.");
+      }, 3000);
     }
     return null; // Return null in case of failure
   }

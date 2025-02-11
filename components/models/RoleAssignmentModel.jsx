@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Ensure to import the styles
 
-const RoleAssignmentModal = ({ user, onClose, fetchUsers }) => { // Add fetchUsers as a prop to refetch users
+const RoleAssignmentModal = ({ user, onClose, fetchUsers }) => {
+  // Add fetchUsers as a prop to refetch users
   const [selectedRole, setSelectedRole] = useState("");
   const [loading, setLoading] = useState(false); // Track loading state
 
@@ -14,7 +15,9 @@ const RoleAssignmentModal = ({ user, onClose, fetchUsers }) => { // Add fetchUse
 
   const handleAssignRole = async () => {
     if (!selectedRole) {
-      toast.error("Please select a role.");
+      setTimeout(() => {
+        toast.error("Please select a role.");
+      }, 3000);
       return;
     }
 
@@ -24,7 +27,9 @@ const RoleAssignmentModal = ({ user, onClose, fetchUsers }) => { // Add fetchUse
     const token = Cookies.get("authToken"); // Replace 'authToken' with your actual cookie name
 
     if (!token) {
-      toast.error("Authentication token is missing. Please log in again.");
+      setTimeout(() => {
+        toast.error("Authentication token is missing. Please log in again.");
+      }, 3000);
       return;
     }
 
@@ -46,20 +51,19 @@ const RoleAssignmentModal = ({ user, onClose, fetchUsers }) => { // Add fetchUse
       }
 
       const data = await response.json();
-      toast.success(`Role ${data.role} assigned to ${user.name}`); // Success notification
+      setTimeout(() => {
+        toast.success(`Role ${data.role} assigned to ${user.name}`); // Success notification
+      }, 3000);
       onClose(); // Close the modal after success
       fetchUsers();
-   
-
     } catch (error) {
-      toast.error(error.message || "An error occurred. Please try again."); // Display error message
+      setTimeout(() => {
+        toast.error(error.message || "An error occurred. Please try again."); // Display error message
+      }, 3000);
     } finally {
       setLoading(false);
     }
   };
-
-
-  
 
   return (
     <>

@@ -74,9 +74,7 @@ const StockSetup = ({
       );
       const data = await response.json();
       setStockOptions(data);
-    } catch (error) {
-      console.error("Error fetching stock data:", error);
-    }
+    } catch (error) {}
   };
   useEffect(() => {
     fetchStatusData();
@@ -102,7 +100,9 @@ const StockSetup = ({
 
   const handleDelete = () => {
     if (!currentRowData?.id) {
-      toast.error("Failed to delete item!");
+      setTimeout(() => {
+        toast.error("Failed to delete item!");
+      }, 3000);
       return;
     }
 
@@ -122,12 +122,16 @@ const StockSetup = ({
         return response.json();
       })
       .then(() => {
-        toast.success("Item successfully deleted!");
+        setTimeout(() => {
+          toast.success("Item successfully deleted!");
+        }, 3000);
         fetchStockData();
         closeModal();
       })
       .catch((error) => {
-        toast.error(error.message || "Failed to delete item!");
+        setTimeout(() => {
+          toast.error(error.message || "Failed to delete item!");
+        }, 3000);
       });
   };
 
@@ -157,7 +161,9 @@ const StockSetup = ({
     if (imageFile) {
       if (imageFile.size > 2 * 1024 * 1024) {
         // 2MB in bytes
-        toast.error("The selected image exceeds the maximum size of 2MB.");
+        setTimeout(() => {
+          toast.error("The selected image exceeds the maximum size of 2MB.");
+        }, 3000);
         return; // Stop form submission
       }
       formData.append("stock_image", imageFile);
@@ -175,20 +181,27 @@ const StockSetup = ({
 
         if (!response.ok) {
           if (response.status === 422) {
-            toast.error(data.message || "Validation failed.");
+            setTimeout(() => {
+              toast.error(data.message || "Validation failed.");
+            }, 3000);
             return Promise.reject(data);
           }
           if (response.status === 404) {
-            toast.error("Stock Product not found.");
+            setTimeout(() => {
+              toast.error("Stock Product not found.");
+            }, 3000);
             return Promise.reject(data);
           }
           if (response.status === 500) {
-            toast.error("An error occurred while updating.");
+            setTimeout(() => {
+              toast.error("An error occurred while updating.");
+            }, 3000);
             return Promise.reject(data);
           }
         }
-
-        toast.success("Data successfully updated!");
+        setTimeout(() => {
+          toast.success("Data successfully updated!");
+        }, 3000);
         setModalOpen(false);
         fetchStockData();
       })
@@ -197,16 +210,26 @@ const StockSetup = ({
           const { status, data } = error.response;
 
           if (status === 422) {
-            toast.error(data.message || "Validation failed.");
+            setTimeout(() => {
+              toast.error(data.message || "Validation failed.");
+            }, 3000);
           } else if (status === 404) {
-            toast.error("Stock Product not found.");
+            setTimeout(() => {
+              toast.error("Stock Product not found.");
+            }, 3000);
           } else if (status === 500) {
-            toast.error("An error occurred while updating.");
+            setTimeout(() => {
+              toast.error("An error occurred while updating.");
+            }, 3000);
           } else {
-            toast.error("Something went wrong. Please try again.");
+            setTimeout(() => {
+              toast.error("Something went wrong. Please try again.");
+            }, 3000);
           }
         } else {
-          toast.error("Network error or server is unreachable.");
+          setTimeout(() => {
+            toast.error("Network error or server is unreachable.");
+          }, 3000);
         }
       });
   };
@@ -294,12 +317,16 @@ const StockSetup = ({
                         ) : column.key === "stock_image_url" ? (
                           row[column.key] ? (
                             <img
-                              src={`${process.env.NEXT_PUBLIC_MAP_KEY}${row[column.key]}`}
+                              src={`${process.env.NEXT_PUBLIC_MAP_KEY}${
+                                row[column.key]
+                              }`}
                               alt={row.name || "Stock Image"}
                               className="w-6 h-6 object-cover rounded-md"
                               onClick={() => {
                                 setSelectedImage(
-                                  `${process.env.NEXT_PUBLIC_MAP_KEY}${row[column.key]}`
+                                  `${process.env.NEXT_PUBLIC_MAP_KEY}${
+                                    row[column.key]
+                                  }`
                                 );
                                 setIsModalOpens(true);
                               }}
@@ -307,7 +334,6 @@ const StockSetup = ({
                           ) : (
                             <span className="text-gray-800">No-Image</span>
                           )
-                      
                         ) : (
                           row[column.key]
                         )}
@@ -421,8 +447,7 @@ const StockSetup = ({
                     name="stock_image"
                     tableClass="max-w-lg"
                     onImageChange={(file) => setImageFile(file)}
-                    currentImageUrl={methods.getValues("stock_image_url")}  // Pass current image URL if available
-
+                    currentImageUrl={methods.getValues("stock_image_url")} // Pass current image URL if available
                   />
                   <div className="flex gap-4 justify-end">
                     <button

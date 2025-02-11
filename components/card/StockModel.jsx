@@ -78,7 +78,6 @@ const StockModel = ({
       setStockOptions(options);
       setStockData(stockData); // Save the full stock data
     } catch (error) {
-      console.error("Error fetching stock data:", error);
     } finally {
       setLoading(false);
     }
@@ -191,7 +190,6 @@ const StockModel = ({
         });
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
@@ -204,7 +202,6 @@ const StockModel = ({
   // Ensure stockData is always an array
   useEffect(() => {
     if (!Array.isArray(stockData)) {
-      console.error("stockData is not an array:", stockData);
       return;
     }
 
@@ -271,7 +268,9 @@ const StockModel = ({
 
     // Prevent submission if devices array is empty
     if (devices.length === 0) {
-      toast.error("No valid devices to update. Please check your inputs.");
+      setTimeout(() => {
+        toast.error("No valid devices to update. Please check your inputs.");
+      }, 3000); 
       return;
     }
 
@@ -299,18 +298,23 @@ const StockModel = ({
 
       if (response.ok) {
         await response.json();
-        toast.success("Changes saved successfully!"); // Show success toast
+        setTimeout(() => {
+          toast.success("Changes saved successfully!"); // Show success toast
+        }, 3000); 
         setTimeout(() => {
           setModalOpen(false); // Close the modal after a 1 second delay
           fetchData(); // Fetch the updated data
         }, 1000); // 1-second delay before executing the above actions
       } else {
-        toast.error("Failed to update stock. Please try again.");
+        setTimeout(() => {
+          toast.error("Failed to update stock. Please try again.");
+        }, 3000); 
       }
     } catch (error) {
-      console.error("Error submitting data:", error);
       // Show error toast
-      toast.error("Failed to update stock. Please try again.");
+      setTimeout(() => {
+        toast.error("Failed to update stock. Please try again.");
+      }, 3000); 
     }
   };
 
