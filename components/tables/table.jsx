@@ -54,18 +54,18 @@ const Table = ({
 
   const userRole = Cookies.get("role");
 
-  const updatedColumns = columns.map((column) => {
-    if (column.key === "notes") {
-      if (userRole === "admin") {
-        return { ...column, name: "Admin Notes" };
-      } else if (userRole === "backoffice") {
-        return { ...column, name: "Backoffice Notes" };
-      } else if (userRole === "frontoffice") {
-        return { ...column, name: "Front Office Notes" };
-      }
-    }
-    return column;
-  });
+  // const updatedColumns = columns.map((column) => {
+  //   if (column.key === "notes") {
+  //     if (userRole === "admin") {
+  //       return { ...column, name: "Admin Notes" };
+  //     } else if (userRole === "backoffice") {
+  //       return { ...column, name: "Backoffice Notes" };
+  //     } else if (userRole === "frontoffice") {
+  //       return { ...column, name: "Front Office Notes" };
+  //     }
+  //   }
+  //   return column;
+  // });
 
   const label =
     userRole === "admin"
@@ -477,7 +477,7 @@ const Table = ({
           halign: "center",
           fillColor: false,
         },
-         columnStyles: {
+        columnStyles: {
           0: { cellWidth: 37 }, // Column 0 (Title) - set width to 50
           1: { cellWidth: 60 }, // Column 1 (Magaca) - set width to 100
           // Other columns will adjust automatically if not defined
@@ -548,7 +548,7 @@ const Table = ({
               <table className="min-w-full table-auto border-separate border-spacing-0 shadow-xl rounded-lg overflow-hidden bg-white">
                 <thead className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white">
                   <tr className="text-center">
-                    {updatedColumns.map((column) => (
+                    {columns.map((column) => (
                       <th
                         key={column.key}
                         scope="col"
@@ -565,7 +565,7 @@ const Table = ({
                       key={row.id}
                       className="hover:bg-indigo-50 transition-all duration-200 ease-in-out"
                     >
-                      {updatedColumns.map((column) => (
+                      {columns.map((column) => (
                         <td
                           key={column.key}
                           className={classNames(
@@ -774,14 +774,8 @@ const Table = ({
                                 </div>
                               )}
                             </div>
-                          ) : column.key === "notes" ? (
-                            <span>
-                              {userRole === "admin"
-                                ? truncate(row?.admin_notes, 30)
-                                : userRole === "frontoffice"
-                                ? truncate(row?.front_office_notes, 30)
-                                : truncate(row?.back_office_notes, 30)}
-                            </span>
+                          ) : column.key === "id" ? (
+                            <span>SPF-ICT-{row[column.key]}</span>
                           ) : column.key === "date_time" ? (
                             new Date(row[column.key]).toLocaleString("en-GB", {
                               day: "2-digit",

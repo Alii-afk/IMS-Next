@@ -141,7 +141,7 @@ export const columns = [
   { name: "Organization", key: "organization" },
   { name: "Type", key: "type" },
   { name: "Time", key: "date_time" },
-  { name: "Notes", key: "notes" },
+  { name: "REF NO", key: "id" },
   { name: "Status", key: "request_status" },
   { name: "Action", key: "action" },
 ];
