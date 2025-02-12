@@ -477,6 +477,11 @@ const Table = ({
           halign: "center",
           fillColor: false,
         },
+         columnStyles: {
+          0: { cellWidth: 37 }, // Column 0 (Title) - set width to 50
+          1: { cellWidth: 60 }, // Column 1 (Magaca) - set width to 100
+          // Other columns will adjust automatically if not defined
+        },
         margin: { left: 5, right: 5 },
       });
 

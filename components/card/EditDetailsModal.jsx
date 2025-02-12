@@ -140,10 +140,10 @@ const EditDetailsModal = ({
         "Are you sure you want to delete this item?" // Updated message
       );
       if (!confirmed) return;
-  
+
       const token = Cookies.get("authToken");
       const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-  
+
       // Send the DELETE request to the API
       const response = await fetch(
         `${apiUrl}/api/warehouse-stock/deattachStock`,
@@ -156,36 +156,36 @@ const EditDetailsModal = ({
           body: JSON.stringify({ id }),
         }
       );
-  
+
       if (response.ok) {
         const result = await response.json();
-        
+
         fetchData();
         setTimeout(() => {
           toast.success("Stock deleted successfully!");
-          setModalOpen(false); 
-        }, 1000); 
+          setModalOpen(false);
+        }, 1000);
       } else {
         const error = await response.json();
         setTimeout(() => {
-          toast.error( error.message || "Failed to delete stock. Please try again.");
-        }, 3000); 
+          toast.error(
+            error.message || "Failed to delete stock. Please try again."
+          );
+        }, 3000);
       }
     } catch (error) {
       setTimeout(() => {
         toast.error("An unexpected error occurred. Please try again.");
-      }, 3000); 
+      }, 3000);
     }
   };
-  
-  
 
   const handleSave = async () => {
     try {
       if (isComplete && !allowedRoles.includes(userRole)) {
         setTimeout(() => {
           toast.info("Cannot update a completed request.");
-        }, 3000); 
+        }, 3000);
         return;
       }
 
@@ -311,7 +311,7 @@ const EditDetailsModal = ({
           await response.json();
           setTimeout(() => {
             toast.success("Changes saved successfully!");
-          }, 3000); 
+          }, 3000);
           setTimeout(() => {
             setModalOpen(false);
             fetchData();
@@ -320,12 +320,12 @@ const EditDetailsModal = ({
       } else {
         setTimeout(() => {
           toast.info("No changes to save.");
-        }, 3000); 
+        }, 3000);
       }
     } catch (error) {
       setTimeout(() => {
         toast.error("An unexpected error occurred. Please try again.");
-      }, 3000); 
+      }, 3000);
     }
   };
 
@@ -340,7 +340,7 @@ const EditDetailsModal = ({
               Request Details
             </h2>
             <span
-              className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusClasses(
+              className={`px-7 py-2 rounded-full text-lg font-semibold capitalize ${getStatusClasses(
                 currentRowData?.request_status
               )}`}
             >
@@ -448,8 +448,22 @@ const EditDetailsModal = ({
                 {(userRole === "admin" ||
                   userRole === "backoffice" ||
                   userRole === "frontoffice") && (
-                  <div className="bg-white rounded-lg border border-gray-200 shadow-lg px-2 py-3 flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800">
+                  <div
+                    className="bg-white rounded-lg border shadow-lg px-2 py-3 flex-1"
+                    style={{
+                      backgroundColor:
+                        editedStatus === "approved"
+                          ? "#3498db" // Blue for approved
+                          : editedStatus === "rejected"
+                          ? "#e74c3c" // Red for rejected
+                          : editedStatus === "complete"
+                          ? "#2ecc71" // Green for complete
+                          : editedStatus === "pending"
+                          ? "#f39c12" // Orange for pending
+                          : "#2d3748", // Gray-800 for default
+                    }}
+                  >
+                    <h3 className="text-lg font-semibold text-white ">
                       Status
                     </h3>
 
@@ -518,7 +532,6 @@ const EditDetailsModal = ({
                   currentRowData={currentRowData}
                   fetchData={fetchData}
                   setModalOpen={setModalOpen}
-
                 />
               )}
 
@@ -553,7 +566,13 @@ const EditDetailsModal = ({
                     />
                   ) : (
                     <>
-                      <p className="text-base text-gray-700">
+                      <p
+                        className={`text-base ${
+                          currentRowData.front_office_notes
+                            ? "text-indigo-500" // Indigo when notes are available
+                            : "text-gray-800" // Gray-800 when no notes are available
+                        }`}
+                      >
                         {truncateText(
                           currentRowData.front_office_notes ||
                             "No front office notes available"
@@ -604,7 +623,13 @@ const EditDetailsModal = ({
                     />
                   ) : (
                     <>
-                      <p className="text-base text-gray-700">
+                      <p
+                        className={`text-base ${
+                          currentRowData.admin_notes
+                            ? "text-indigo-500" // Indigo when notes are available
+                            : "text-gray-800" // Gray-800 when no notes are available
+                        }`}
+                      >
                         {truncateText(
                           currentRowData.admin_notes ||
                             "No admin notes available"
@@ -655,7 +680,13 @@ const EditDetailsModal = ({
                     />
                   ) : (
                     <>
-                      <p className="text-base text-gray-700">
+                      <p
+                        className={`text-base ${
+                          currentRowData.back_office_notes
+                            ? "text-indigo-500" // Indigo when notes are available
+                            : "text-gray-800" // Gray-800 when no notes are available
+                        }`}
+                      >
                         {truncateText(
                           currentRowData.back_office_notes ||
                             "No back office notes available"
@@ -1046,7 +1077,7 @@ const EditDetailsModal = ({
                 </div>
               ) : (
                 <div className="text-gray-500 text-center py-6">
-                  No warehouse stocks available.
+                  {/* No warehouse stocks available. */}
                 </div>
               )}
             </div>

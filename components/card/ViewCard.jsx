@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import FrontOfficeBackOfficePDF from "./frontofficePdf";
 
 const NotesCard = ({ title, notes, maxLength = 15 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -176,6 +177,10 @@ const ViewCard = ({
                 notes={currentRowData.back_office_notes}
               />
             </div>
+            <FrontOfficeBackOfficePDF
+                data={currentRowData}
+                userRole={userRole}
+              />
             {/* Warehouse Stocks */}
             {currentRowData.type === "new" &&
               currentRowData.warehouse_stocks?.length > 0 && (

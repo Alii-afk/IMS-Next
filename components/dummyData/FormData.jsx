@@ -229,6 +229,7 @@ export const stockNames = [
 
 export const roles = [
   { value: "user", label: "User" },
+  { value: "admin", label: "Admin" },
   { value: "backoffice", label: "Back Office" },
   { value: "frontoffice", label: "Front Office" },
   // { value: "admin", label: "Admin" },

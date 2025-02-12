@@ -139,8 +139,8 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
                 ))}
                 <td className="px-6 py-4">
                   <div className="flex flex-wrap gap-2 justify-start">
-                    {row.role !== "admin" && (
-                      <>
+                    {/* {row.role !== "admin" && (
+                      <> */}
                         <button
                           onClick={() => handleRoleAssignment(row)}
                           className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-200 w-full sm:w-auto"
@@ -161,8 +161,8 @@ const UserTable = ({ columns, data, searchEnabled, fetchUsers }) => {
                             <GrUnlink className="inline-block mr-2" /> Disable
                           </button>
                         )}
-                      </>
-                    )}
+                      {/* </>
+                    )} */}
                   </div>
                 </td>
               </tr>

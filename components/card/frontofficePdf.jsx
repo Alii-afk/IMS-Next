@@ -20,7 +20,6 @@ const FrontOfficeBackOfficePDF = ({ data }) => {
           </a>
         </div>
       )}
-
       {/* Display Back Office PDF if available */}
       {back_office_pdf && (
         <div>
