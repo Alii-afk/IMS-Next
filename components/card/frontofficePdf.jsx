@@ -23,7 +23,7 @@ const FrontOfficeBackOfficePDF = ({ data }) => {
       {/* Display Back Office PDF if available */}
       {back_office_pdf && (
         <div>
-          Back Office PDF:
+          Back Office Signed PDF:
           <a
             href={`${process.env.NEXT_PUBLIC_MAP_KEY}${back_office_pdf}`}
             download

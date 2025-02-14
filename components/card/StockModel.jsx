@@ -538,7 +538,7 @@ const StockModel = ({
                       render={({ field }) => (
                         <InputField
                           {...field}
-                          label="Unit"
+                          label="Unit Id"
                           placeholder={`Enter Unit ${index + 1}`}
                           icon={GrCube}
                           type="text"

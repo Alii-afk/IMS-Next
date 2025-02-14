@@ -866,7 +866,9 @@ const EditDetailsModal = ({
                                 className="flex justify-between items-center"
                               >
                                 <span className="text-base text-gray-500 capitalize">
-                                  {field.replace("_", " ")}:
+                                  {field === "unit"
+                                    ? "Unit Id:"
+                                    : `${field?.replace("_", " ")}:`}{" "}
                                 </span>
                                 <div className="flex items-center gap-2">
                                   {editingProgrammingStock[stock.id]?.[field] &&
@@ -1013,7 +1015,9 @@ const EditDetailsModal = ({
                           (field) => (
                             <div key={field} className="flex justify-between">
                               <span className="text-base text-gray-500 capitalize">
-                                {field?.replace("_", " ")}:
+                                {field === "unit"
+                                  ? "Unit Id:"
+                                  : `${field?.replace("_", " ")}:`}{" "}
                               </span>
                               <div className="flex items-center gap-2">
                                 {editingWarehouseStock[stock.id]?.[field] ? (

@@ -578,14 +578,6 @@ const Table = ({
                               {/* Admin Role */}
                               {userRole === "admin" && (
                                 <>
-                                  {/* {row.request_status === "complete" && (
-                                    <button
-                                      className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
-                                      onClick={() => handleDownload(row)}
-                                    >
-                                      <FaDownload className="w-5 h-5" />
-                                    </button>
-                                  )} */}
                                   {row.request_status === "complete" &&
                                     row.final_pdf && (
                                       <button
@@ -605,7 +597,6 @@ const Table = ({
                                       <FaEdit className="w-5 h-5" />
                                     </button>
                                   )}
-
                                   {row.request_status === "rejected" && (
                                     <>
                                       <button
@@ -653,9 +644,18 @@ const Table = ({
                                         >
                                           <FaEdit className="w-6 h-6 text-green-500" />
                                         </button>
+                                        <button
+                                          className="w-5 h-5 mx-1 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
+                                          onClick={() =>
+                                            handleFinalPdfDownload(
+                                              row.back_office_pdf
+                                            )
+                                          }
+                                        >
+                                          <MdPictureAsPdf className="w-6 h-6 flex items-center text-blue-500" />
+                                        </button>
                                       </div>
                                     )}
-
                                   {row.request_status === "complete" &&
                                     row.final_pdf && (
                                       <button
@@ -667,14 +667,6 @@ const Table = ({
                                         <MdPictureAsPdf className="w-6 h-6 flex items-center text-green-500" />
                                       </button>
                                     )}
-                                  {/* {row.request_status === "complete" && (
-                                    <button
-                                      className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
-                                      onClick={handleDownload}
-                                    >
-                                      <FaDownload className="w-5 h-5" />
-                                    </button>
-                                  )} */}
                                   {row.request_status === "approved" && (
                                     <button
                                       className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
@@ -716,31 +708,44 @@ const Table = ({
                               {/* BackOffice Role */}
                               {userRole === "backoffice" && (
                                 <>
+                                {row.request_status === "complete" &&
+                                row.back_office_pdf && (
+                                  <button
+                                    className="w-5 h-5 mx-1 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
+                                    onClick={() =>
+                                      handleFinalPdfDownload(
+                                        row.back_office_pdf
+                                      )
+                                    }
+                                  >
+                                    <MdPictureAsPdf className="w-6 h-6 flex items-center text-blue-500" />
+                                  </button>
+                                )}
                                   {row.request_status === "complete" && (
                                     <>
-                                      {/* <button
-                                        className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
-                                        onClick={() => openViewCardModal(row)} // Function to open the view modal
-                                      >
-                                        <FaEye className="w-5 h-7" />{" "}
-                                     
-                                      </button> */}
-                                      {!row.final_pdf && ( // Hide Edit button if final_pdf exists
+                                      <div>
                                         <button
-                                          className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
-                                          onClick={() => handleEditClick(row)}
+                                          className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all items-center"
+                                          onClick={() => downloadExcel(row.id)} // Pass row.id directly to downloadExcel
                                         >
-                                          <FaEdit className="w-5 h-5" />
+                                          <MdPictureAsPdf className="w-6 h-8 flex items-center text-red-500" />
                                         </button>
-                                      )}
-                                      {/* <button
-                                        className="w-5 h-5 text-blue-600 hover:text-blue-800 cursor-pointer transition-all"
-                                        onClick={handleDownload}
-                                      >
-                                        <FaDownload className="w-5 h-5" />
-                                      </button> */}
+                                      </div>
                                     </>
                                   )}
+                                  {row.request_status === "complete" &&
+                                    !row.back_office_pdf && (
+                                      <>
+                                        {!row.final_pdf && ( // Hide Edit button if final_pdf exists
+                                          <button
+                                            className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                            onClick={() => handleEditClick(row)}
+                                          >
+                                            <FaEdit className="w-5 h-5" />
+                                          </button>
+                                        )}
+                                      </>
+                                    )}
                                   {row.request_status === "approved" && (
                                     <button
                                       className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
@@ -751,27 +756,15 @@ const Table = ({
                                   )}
                                 </>
                               )}
-
+                              
                               {row.request_status === "complete" && (
-                                <div>
-                                  <button
-                                    className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all items-center"
-                                    onClick={() => downloadExcel(row.id)} // Pass row.id directly to downloadExcel
-                                  >
-                                    <MdPictureAsPdf className="w-6 h-8 flex items-center text-red-500" />
-                                  </button>
-                                </div>
-                              )}
-                              {row.request_status === "complete" && (
-                                <div>
-                                  <button
-                                    className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
-                                    onClick={() => openViewCardModal(row)} // Function to open the view modal
-                                  >
-                                    <FaEye className="w-5 h-7" />{" "}
-                                    {/* View Icon */}
-                                  </button>
-                                </div>
+                                <button
+                                  className="w-5 h-5 text-indigo-600 hover:text-indigo-800 cursor-pointer transition-all"
+                                  onClick={() => openViewCardModal(row)} // Function to open the view modal
+                                >
+                                  <FaEye className="w-5 h-5" />{" "}
+                                  {/* View Icon */}
+                                </button>
                               )}
                             </div>
                           ) : column.key === "id" ? (
