@@ -74,11 +74,11 @@ const Addstock = () => {
           router.push("/"); // Redirect to login page
         } else if (error.response?.status === 404) {
           setTimeout(() => {
-            toast.error("Requests not found.");
+            toast.error("Name Data not found.");
           }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch pending requests.");
+            toast.error("Failed to fetch Name Data.");
           }, 3000);
         }
       } else {

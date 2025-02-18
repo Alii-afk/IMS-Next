@@ -46,7 +46,7 @@ const RejectedRequest = () => {
           }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch pending requests.");
+            toast.error("Failed to fetch rejected requests.");
           }, 3000);
         }
       } else {

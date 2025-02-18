@@ -47,7 +47,7 @@ const AcceptedRequest = () => {
           }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch pending requests.");
+            toast.error("Failed to fetch approved requests.");
           }, 3000);
         }
       } else {

@@ -51,7 +51,7 @@ const Completed = () => {
           }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch pending requests.");
+            toast.error("Failed to fetch completed requests.");
           }, 3000);
         }
       } else {

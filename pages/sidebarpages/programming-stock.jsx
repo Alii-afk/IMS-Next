@@ -49,7 +49,7 @@ const ProgrammingStock = () => {
           }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch pending requests.");
+            toast.error("Failed to fetch requests.");
           }, 3000);
         }
       } else {

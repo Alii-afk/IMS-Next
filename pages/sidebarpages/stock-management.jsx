@@ -39,11 +39,11 @@ const Stockmanagement = () => {
           }, 3000);
         } else if (error.response?.status === 404) {
           setTimeout(() => {
-            toast.error("Requests not found.");
+            toast.error("Ratios not found.");
           }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch pending requests.");
+            toast.error("Failed to fetch Stock Ratios.");
           }, 3000);
         }
       } else {
@@ -87,7 +87,7 @@ const Stockmanagement = () => {
           }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch pending requests.");
+            toast.error("Failed to fetch Stock.");
           }, 3000);
         }
       } else {

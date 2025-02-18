@@ -22,7 +22,7 @@ const RequestManagement = () => {
   const [perPage] = useState(10);
 
   const router = useRouter();
-
+  console.log(requests);
   const fetchData = async (page) => {
     try {
       let token = Cookies.get("authToken");
@@ -86,7 +86,52 @@ const RequestManagement = () => {
             </h1>
           </div>
         </div>
-
+        <div className="px-6 py-8">
+          <div className="flex-1 bg-white shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mb-8">
+              <div className="bg-gradient-to-r from-indigo-100 to-indigo-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
+                <h3 className="text-lg font-semibold text-indigo-900 mb-2 capitalize">
+                  Total Requests
+                </h3>
+                <p className="text-4xl font-bold text-indigo-600">
+                  {requests?.total_requests}
+                </p>
+              </div>
+              <div className="bg-gradient-to-r from-orange-100 to-orange-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
+                <h3 className="text-lg font-semibold text-orange-900 mb-2 capitalize">
+                  Pending
+                </h3>
+                <p className="text-4xl font-bold text-orange-600">
+                  {requests?.status_counts?.pending}
+                </p>
+              </div>
+              <div className="bg-gradient-to-r from-red-100 to-red-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
+                <h3 className="text-lg font-semibold text-red-900 mb-2 capitalize">
+                  Reject
+                </h3>
+                <p className="text-4xl font-bold text-red-600">
+                  {requests?.status_counts?.rejected}
+                </p>
+              </div>
+              <div className="bg-gradient-to-r from-green-100 to-green-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
+                <h3 className="text-lg font-semibold text-green-900 mb-2 capitalize">
+                  Approved
+                </h3>
+                <p className="text-4xl font-bold text-green-600">
+                  {requests?.status_counts?.approved}
+                </p>
+              </div>
+              <div className="bg-gradient-to-r from-blue-100 to-blue-300 rounded-lg p-6 shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer">
+                <h3 className="text-lg font-semibold text-blue-900 mb-2 capitalize">
+                  Completed
+                </h3>
+                <p className="text-4xl font-bold text-blue-600">
+                  {requests?.status_counts?.complete}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
         {/* Page Content */}
         <div className="px-6 py-8 flex flex-col">
           {/* Other Components */}
