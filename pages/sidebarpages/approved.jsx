@@ -24,7 +24,6 @@ const AcceptedRequest = () => {
   const fetchData = async (page) => {
     let token = Cookies.get("authToken");
     const apiUrl = process.env.NEXT_PUBLIC_MAP_KEY;
-
     try {
       const response = await axios.get(`${apiUrl}/api/requests`, {
         params: { request_status: "approved", per_page: perPage, page: page },
@@ -45,9 +44,13 @@ const AcceptedRequest = () => {
           setTimeout(() => {
             toast.error("Requests not found.");
           }, 3000);
+        } else if (!error.response.length) {
+          setTimeout(() => {
+            toast.info("No data in Approved Requests");
+          }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch approved requests.");
+            toast.error("Failed to fetch Approved Requests.");
           }, 3000);
         }
       } else {
@@ -89,7 +92,7 @@ const AcceptedRequest = () => {
                   Approved
                 </h3>
                 <p className="text-4xl font-bold text-green-600">
-                  {InprogressRequests?.total}
+                  {InprogressRequests?.total ?? 0}
                 </p>
               </div>
             </div>

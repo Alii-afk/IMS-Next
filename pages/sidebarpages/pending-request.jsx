@@ -44,9 +44,13 @@ const PendingRequest = () => {
           setTimeout(() => {
             toast.error("Requests not found.");
           }, 3000);
+        } else if (!error.response.length) {
+          setTimeout(() => {
+            toast.info("No data in Pending Requests");
+          }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch pending requests.");
+            toast.error("Failed to fetch Pending Requests.");
           }, 3000);
         }
       } else {
@@ -87,7 +91,7 @@ const PendingRequest = () => {
                   Total Pending
                 </h3>
                 <p className="text-4xl font-bold text-orange-600">
-                  {pendingRequests.total}
+                  {pendingRequests.total ?? 0}
                 </p>
               </div>
             </div>

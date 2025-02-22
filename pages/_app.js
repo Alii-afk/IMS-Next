@@ -20,7 +20,6 @@ export default function App({ Component, pageProps }) {
         draggable
         pauseOnHover
         theme="colored"
-        closeButton={false}  // Disable the close button/icon
       />
     </>
   );

@@ -116,7 +116,11 @@ const StockSetup = ({
       },
     })
       .then((response) => {
-        if (!response.ok) {
+        if (response?.status === 400) {
+          throw new Error(
+            "Cannot delete this Stock Name, It is attached to a Stock."
+          );
+        } else if (!response.ok) {
           throw new Error("Failed to delete item.");
         }
         return response.json();

@@ -44,9 +44,13 @@ const RejectedRequest = () => {
           setTimeout(() => {
             toast.error("Requests not found.");
           }, 3000);
+        } else if (!error.response.length) {
+          setTimeout(() => {
+            toast.info("No data in Rejected Requests");
+          }, 3000);
         } else {
           setTimeout(() => {
-            toast.error("Failed to fetch rejected requests.");
+            toast.error("Failed to fetch Rejected Requests.");
           }, 3000);
         }
       } else {
@@ -88,7 +92,7 @@ const RejectedRequest = () => {
                   Reject
                 </h3>
                 <p className="text-4xl font-bold text-red-600">
-                  {rejectedRequests?.total}
+                {rejectedRequests?.total ?? 0}
                 </p>
               </div>
             </div>

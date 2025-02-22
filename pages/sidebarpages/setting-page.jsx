@@ -47,6 +47,10 @@ const Setting = () => {
           setTimeout(() => {
             toast.error("Products not found.");
           }, 3000);
+        } else if (!error.response.length) {
+          setTimeout(() => {
+            toast.info("No default Stock Names");
+          }, 3000);
         } else {
           setTimeout(() => {
             toast.error("Failed to fetch Products.");
